@@ -1,0 +1,74 @@
+<VSTemplate Version="3.0.0" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" Type="Project">
+  <TemplateData>
+    <Name>SharpXNA (MonoGame Expansion) Windows Project</Name>
+    <Description>A MonoGame game project for the Windows desktop.</Description>
+    <ProjectType>CSharp</ProjectType>
+    <NumberOfParentCategoriesToRollUp>1</NumberOfParentCategoriesToRollUp>
+    <SortOrder>43100</SortOrder>
+    <CreateNewFolder>true</CreateNewFolder>
+    <DefaultName>Game</DefaultName>
+    <ProvideDefaultName>true</ProvideDefaultName>
+    <LocationField>Enabled</LocationField>
+    <EnableLocationBrowseButton>true</EnableLocationBrowseButton>
+    <Icon>__TemplateIcon.png</Icon>
+    <PreviewImage>__PreviewImage.png</PreviewImage>
+  </TemplateData>
+  <TemplateContent>
+    <Project File="SharpXNA.csproj" ReplaceParameters="true">
+      <Folder Name="Properties">
+        <ProjectItem ReplaceParameters="true">AssemblyInfo.cs</ProjectItem>
+      </Folder>
+      <Folder Name="Content">
+        <Folder Name="Fonts">
+          <ProjectItem>calibri 20.xnb</ProjectItem>
+          <ProjectItem>calibri 30.xnb</ProjectItem>
+          <ProjectItem>calibri 50.xnb</ProjectItem>
+          <ProjectItem>Consolas.xnb</ProjectItem>
+        </Folder>
+        <ProjectItem ReplaceParameters="true">Content.mgcb</ProjectItem>
+      </Folder>
+	  <Folder Name="SharpXNA">
+	    <Folder Name="Collision">
+          <ProjectItem>Line.cs</ProjectItem>
+          <ProjectItem>Polygon.cs</ProjectItem>
+	    </Folder>
+	    <Folder Name="Content">
+          <ProjectItem>CustomContentManager.cs</ProjectItem>
+		  <ProjectItem>Fonts.cs</ProjectItem>
+          <ProjectItem>Sound.cs</ProjectItem>
+		  <ProjectItem>Textures.cs</ProjectItem>
+	    </Folder>
+	    <Folder Name="Input">
+          <ProjectItem>Keyboard.cs</ProjectItem>
+          <ProjectItem>Mouse.cs</ProjectItem>
+          <ProjectItem>XboxPad.cs</ProjectItem>
+	    </Folder>
+	    <Folder Name="Network">
+          <ProjectItem>Lidgren.cs</ProjectItem>
+	    </Folder>
+	    <Folder Name="Plugins">
+		  <ProjectItem>Buffer.cs</ProjectItem>
+          <ProjectItem>INI.cs</ProjectItem>
+		  <ProjectItem>Pathfinder.cs</ProjectItem>
+		  <ProjectItem>Performance.cs</ProjectItem>
+          <ProjectItem>String.cs</ProjectItem>
+	    </Folder>
+		<ProjectItem>Animation.cs</ProjectItem>
+		<ProjectItem>Batch.cs</ProjectItem>
+		<ProjectItem>Camera.cs</ProjectItem>
+        <ProjectItem>Globe.cs</ProjectItem>
+        <ProjectItem>Profiler.cs</ProjectItem>
+        <ProjectItem>Screen.cs</ProjectItem>
+        <ProjectItem>Timers.cs</ProjectItem>
+	  </Folder>
+      <ProjectItem>ColorMine.dll</ProjectItem>
+      <ProjectItem>CsVorbis.dll</ProjectItem>
+      <ProjectItem>Icon.ico</ProjectItem>
+      <ProjectItem>Lidgren.Network.dll</ProjectItem>
+      <ProjectItem ReplaceParameters="true" OpenInEditor="true">Multiplayer.cs</ProjectItem>
+      <ProjectItem ReplaceParameters="true" OpenInEditor="true">Player.cs</ProjectItem>
+      <ProjectItem ReplaceParameters="true" OpenInEditor="true">Game.cs</ProjectItem>
+      <ProjectItem ReplaceParameters="true">Program.cs</ProjectItem>
+    </Project>
+  </TemplateContent>
+</VSTemplate>
