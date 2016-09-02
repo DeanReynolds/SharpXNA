@@ -6,20 +6,20 @@ namespace SharpXNA
 {
     public class Pathfinder
     {
-        protected const double sqrt2 = 1.41421356237;
+        protected const float sqrt2 = 1.4142135f;
 
         public Node[,] Nodes;
 
         public int Width { get { return Nodes.GetLength(0); } }
         public int Height { get { return Nodes.GetLength(1); } }
 
-        internal Dictionary<Node, Dictionary<Node, Path>> memoryDictionary;
+        internal Dictionary<Node, Dictionary<Node, Path>> pathsMemory;
 
         public Pathfinder(int width, int height)
         {
             Nodes = new Node[width, height];
             for (int x = 0; x < width; x++) for (int y = 0; y < height; y++) Nodes[x, y] = new Node((ushort)x, (ushort)y);
-            memoryDictionary = new Dictionary<Node, Dictionary<Node, Path>>();
+            pathsMemory = new Dictionary<Node, Dictionary<Node, Path>>();
         }
 
         public bool InBounds(int x, int y) { return !((x < 0) || (y < 0) || (x >= Width) || (y >= Height)); }
@@ -70,7 +70,7 @@ namespace SharpXNA
             else
             {
                 Node source = Nodes[start.X, start.Y], goal = Nodes[end.X, end.Y];
-                if (memorize && memoryDictionary.ContainsKey(source) && memoryDictionary[source].ContainsKey(goal)) return memoryDictionary[source][goal].Clone();
+                if (memorize && pathsMemory.ContainsKey(source) && pathsMemory[source].ContainsKey(goal)) return pathsMemory[source][goal].Clone();
                 HashSet<Node> open = new HashSet<Node>() { Nodes[source.X, source.Y] }, closed = new HashSet<Node>();
                 while (open.Count > 0)
                 {
@@ -100,22 +100,17 @@ namespace SharpXNA
             while (c != source) { path.Insert(0, c); c = c.Parent; }
             if (memorize)
             {
-                if (memoryDictionary.ContainsKey(source)) { if (!memoryDictionary[source].ContainsKey(goal)) memoryDictionary[source].Add(goal, path.Clone()); }
-                else { memoryDictionary.Add(source, new Dictionary<Node, Path>()); memoryDictionary[source].Add(goal, path.Clone()); }
+                if (pathsMemory.ContainsKey(source)) { if (!pathsMemory[source].ContainsKey(goal)) pathsMemory[source].Add(goal, path.Clone()); }
+                else { pathsMemory.Add(source, new Dictionary<Node, Path>()); pathsMemory[source].Add(goal, path.Clone()); }
                 Path reversedPath = path.Clone();
                 reversedPath.Reverse();
                 reversedPath.RemoveAt(0);
                 reversedPath.Add(source);
-                if (memoryDictionary.ContainsKey(goal)) { if (!memoryDictionary[goal].ContainsKey(source)) memoryDictionary[goal].Add(source, reversedPath); }
-                else { memoryDictionary.Add(goal, new Dictionary<Node, Path>()); memoryDictionary[goal].Add(source, reversedPath); }
+                if (pathsMemory.ContainsKey(goal)) { if (!pathsMemory[goal].ContainsKey(source)) pathsMemory[goal].Add(source, reversedPath); }
+                else { pathsMemory.Add(goal, new Dictionary<Node, Path>()); pathsMemory[goal].Add(source, reversedPath); }
             }
             return path;
         }
-
-        public virtual void SetCost(int x, int y, float cost) { if (InBounds(x, y)) Nodes[x, y].Cost = cost; }
-        public virtual void SetWalkable(int x, int y, bool value) { if (InBounds(x, y)) Nodes[x, y].Walkable = value; }
-        public virtual void SetCost(Point point, float cost) { SetCost(point.X, point.Y, cost); }
-        public virtual void SetWalkable(Point point, bool value) { SetWalkable(point.X, point.Y, value); }
 
         public virtual Point? RandomWalkableNode(bool guesstimate = true)
         {
@@ -141,8 +136,8 @@ namespace SharpXNA
             public float Cost;
 
             public Node(ushort x, ushort y, bool walkable = true, float cost = 1) { X = x; Y = y; Walkable = walkable; Cost = cost; }
-
-            public double CostFrom(Node node) { if ((X == node.X) || (Y == node.Y)) return Cost; else return (Cost * sqrt2); }
+            
+            public float CostFrom(Node node) { if ((X == node.X) || (Y == node.Y)) return Cost; else return (Cost * sqrt2); }
         }
 
         public class Path : List<Node>
