@@ -43,8 +43,6 @@ C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\bin\Debug\SharpDX.Direct2D1.dll
 C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\bin\Debug\SharpDX.XInput.dll
 C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\bin\Debug\SharpDX.RawInput.dll
 C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\bin\Debug\SharpDX.Direct3D9.dll
-C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\bin\Debug\ColorMine.pdb
-C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\bin\Debug\CSVorbis.pdb
 C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\bin\Debug\MonoGame.Framework.xml
 C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\bin\Debug\SharpDX.MediaFoundation.xml
 C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\bin\Debug\SharpDX.xml

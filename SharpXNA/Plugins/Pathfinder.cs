@@ -10,6 +10,10 @@ namespace SharpXNA
 
         public Node[,] Nodes;
 
+        protected HashSet<Node> open, closed;
+        public HashSet<Node> Open { get { return open; } }
+        public HashSet<Node> Closed { get { return closed; } }
+
         public int Width { get { return Nodes.GetLength(0); } }
         public int Height { get { return Nodes.GetLength(1); } }
 
@@ -20,6 +24,7 @@ namespace SharpXNA
             Nodes = new Node[width, height];
             for (int x = 0; x < width; x++) for (int y = 0; y < height; y++) Nodes[x, y] = new Node((ushort)x, (ushort)y);
             pathsMemory = new Dictionary<Node, Dictionary<Node, Path>>();
+            open = new HashSet<Node>(); closed = new HashSet<Node>();
         }
 
         public bool InBounds(int x, int y) { return !((x < 0) || (y < 0) || (x >= Width) || (y >= Height)); }
@@ -71,7 +76,7 @@ namespace SharpXNA
             {
                 Node source = Nodes[start.X, start.Y], goal = Nodes[end.X, end.Y];
                 if (memorize && pathsMemory.ContainsKey(source) && pathsMemory[source].ContainsKey(goal)) return pathsMemory[source][goal].Clone();
-                HashSet<Node> open = new HashSet<Node>() { Nodes[source.X, source.Y] }, closed = new HashSet<Node>();
+                open.Clear(); open.Add(Nodes[source.X, source.Y]); closed.Clear();
                 while (open.Count > 0)
                 {
                     var current = open.LowestFScore(source);
