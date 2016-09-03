@@ -72,6 +72,7 @@
     <Compile Include="Input\XboxPad.cs" />
     <Compile Include="Network\Lidgren.cs" />
     <Compile Include="Plugins\Buffer.cs" />
+    <Compile Include="Plugins\D2DMenu.cs" />
     <Compile Include="Plugins\INI.cs" />
     <Compile Include="Plugins\Pathfinder.cs" />
     <Compile Include="Plugins\Performance.cs" />
