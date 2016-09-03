@@ -284,5 +284,70 @@ namespace SharpXNA
             maxX = Max(topRight.X, bottomRight.X, bottomLeft.X, topLeft.X); maxY = Max(topRight.Y, bottomRight.Y, bottomLeft.Y, topLeft.Y);
             return new Rectangle((int)(position.X + minX), (int)(position.Y + minY), (int)Math.Ceiling(maxX - minX), (int)Math.Ceiling(maxY - minY));
         }
+
+        public static void RGBtoHSV(float r, float g, float b, out float h, out float s, out float v)
+        {
+            float min = Min(r, g, b), max = Max(r, g, b), delta = (max - min);
+            v = max;
+            if (max != 0)
+            {
+                s = (delta / max);
+                if (r == max) h = ((g - b) / delta);
+                else if (g == max) h = (2 + (b - r) / delta);
+                else h = (4 + (r - g) / delta);
+                h *= 60;
+                if (h < 0) h += 360;
+            }
+            else { s = 0; h = -1; }
+        }
+        public static void HSVtoRGB(float h, float s, float v, out float r, out float g, out float b)
+        {
+            h = (h - ((int)(h / 360) * 360));
+            int i; float f, p, q, t;
+            if (s == 0) { r = g = b = v; }
+            else
+            {
+                h /= 60;
+                i = (int)h;
+                f = (h - i);
+                p = (v * (1 - s));
+                q = (v * (1 - s * f));
+                t = (v * (1 - s * (1 - f)));
+                if (i == 0) { r = v; g = t; b = p; }
+                else if (i == 1) { r = q; g = v; b = p; }
+                else if (i == 2) { r = p; g = v; b = t; }
+                else if (i == 3) { r = p; g = q; b = v; }
+                else if (i == 4) { r = t; g = p; b = v; }
+                else { r = v; g = p; b = q; }
+            }
+        }
+
+        public static Color ChangeHue(this Color color, float value)
+        {
+            float h, s, v;
+            RGBtoHSV(color.R, color.G, color.B, out h, out s, out v);
+            h = value;
+            float r, g, b;
+            HSVtoRGB(h, s, v, out r, out g, out b);
+            return new Color((byte)r, (byte)g, (byte)b, color.A);
+        }
+        public static Color ChangeSaturation(this Color color, float value)
+        {
+            float h, s, v;
+            RGBtoHSV(color.R, color.G, color.B, out h, out s, out v);
+            s = value;
+            float r, g, b;
+            HSVtoRGB(h, s, v, out r, out g, out b);
+            return new Color((byte)r, (byte)g, (byte)b, color.A);
+        }
+        public static Color ChangeBrightness(this Color color, float value)
+        {
+            float h, s, v;
+            RGBtoHSV(color.R, color.G, color.B, out h, out s, out v);
+            v = value;
+            float r, g, b;
+            HSVtoRGB(h, s, v, out r, out g, out b);
+            return new Color((byte)r, (byte)g, (byte)b, color.A);
+        }
     }
 }
