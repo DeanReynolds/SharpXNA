@@ -57,13 +57,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Animation.cs" />
     <Compile Include="Batch.cs" />
     <Compile Include="Camera.cs" />
     <Compile Include="Collision\Line.cs" />
     <Compile Include="Collision\Polygon.cs" />
-    <Compile Include="Content\CustomContentManager.cs" />
-    <Compile Include="Content\Fonts.cs" />
+    <Compile Include="Content\FontMemoir.cs" />
+    <Compile Include="Content\Font.cs" />
     <Compile Include="Content\Sound.cs" />
     <Compile Include="Content\Textures.cs" />
     <Compile Include="Globe.cs" />
@@ -76,7 +75,9 @@
     <Compile Include="Plugins\INI.cs" />
     <Compile Include="Plugins\Pathfinder.cs" />
     <Compile Include="Plugins\Performance.cs" />
+    <Compile Include="Content\SoundMemoir.cs" />
     <Compile Include="Plugins\String.cs" />
+    <Compile Include="Content\TextureMemoir.cs" />
     <Compile Include="Profiler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Screen.cs" />

@@ -37,8 +37,8 @@ namespace SharpXNA
 
         private const float curRowPad = 25, avgRowPad = 29;
         private const int nameYOff = -9, scoresYOff = -13;
-        public static void Draw(int width) { Draw(Screen.Batch, Fonts.Load("Consolas"), width); }
-        public static void Draw(Batch batch, int width) { Draw(batch, Fonts.Load("Consolas"), width); }
+        public static void Draw(int width) { Draw(Screen.Batch, Font.Load("Consolas"), width); }
+        public static void Draw(Batch batch, int width) { Draw(batch, Font.Load("Consolas"), width); }
         public static void Draw(SpriteFont font, int width) { Draw(Screen.Batch, font, width); }
         public static void Draw(Batch batch, SpriteFont font, int width)
         {

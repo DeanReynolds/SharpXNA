@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ColorMine.ColorSpaces;
 using ColorMine.ColorSpaces.Comparisons;
+using SharpXNA.Plugins;
 
 namespace SharpXNA
 {
@@ -13,15 +14,14 @@ namespace SharpXNA
     {
         public static string RootDirectory;
 
-        public static Texture2D Load(string path, string extension = "png")
-        {
-            if (!Globe.ContentManager.Loaded<Texture2D>(path))
-                try { Globe.ContentManager.Save<Texture2D>(path, Globe.TextureLoader.FromFile(@".\" + Globe.ContentManager.RootDirectory + "\\" + RootDirectory + "\\" + path + "." + extension)); }
-                catch { return null; }
-            return Globe.ContentManager.Load<Texture2D>(path);
-        }
-        public static bool Loaded(string path) { return Globe.ContentManager.Loaded<Texture2D>(path); }
-        public static bool Unload(string path) { return Globe.ContentManager.Unload<Texture2D>(path); }
+        internal static TextureMemoir memoir;
+        static Textures() { memoir = new TextureMemoir(); }
+
+        public static Texture2D Load(string path) { return memoir.Load(path); }
+        public static bool Save(string path, Texture2D asset) { return memoir.Save(path, asset); }
+        public static bool Loaded(string path) { return memoir.Loaded(path); }
+        public static void UnloadAll() { memoir.UnloadAll(); }
+        public static bool Unload(string path) { return memoir.Unload(path); }
 
         public static Color ColorFromName(string name)
         {
@@ -37,7 +37,7 @@ namespace SharpXNA
             for (int i = 0; i < colors.Length; i++) if (colors[i].A != 0) { colors[i].R = color.R; colors[i].G = color.G; colors[i].B = color.B; }
             Texture2D filledTexture = new Texture2D(texture.GraphicsDevice, texture.Width, texture.Height);
             filledTexture.SetData(colors);
-            if (storeName != null) Globe.ContentManager.Save<Texture2D>(storeName, filledTexture);
+            if (storeName != null) Save(storeName, filledTexture);
             return filledTexture;
         }
         public static Texture2D BrightenTexture(this Texture2D texture, float amount, string storeName = null)
@@ -53,7 +53,7 @@ namespace SharpXNA
                 }
             Texture2D filledTexture = new Texture2D(texture.GraphicsDevice, texture.Width, texture.Height);
             filledTexture.SetData<Color>(colors);
-            if (storeName != null) Globe.ContentManager.Save<Texture2D>(storeName, filledTexture);
+            if (storeName != null) Save(storeName, filledTexture);
             return filledTexture;
         }
         public static Texture2D ReplaceColorWithoutAlpha(this Texture2D texture, Color source, Color destination, string storeName = null)
@@ -66,7 +66,7 @@ namespace SharpXNA
                 { colors[i].R = destination.R; colors[i].G = destination.G; colors[i].B = destination.B; }
             Texture2D filledTexture = new Texture2D(texture.GraphicsDevice, texture.Width, texture.Height);
             filledTexture.SetData(colors);
-            if (storeName != null) Globe.ContentManager.Save<Texture2D>(storeName, filledTexture);
+            if (storeName != null) Save(storeName, filledTexture);
             return filledTexture;
         }
         public static Texture2D ReplaceColorWithAlpha(this Texture2D texture, Color source, Color destination, string storeName = null)
@@ -79,7 +79,7 @@ namespace SharpXNA
                 { colors[i].R = destination.R; colors[i].G = destination.G; colors[i].B = destination.B; colors[i].A = destination.A; }
             Texture2D filledTexture = new Texture2D(texture.GraphicsDevice, texture.Width, texture.Height);
             filledTexture.SetData<Color>(colors);
-            if (storeName != null) Globe.ContentManager.Save<Texture2D>(storeName, filledTexture);
+            if (storeName != null) Save(storeName, filledTexture);
             return filledTexture;
         }
         public static Texture2D RemoveColorsWithoutAlpha(this Texture2D texture, string storeName = null, params Color[] colors)
@@ -93,7 +93,7 @@ namespace SharpXNA
                     { texColors[i].R = 0; texColors[i].G = 0; texColors[i].B = 0; texColors[i].A = 0; }
             Texture2D filledTexture = new Texture2D(texture.GraphicsDevice, texture.Width, texture.Height);
             filledTexture.SetData<Color>(texColors);
-            if (storeName != null) Globe.ContentManager.Save<Texture2D>(storeName, filledTexture);
+            if (storeName != null) Save(storeName, filledTexture);
             return filledTexture;
         }
         public static Texture2D RemoveColorsWithAlpha(this Texture2D texture, string storeName = null, params Color[] colors)
@@ -107,7 +107,7 @@ namespace SharpXNA
                     { texColors[i].R = 0; texColors[i].G = 0; texColors[i].B = 0; texColors[i].A = 0; }
             Texture2D filledTexture = new Texture2D(texture.GraphicsDevice, texture.Width, texture.Height);
             filledTexture.SetData<Color>(texColors);
-            if (storeName != null) Globe.ContentManager.Save<Texture2D>(storeName, filledTexture);
+            if (storeName != null) Save(storeName, filledTexture);
             return filledTexture;
         }
         public static Texture2D RemoveColorsWithoutAlpha(this Texture2D texture, Color color, double tolerance, string storeName = null)
@@ -124,7 +124,7 @@ namespace SharpXNA
             }
             Texture2D filledTexture = new Texture2D(texture.GraphicsDevice, texture.Width, texture.Height);
             filledTexture.SetData<Color>(texColors);
-            if (storeName != null) Globe.ContentManager.Save<Texture2D>(storeName, filledTexture);
+            if (storeName != null) Save(storeName, filledTexture);
             return filledTexture;
         }
         public static Texture2D RemoveColorsWithAlpha(this Texture2D texture, Color color, byte tolerance, string storeName = null)
@@ -141,7 +141,7 @@ namespace SharpXNA
             }
             Texture2D filledTexture = new Texture2D(texture.GraphicsDevice, texture.Width, texture.Height);
             filledTexture.SetData<Color>(texColors);
-            if (storeName != null) Globe.ContentManager.Save<Texture2D>(storeName, filledTexture);
+            if (storeName != null) Save(storeName, filledTexture);
             return filledTexture;
         }
         public static Texture2D ToWireframe(this Texture2D texture, Color color, string storeName = null)
@@ -163,7 +163,7 @@ namespace SharpXNA
             }
             Texture2D filledTexture = new Texture2D(texture.GraphicsDevice, texture.Width, texture.Height);
             filledTexture.SetData<Color>(newColors);
-            if (storeName != null) Globe.ContentManager.Save<Texture2D>(storeName, filledTexture);
+            if (storeName != null) Save(storeName, filledTexture);
             return filledTexture;
         }
         public static Color GetPixel(this Color[] colors, Texture2D texture, int x, int y) { int index = (x + (y * texture.Width)); return colors[index]; }
@@ -181,7 +181,7 @@ namespace SharpXNA
                     if (directoryName != null)
                     {
                         var name = ((directoryName.Length == mainPath.Length) ? Path.GetFileNameWithoutExtension(file) : Path.Combine(directoryName.Remove(0, mainPath.Length + 1), Path.GetFileNameWithoutExtension(file))).Replace("\\", "/");
-                        Globe.ContentManager.Save<Texture2D>(name, Globe.TextureLoader.FromFile(file));
+                        Save(name, Globe.TextureLoader.FromFile(file));
                     }
                 }
             }
@@ -205,7 +205,7 @@ namespace SharpXNA
             if (store && Loaded(name)) return Textures.Load(name);
             var pixel = new Texture2D(Globe.GraphicsDevice, 1, 1);
             pixel.SetData(new[] { color });
-            if (store) Globe.ContentManager.Save<Texture2D>(name, pixel);
+            if (store) Save(name, pixel);
             else AutoDispose(pixel);
             return pixel;
         }

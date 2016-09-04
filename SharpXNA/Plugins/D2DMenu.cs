@@ -111,12 +111,14 @@ namespace SharpXNA.Plugins
         public void AddOption(string group, string item, string name, string title, Color color) { Group.Item i = ((Groups[group] as Group).Items[item] as Group.Item); i.Options.Add(name, new Group.Item.Option(title, color)); if (i.optionSelected == -1) i.optionSelected = 0; }
         public void ClearGroups() { groups.Clear(); }
 
+        public void SelectOption(string group, string item, string option) { Group.Item i = ((Groups[group] as Group).Items[item] as Group.Item); if (i.Options.Contains(option)) for (int j = 0; j < i.Options.Count; j++) if ((i.Options.KeyFromIndex(j) as string) == option) { i.optionSelected = j; } }
         public string OptionSelected(string group, string item) { Group.Item i = ((Groups[group] as Group).Items[item] as Group.Item); if (i.OptionSelected != null) return i.OptionSelected.Name; else return null; }
+        public Color? OptionSelectedColor(string group, string item) { Group.Item i = ((Groups[group] as Group).Items[item] as Group.Item); if (i.OptionSelected != null) return i.OptionSelected.Color; else return null; }
 
         public const float itemYSpace = 12.5f;
-        public void Draw(Vector2 position, int width) { Draw(Screen.Batch, position, width, Fonts.Load("Consolas")); }
+        public void Draw(Vector2 position, int width) { Draw(Screen.Batch, position, width, Font.Load("Consolas")); }
         public void Draw(Vector2 position, int width, SpriteFont font) { Draw(Screen.Batch, position, width, font); }
-        public void Draw(Batch batch, Vector2 position, int width) { Draw(batch, position, width, Fonts.Load("Consolas")); }
+        public void Draw(Batch batch, Vector2 position, int width) { Draw(batch, position, width, Font.Load("Consolas")); }
         public void Draw(Batch batch, Vector2 position, int width, SpriteFont font)
         {
             float height = ((((prefixes.Count + suffixes.Count) * itemYSpace) + 9) + ((Groups.Count + visibleItems) * itemYSpace)); int j = 0;

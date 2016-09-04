@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework.Audio;
 using System.IO;
 using OggSharp;
-using Microsoft.Xna.Framework;
 using System.Linq;
+using SharpXNA.Plugins;
 
 namespace SharpXNA
 {
@@ -12,23 +12,15 @@ namespace SharpXNA
     {
         public static string RootDirectory;
 
-        public static SoundEffect Load(string path)
-        {
-            if (!Globe.ContentManager.Loaded<SoundEffect>(path))
-                try { Globe.ContentManager.Save<SoundEffect>(path, Globe.ContentManager.Load<SoundEffect>(RootDirectory + "\\" + path)); }
-                catch { return null; }
-            return Globe.ContentManager.Load<SoundEffect>(path);
-        }
-        public static SoundEffect LoadRaw(string path, string extension = "wav")
-        {
-            string path1 = (path + "." + extension);
-            if (!Globe.ContentManager.Loaded<SoundEffect>(path1))
-                try { FileStream fs = new FileStream((@".\" + Globe.ContentManager.RootDirectory + "\\" + RootDirectory + "\\" + path1), FileMode.Open); Globe.ContentManager.Save<SoundEffect>(path1, SoundEffect.FromStream(fs)); fs.Close(); return Globe.ContentManager.Load<SoundEffect>(path1); }
-                catch { return null; }
-            else return Globe.ContentManager.Load<SoundEffect>(path1);
-        }
-        public static bool Loaded(string path) { return Globe.ContentManager.Loaded<SoundEffect>(path); }
-        public static bool Unload(string path) { return Globe.ContentManager.Unload<SoundEffect>(path); }
+        internal static SoundMemoir memoir;
+        static Sound() { memoir = new SoundMemoir(); }
+
+        public static SoundEffect Load(string path) { return memoir.Load(path); }
+        public static SoundEffect LoadRaw(string path) { return memoir.LoadRaw(path); }
+        public static bool Save(string path, SoundEffect asset) { return memoir.Save(path, asset); }
+        public static bool Loaded(string path) { return memoir.Loaded(path); }
+        public static void UnloadAll() { memoir.UnloadAll(); }
+        public static bool Unload(string path) { return memoir.Unload(path); }
 
         public static SoundEffectInstance[] Channels;
         private static readonly Dictionary<string, SoundEffect> Library = new Dictionary<string, SoundEffect>();
