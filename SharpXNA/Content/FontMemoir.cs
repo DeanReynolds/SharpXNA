@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 
-namespace SharpXNA.Plugins
+namespace SharpXNA.Content
 {
     public class FontMemoir
     {

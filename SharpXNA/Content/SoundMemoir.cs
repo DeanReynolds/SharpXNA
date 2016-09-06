@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace SharpXNA.Plugins
+namespace SharpXNA.Content
 {
     public class SoundMemoir
     {
@@ -15,9 +15,8 @@ namespace SharpXNA.Plugins
         {
             if (!assets.ContainsKey(path))
             {
-                FileStream fs = new FileStream((@".\" + Globe.ContentManager.RootDirectory + "\\" + Sound.RootDirectory + "\\" + path), FileMode.Open);
-                assets.Add(path, SoundEffect.FromStream(fs));
-                fs.Close();
+                using (FileStream fs = new FileStream((@".\" + Globe.ContentManager.RootDirectory + "\\" + Sound.RootDirectory + "\\" + path), FileMode.Open))
+                    assets.Add(path, SoundEffect.FromStream(fs));
             }
             return assets[path];
         }

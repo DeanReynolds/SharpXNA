@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ColorMine.ColorSpaces;
 using ColorMine.ColorSpaces.Comparisons;
-using SharpXNA.Plugins;
+using SharpXNA.Content;
 
 namespace SharpXNA
 {
@@ -18,6 +18,7 @@ namespace SharpXNA
         static Textures() { memoir = new TextureMemoir(); }
 
         public static Texture2D Load(string path) { return memoir.Load(path); }
+        public static void LoadAll(string path) { memoir.LoadAll(path); }
         public static bool Save(string path, Texture2D asset) { return memoir.Save(path, asset); }
         public static bool Loaded(string path) { return memoir.Loaded(path); }
         public static void UnloadAll() { memoir.UnloadAll(); }
@@ -167,34 +168,7 @@ namespace SharpXNA
             return filledTexture;
         }
         public static Color GetPixel(this Color[] colors, Texture2D texture, int x, int y) { int index = (x + (y * texture.Width)); return colors[index]; }
-
-        public static void LoadTextures(string path)
-        {
-            if (path.StartsWith(".")) path = (Path.GetDirectoryName(Globe.Assembly.Location) + path.Substring(1));
-            string mainPath = (Path.GetDirectoryName(Globe.Assembly.Location) + "\\" + Globe.ContentManager.RootDirectory + "\\" + RootDirectory);
-            if (Directory.Exists(path))
-            {
-                var files = DirSearch(path, ".png", ".jpeg", ".jpg", ".dds");
-                foreach (var file in files)
-                {
-                    var directoryName = Path.GetDirectoryName(file);
-                    if (directoryName != null)
-                    {
-                        var name = ((directoryName.Length == mainPath.Length) ? Path.GetFileNameWithoutExtension(file) : Path.Combine(directoryName.Remove(0, mainPath.Length + 1), Path.GetFileNameWithoutExtension(file))).Replace("\\", "/");
-                        Save(name, Globe.TextureLoader.FromFile(file));
-                    }
-                }
-            }
-            else System.Console.WriteLine($"Directory {path} does not exist.");
-        }
-        private static IEnumerable<string> DirSearch(string directory, params string[] extensions)
-        {
-            var dir = new DirectoryInfo(directory);
-            var files = dir.GetFiles().Where(f => extensions.Contains(f.Extension)).Select(f => f.FullName).ToList();
-            foreach (var d in dir.GetDirectories()) files.AddRange(DirSearch(d.FullName, extensions));
-            return files;
-        }
-
+        
         private static List<Texture2D> disposeList;
         public static void AutoDispose(Texture2D Texture) { if (disposeList == null) disposeList = new List<Texture2D>(); disposeList.Add(Texture); }
         public static void ApplyDispose() { if (disposeList != null) { for (int i = 0; i < disposeList.Count; i++) { disposeList[i].Dispose(); disposeList.RemoveAt(i); i--; } if (disposeList.Count <= 0) disposeList = null; } }
@@ -256,64 +230,64 @@ namespace SharpXNA
         }
     }
 
-    public class TextureLoader : IDisposable
-    {
-        static TextureLoader()
-        {
-            blendColorBlendState = new BlendState
-            {
-                ColorDestinationBlend = Blend.Zero,
-                ColorWriteChannels = ColorWriteChannels.Red | ColorWriteChannels.Green | ColorWriteChannels.Blue,
-                AlphaDestinationBlend = Blend.Zero,
-                AlphaSourceBlend = Blend.SourceAlpha,
-                ColorSourceBlend = Blend.SourceAlpha
-            };
-            blendAlphaBlendState = new BlendState
-            {
-                ColorWriteChannels = ColorWriteChannels.Alpha,
-                AlphaDestinationBlend = Blend.Zero,
-                ColorDestinationBlend = Blend.Zero,
-                AlphaSourceBlend = Blend.One,
-                ColorSourceBlend = Blend.One
-            };
-        }
+//    public class TextureLoader : IDisposable
+//    {
+//        static TextureLoader()
+//        {
+//            blendColorBlendState = new BlendState
+//            {
+//                ColorDestinationBlend = Blend.Zero,
+//                ColorWriteChannels = ColorWriteChannels.Red | ColorWriteChannels.Green | ColorWriteChannels.Blue,
+//                AlphaDestinationBlend = Blend.Zero,
+//                AlphaSourceBlend = Blend.SourceAlpha,
+//                ColorSourceBlend = Blend.SourceAlpha
+//            };
+//            blendAlphaBlendState = new BlendState
+//            {
+//                ColorWriteChannels = ColorWriteChannels.Alpha,
+//                AlphaDestinationBlend = Blend.Zero,
+//                ColorDestinationBlend = Blend.Zero,
+//                AlphaSourceBlend = Blend.One,
+//                ColorSourceBlend = Blend.One
+//            };
+//        }
 
-        public TextureLoader(GraphicsDevice graphicsDevice) { this.graphicsDevice = graphicsDevice; spriteBatch = new SpriteBatch(graphicsDevice); }
-        public Texture2D FromFile(string path, bool preMultiplyAlpha = true) { using (Stream fileStream = File.OpenRead(path)) return FromStream(fileStream, preMultiplyAlpha); }
+//        public TextureLoader(GraphicsDevice graphicsDevice) { this.graphicsDevice = graphicsDevice; spriteBatch = new SpriteBatch(graphicsDevice); }
+//        public Texture2D FromFile(string path, bool preMultiplyAlpha = true) { using (Stream fs = File.OpenRead(path)) return FromStream(stream, preMultiplyAlpha); }
 
-        public Texture2D FromStream(Stream stream, bool preMultiplyAlpha = true)
-        {
-            var texture = Texture2D.FromStream(graphicsDevice, stream);
-            if (preMultiplyAlpha)
-            {
-                using (var renderTarget = new RenderTarget2D(graphicsDevice, texture.Width, texture.Height))
-                {
-                    var viewportBackup = graphicsDevice.Viewport;
-                    graphicsDevice.SetRenderTarget(renderTarget);
-                    graphicsDevice.Clear(Color.Black);
-                    spriteBatch.Begin(SpriteSortMode.Immediate, blendColorBlendState);
-                    spriteBatch.Draw(texture, texture.Bounds, Color.White);
-                    spriteBatch.End();
-                    spriteBatch.Begin(SpriteSortMode.Immediate, blendAlphaBlendState);
-                    spriteBatch.Draw(texture, texture.Bounds, Color.White);
-                    spriteBatch.End();
-                    graphicsDevice.SetRenderTarget(null);
-                    graphicsDevice.Viewport = viewportBackup;
-                    var data = new Color[texture.Width * texture.Height];
-                    renderTarget.GetData(data);
-                    graphicsDevice.Textures[0] = null;
-                    texture.SetData(data);
-                }
-            }
-            return texture;
-        }
+//        public Texture2D FromStream(Stream stream, bool preMultiplyAlpha = true)
+//        {
+//            var texture = Texture2D.FromStream(graphicsDevice, stream);
+//            if (preMultiplyAlpha)
+//            {
+//                using (var renderTarget = new RenderTarget2D(graphicsDevice, texture.Width, texture.Height))
+//                {
+//                    var viewportBackup = graphicsDevice.Viewport;
+//                    graphicsDevice.SetRenderTarget(renderTarget);
+//                    graphicsDevice.Clear(Color.Black);
+//                    spriteBatch.Begin(SpriteSortMode.Immediate, blendColorBlendState);
+//                    spriteBatch.Draw(texture, texture.Bounds, Color.White);
+//                    spriteBatch.End();
+//                    spriteBatch.Begin(SpriteSortMode.Immediate, blendAlphaBlendState);
+//                    spriteBatch.Draw(texture, texture.Bounds, Color.White);
+//                    spriteBatch.End();
+//                    graphicsDevice.SetRenderTarget(null);
+//                    graphicsDevice.Viewport = viewportBackup;
+//                    var data = new Color[texture.Width * texture.Height];
+//                    renderTarget.GetData(data);
+//                    graphicsDevice.Textures[0] = null;
+//                    texture.SetData(data);
+//                }
+//            }
+//            return texture;
+//        }
 
-        private static readonly BlendState blendColorBlendState;
-        private static readonly BlendState blendAlphaBlendState;
+//        private static readonly BlendState blendColorBlendState;
+//        private static readonly BlendState blendAlphaBlendState;
 
-        private readonly GraphicsDevice graphicsDevice;
-        private readonly SpriteBatch spriteBatch;
+//        private readonly GraphicsDevice graphicsDevice;
+//        private readonly SpriteBatch spriteBatch;
 
-        public void Dispose() { spriteBatch.Dispose(); }
-    }
+//        public void Dispose() { spriteBatch.Dispose(); }
+//    }
 }

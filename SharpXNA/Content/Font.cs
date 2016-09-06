@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
-using SharpXNA.Plugins;
+using SharpXNA.Content;
 
 namespace SharpXNA
 {

@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Audio;
 using System.IO;
 using OggSharp;
 using System.Linq;
-using SharpXNA.Plugins;
+using SharpXNA.Content;
 
 namespace SharpXNA
 {

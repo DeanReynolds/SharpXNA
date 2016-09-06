@@ -25,7 +25,7 @@ namespace SharpXNA
         public static Form Form { get { return Get<Form>(); } set { Add(value); } }
         public static Viewport Viewport { get { return Get<Viewport>(); } set { Add(value); } }
         public static GameWindow GameWindow { get { return Get<GameWindow>(); } set { Add(value); } }
-        public static TextureLoader TextureLoader { get { return Get<TextureLoader>(); } set { Add(value); } }
+        //public static TextureLoader TextureLoader { get { return Get<TextureLoader>(); } set { Add(value); } }
         public static ContentManager ContentManager { get { return Get<ContentManager>(); } set { Add(value); } }
         public static GraphicsDevice GraphicsDevice { get { return Get<GraphicsDevice>(); } set { Add(value); } }
         public static GraphicsAdapter GraphicsAdapter { get { return Get<GraphicsAdapter>(); } set { Add(value); } }
