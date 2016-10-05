@@ -5,7 +5,7 @@ namespace SharpXNA
 {
     public static class Timers
     {
-        private static Dictionary<string, Timer> array;
+        private static readonly Dictionary<string, Timer> array;
 
         static Timers() { array = new Dictionary<string, Timer>(); }
 
@@ -15,22 +15,21 @@ namespace SharpXNA
 
         public static void Update(GameTime time)
         {
-            foreach (var timer in array.Values)
+            foreach (var key in array.Keys)
             {
-                if (timer.Time >= timer.Interval) timer.Time -= timer.Interval;
-                timer.Time += time.ElapsedGameTime.TotalSeconds;
+                if (array[key].Time >= array[key].Interval) { array[key].Time -= array[key].Interval; array[key].Ticks++; }
+                array[key].Time += time.ElapsedGameTime.TotalSeconds;
             }
         }
 
-        public static bool Tick(string name) { return (array.ContainsKey(name) && array[name].Tick); }
+        public static bool Tick(string name) { if (array.ContainsKey(name) && (array[name].Ticks > 0)) { array[name].Ticks--; return true; } return false; }
 
         public class Timer
         {
-            public bool Tick { get { return (Time >= Interval); } }
-
+            public uint Ticks;
             public double Interval, Time;
 
-            public Timer(double interval) { this.Interval = interval; }
+            public Timer(double interval) { Interval = interval; }
         }
     }
 }

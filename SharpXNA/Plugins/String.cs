@@ -10,14 +10,13 @@ namespace SharpXNA.Plugins
             None, NoSpecalCharacters = 1, NoLetters = 2, NoNumbers = 4, NoLeadingPeriods = 8, NoSpaces = 16, AllowPeriods = 32, NoLeadingColons = 64, AllowColons = 128, NoRepeatingColons = 256,
             NoRepeatingPeriods = 512, NoRepeatingSpaces = 1024, NoLeadingSpaces = 2048
         }
-
-        public static bool IsNullOrEmpty(this string @string) { return string.IsNullOrEmpty(@string); }
+        
         public static string AcceptInput(this string @string, int maxLength = int.MaxValue) { return @string.AcceptInput(InputFlags.None, maxLength); }
         public static string AcceptInput(this string @string, InputFlags flags = InputFlags.None, int maxLength = int.MaxValue)
         {
-            string newString = (@string ?? string.Empty);
-            Keyboard.Keys[] keys = Keyboard.GetPressedKeys();
-            foreach (Keyboard.Keys key in keys)
+            var newString = (@string ?? string.Empty);
+            var keys = Keyboard.GetPressedKeys();
+            foreach (var key in keys)
             {
                 if ((key == Keyboard.Keys.CapsLock) || (key == Keyboard.Keys.LeftShift) || (key == Keyboard.Keys.RightShift) ||
            (key == Keyboard.Keys.LeftControl) || (key == Keyboard.Keys.RightControl) || (key == Keyboard.Keys.Escape) || (key == Keyboard.Keys.Insert) ||
@@ -85,7 +84,7 @@ namespace SharpXNA.Plugins
                 else if (key == Keyboard.Keys.Space)
                 {
                     if (!flags.HasFlag(InputFlags.NoSpaces) && ((!flags.HasFlag(InputFlags.NoLeadingSpaces) ||
-                        !newString.IsNullOrEmpty()) && (!flags.HasFlag(InputFlags.NoRepeatingSpaces) || !newString.EndsWith(" "))))
+                        !string.IsNullOrEmpty(newString)) && (!flags.HasFlag(InputFlags.NoRepeatingSpaces) || !newString.EndsWith(" "))))
                         newString += " ";
                 }
                 else if (!flags.HasFlag(InputFlags.NoLetters)) newString += (((caps && !shift) || (!caps && shift)) ? key.ToString().ToUpper() : key.ToString().ToLower());

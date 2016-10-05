@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
-using System.Security.Cryptography;
 using System.Windows.Forms;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -14,43 +13,40 @@ namespace SharpXNA
 {
     public static class Globe
     {
-        public static ulong Version;
         public static bool IsActive;
-        public static float Speed = 1;
-        private static GameServiceContainer Container;
-        private static Random SystemRandom;
-        private static RandomNumberGenerator SecureRandom;
+        private static GameServiceContainer _container;
+        private static Random _systemRandom;
         public static string ExecutableDirectory = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().GetName().CodeBase).LocalPath);
+
+        static Globe() { _container = new GameServiceContainer(); _systemRandom = new Random(); }
 
         public static Form Form { get { return Get<Form>(); } set { Add(value); } }
         public static Viewport Viewport { get { return Get<Viewport>(); } set { Add(value); } }
         public static GameWindow GameWindow { get { return Get<GameWindow>(); } set { Add(value); } }
-        //public static TextureLoader TextureLoader { get { return Get<TextureLoader>(); } set { Add(value); } }
         public static ContentManager ContentManager { get { return Get<ContentManager>(); } set { Add(value); } }
         public static GraphicsDevice GraphicsDevice { get { return Get<GraphicsDevice>(); } set { Add(value); } }
         public static GraphicsAdapter GraphicsAdapter { get { return Get<GraphicsAdapter>(); } set { Add(value); } }
         public static GraphicsDeviceManager GraphicsDeviceManager { get { return Get<GraphicsDeviceManager>(); } set { Add(value); } }
 
-        public static T Get<T>() { return (T)Container.GetService(typeof(T)); }
-        public static void Add<T>(T Service) { if (Container == null) Container = new GameServiceContainer(); Container.AddService(typeof(T), Service); }
-        public static void Remove<T>() { Container.RemoveService(typeof(T)); }
+        public static T Get<T>() { return (T)_container.GetService(typeof(T)); }
+        public static void Add<T>(T service) { _container.AddService(typeof(T), service); }
+        public static void Remove<T>() { _container.RemoveService(typeof(T)); }
 
-        public static Assembly Assembly { get { return Assembly.GetExecutingAssembly(); } }
+        public static Assembly Assembly => Assembly.GetExecutingAssembly();
 
         public static string[] StringsBetween(string text, char both) { return StringsBetween(text, both, both); }
         public static string[] StringsBetween(string text, string both) { return StringsBetween(text, both, both); }
         public static string[] StringsBetween(string text, char start, char end) { return StringsBetween(text, start.ToString(), end.ToString()); }
         public static string[] StringsBetween(string text, string start, string end)
         {
-            string[] values;
-            MatchCollection matches = Regex.Matches(text, ("(?<=" + Regex.Escape(start) + ").*?(?=" + Regex.Escape(end) + ")"));
+            var matches = Regex.Matches(text, ("(?<=" + Regex.Escape(start) + ").*?(?=" + Regex.Escape(end) + ")"));
             if (matches.Count > 0)
             {
-                values = new string[matches.Count];
-                for (int i = 0; i < matches.Count; i++) values[i] = matches[i].Value;
+                var values = new string[matches.Count];
+                for (var i = 0; i < matches.Count; i++) values[i] = matches[i].Value;
                 return values;
             }
-            else return null;
+            return null;
         }
         public static string[] Between(this string text, char both) { return StringsBetween(text, both); }
         public static string[] Between(this string text, string both) { return StringsBetween(text, both); }
@@ -117,77 +113,39 @@ namespace SharpXNA
             return MathHelper.ToRadians(difference);
         }
 
-        public static double RandomDouble(bool secure = false)
-        {
-            if (!secure)
-            {
-                if (SystemRandom == null) SystemRandom = new Random();
-                return SystemRandom.NextDouble();
-            }
-            if (SecureRandom == null) SecureRandom = RandomNumberGenerator.Create();
-            var Array = new byte[4];
-            SecureRandom.GetBytes(Array);
-            return ((double)BitConverter.ToUInt32(Array, 0) / uint.MaxValue);
-        }
-        public static int Random(int min, int max, bool secure = false)
-        {
-            if (!secure)
-            {
-                if (SystemRandom == null) SystemRandom = new Random();
-                return SystemRandom.Next(min, (max + 1));
-            }
-            if (SecureRandom == null) SecureRandom = RandomNumberGenerator.Create();
-            return ((int)Math.Round(RandomDouble(true) * ((max + 1) - min - 1)) + min);
-        }
-        public static float Random(float min, float max, bool secure = false) { return (float)Random(min, (double)max, secure); }
-        public static double Random(double min, double max, bool secure = false)
-        {
-            if (!secure)
-            {
-                if (SystemRandom == null) SystemRandom = new Random();
-                return (min + (RandomDouble(false) * Difference(min, max)));
-            }
-            if (SecureRandom == null) SecureRandom = RandomNumberGenerator.Create();
-            return (min + (RandomDouble(true) * Difference(min, max)));
-        }
-        public static long Random(long min, long max, bool secure = false)
-        {
-            if (!secure)
-            {
-                if (SystemRandom == null) SystemRandom = new Random();
-                return (long)(min + (RandomDouble(false) * Difference(min, max)));
-            }
-            if (SecureRandom == null) SecureRandom = RandomNumberGenerator.Create();
-            return (long)(min + (RandomDouble(true) * Difference(min, max)));
-        }
-        public static int Random(int max, bool secure = false) { return Random(0, max, secure); }
-        public static float Random(float max, bool secure = false) { return (float)Random((double)max, secure); }
-        public static double Random(double max, bool secure = false) { return Random(0, max, secure); }
-        public static long Random(long max, bool secure = false) { return Random(0, max, secure); }
+        public static double RandomDouble() { return _systemRandom.NextDouble(); }
+        public static int Random(int min, int max) { return _systemRandom.Next(min, (max + 1)); }
+        public static float Random(float min, float max) { return (float)Random(min, (double)max); }
+        public static double Random(double min, double max) { return (min + (_systemRandom.NextDouble() * Difference(min, max))); }
+        public static long Random(long min, long max) { return (long)(min + (_systemRandom.NextDouble() * Difference(min, max))); }
+        public static int Random(int max) { return Random(0, max); }
+        public static float Random(float max) { return (float)Random((double)max); }
+        public static double Random(double max) { return Random(0, max); }
+        public static long Random(long max) { return Random(0, max); }
 
-        public static byte Min(params byte[] values) { byte value = values[0]; for (int i = 1; i < values.Length; i++) value = System.Math.Min(value, values[i]); return value; }
-        public static decimal Min(params decimal[] values) { decimal value = values[0]; for (int i = 1; i < values.Length; i++) value = System.Math.Min(value, values[i]); return value; }
-        public static double Min(params double[] values) { double value = values[0]; for (int i = 1; i < values.Length; i++) value = System.Math.Min(value, values[i]); return value; }
-        public static float Min(params float[] values) { float value = values[0]; for (int i = 1; i < values.Length; i++) value = System.Math.Min(value, values[i]); return value; }
-        public static int Min(params int[] values) { int value = values[0]; for (int i = 1; i < values.Length; i++) value = System.Math.Min(value, values[i]); return value; }
-        public static long Min(params long[] values) { long value = values[0]; for (int i = 1; i < values.Length; i++) value = System.Math.Min(value, values[i]); return value; }
-        public static sbyte Min(params sbyte[] values) { sbyte value = values[0]; for (int i = 1; i < values.Length; i++) value = System.Math.Min(value, values[i]); return value; }
-        public static short Min(params short[] values) { short value = values[0]; for (int i = 1; i < values.Length; i++) value = System.Math.Min(value, values[i]); return value; }
-        public static uint Min(params uint[] values) { uint value = values[0]; for (int i = 1; i < values.Length; i++) value = System.Math.Min(value, values[i]); return value; }
-        public static ulong Min(params ulong[] values) { ulong value = values[0]; for (int i = 1; i < values.Length; i++) value = System.Math.Min(value, values[i]); return value; }
-        public static ushort Min(params ushort[] values) { ushort value = values[0]; for (int i = 1; i < values.Length; i++) value = System.Math.Min(value, values[i]); return value; }
+        public static byte Min(params byte[] values) { var value = values[0]; for (var i = 1; i < values.Length; i++) value = System.Math.Min(value, values[i]); return value; }
+        public static decimal Min(params decimal[] values) { var value = values[0]; for (var i = 1; i < values.Length; i++) value = System.Math.Min(value, values[i]); return value; }
+        public static double Min(params double[] values) { var value = values[0]; for (var i = 1; i < values.Length; i++) value = System.Math.Min(value, values[i]); return value; }
+        public static float Min(params float[] values) { var value = values[0]; for (var i = 1; i < values.Length; i++) value = System.Math.Min(value, values[i]); return value; }
+        public static int Min(params int[] values) { var value = values[0]; for (var i = 1; i < values.Length; i++) value = System.Math.Min(value, values[i]); return value; }
+        public static long Min(params long[] values) { var value = values[0]; for (var i = 1; i < values.Length; i++) value = System.Math.Min(value, values[i]); return value; }
+        public static sbyte Min(params sbyte[] values) { var value = values[0]; for (var i = 1; i < values.Length; i++) value = System.Math.Min(value, values[i]); return value; }
+        public static short Min(params short[] values) { var value = values[0]; for (var i = 1; i < values.Length; i++) value = System.Math.Min(value, values[i]); return value; }
+        public static uint Min(params uint[] values) { var value = values[0]; for (var i = 1; i < values.Length; i++) value = System.Math.Min(value, values[i]); return value; }
+        public static ulong Min(params ulong[] values) { var value = values[0]; for (var i = 1; i < values.Length; i++) value = System.Math.Min(value, values[i]); return value; }
+        public static ushort Min(params ushort[] values) { var value = values[0]; for (var i = 1; i < values.Length; i++) value = System.Math.Min(value, values[i]); return value; }
 
-        public static byte Max(params byte[] values) { byte value = values[0]; for (int i = 1; i < values.Length; i++) value = System.Math.Max(value, values[i]); return value; }
-        public static decimal Max(params decimal[] values) { decimal value = values[0]; for (int i = 1; i < values.Length; i++) value = System.Math.Max(value, values[i]); return value; }
-        public static double Max(params double[] values) { double value = values[0]; for (int i = 1; i < values.Length; i++) value = System.Math.Max(value, values[i]); return value; }
-        public static float Max(params float[] values) { float value = values[0]; for (int i = 1; i < values.Length; i++) value = System.Math.Max(value, values[i]); return value; }
-        public static int Max(params int[] values) { int value = values[0]; for (int i = 1; i < values.Length; i++) value = System.Math.Max(value, values[i]); return value; }
-        public static long Max(params long[] values) { long value = values[0]; for (int i = 1; i < values.Length; i++) value = System.Math.Max(value, values[i]); return value; }
-        public static sbyte Max(params sbyte[] values) { sbyte value = values[0]; for (int i = 1; i < values.Length; i++) value = System.Math.Max(value, values[i]); return value; }
-        public static short Max(params short[] values) { short value = values[0]; for (int i = 1; i < values.Length; i++) value = System.Math.Max(value, values[i]); return value; }
-        public static uint Max(params uint[] values) { uint value = values[0]; for (int i = 1; i < values.Length; i++) value = System.Math.Max(value, values[i]); return value; }
-        public static ulong Max(params ulong[] values) { ulong value = values[0]; for (int i = 1; i < values.Length; i++) value = System.Math.Max(value, values[i]); return value; }
-        public static ushort Max(params ushort[] values) { ushort value = values[0]; for (int i = 1; i < values.Length; i++) value = System.Math.Max(value, values[i]); return value; }
+        public static byte Max(params byte[] values) { var value = values[0]; for (var i = 1; i < values.Length; i++) value = System.Math.Max(value, values[i]); return value; }
+        public static decimal Max(params decimal[] values) { var value = values[0]; for (var i = 1; i < values.Length; i++) value = System.Math.Max(value, values[i]); return value; }
+        public static double Max(params double[] values) { var value = values[0]; for (var i = 1; i < values.Length; i++) value = System.Math.Max(value, values[i]); return value; }
+        public static float Max(params float[] values) { var value = values[0]; for (var i = 1; i < values.Length; i++) value = System.Math.Max(value, values[i]); return value; }
+        public static int Max(params int[] values) { var value = values[0]; for (var i = 1; i < values.Length; i++) value = System.Math.Max(value, values[i]); return value; }
+        public static long Max(params long[] values) { var value = values[0]; for (var i = 1; i < values.Length; i++) value = System.Math.Max(value, values[i]); return value; }
+        public static sbyte Max(params sbyte[] values) { var value = values[0]; for (var i = 1; i < values.Length; i++) value = System.Math.Max(value, values[i]); return value; }
+        public static short Max(params short[] values) { var value = values[0]; for (var i = 1; i < values.Length; i++) value = System.Math.Max(value, values[i]); return value; }
+        public static uint Max(params uint[] values) { var value = values[0]; for (var i = 1; i < values.Length; i++) value = System.Math.Max(value, values[i]); return value; }
+        public static ulong Max(params ulong[] values) { var value = values[0]; for (var i = 1; i < values.Length; i++) value = System.Math.Max(value, values[i]); return value; }
+        public static ushort Max(params ushort[] values) { var value = values[0]; for (var i = 1; i < values.Length; i++) value = System.Math.Max(value, values[i]); return value; }
 
         public static byte Dif(byte a, byte b) { return (byte)(Max(a, b) - Min(a, b)); }
         public static decimal Dif(decimal a, decimal b) { return (Max(a, b) - Min(a, b)); }
@@ -214,7 +172,7 @@ namespace SharpXNA
         public static double Avg(params ushort[] values) { double value = values[0]; for (int i = 1; i < values.Length; i++) value += values[i]; return (value / values.Length); }
 
         public static T Pick<T>(params T[] values) { return (T)values[Random(values.Length - 1)]; }
-        public static bool Chance(int value, int max = 100, bool secure = false) { if (value >= max) return true; else return (Random((max - 1), secure) <= (value - 1)); }
+        public static bool Chance(int value, int max = 100) { return (Random((max - 1)) <= (value - 1)); }
 
         public static bool Matches<T>(this T obj, params T[] args) { return args.Contains(obj); }
         public static bool Matches<T>(this List<T> original, List<T> other)
@@ -349,6 +307,21 @@ namespace SharpXNA
             float r, g, b;
             HSVtoRGB(h, s, v, out r, out g, out b);
             return new Color((byte)r, (byte)g, (byte)b, color.A);
+        }
+
+        public static IEnumerable<string> DirSearch(string path, params string[] extensions)
+        {
+            var dir = new DirectoryInfo(path);
+            var files = dir.GetFiles().Where(f => extensions.Contains(f.Extension)).Select(f => f.FullName).ToList();
+            foreach (var d in dir.GetDirectories()) files.AddRange(DirSearch(d.FullName, extensions));
+            return files;
+        }
+        public static IEnumerable<string> FilterFiles(string path, params string[] exts)
+        {
+            return
+                Directory
+                .EnumerateFiles(path, "*.*")
+                .Where(file => exts.Any(x => file.EndsWith(x, StringComparison.OrdinalIgnoreCase)));
         }
     }
 }

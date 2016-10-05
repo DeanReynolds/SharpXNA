@@ -12,9 +12,7 @@ namespace SharpXNA
         {
             get
             {
-                var config = new NetPeerConfiguration("Game");
-                //config.MaximumTransmissionUnit = (ushort.MaxValue / 8);
-                config.AutoFlushSendQueue = true;
+                var config = new NetPeerConfiguration("Game") {AutoFlushSendQueue = true};
                 config.EnableMessageType(NetIncomingMessageType.ConnectionApproval);
                 config.DisableMessageType(NetIncomingMessageType.ConnectionLatencyUpdated);
                 config.DisableMessageType(NetIncomingMessageType.DebugMessage);
@@ -33,43 +31,42 @@ namespace SharpXNA
 
         public static NetPeer Peer;
         
-        public static bool IsNullOrServer { get { return ((Peer == null) || (Peer is NetServer)); } }
-        public static bool IsServer { get { return ((Peer != null) && (Peer is NetServer)); } }
-        public static bool IsClient { get { return ((Peer != null) && (Peer is NetClient)); } }
+        public static bool IsNullOrServer => ((Peer == null) || (Peer is NetServer));
+        public static bool IsServer => (Peer is NetServer);
+        public static bool IsClient => (Peer is NetClient);
 
-        public static NetPeerStatus State { get { if (Peer != null) return Peer.Status; else return NetPeerStatus.NotRunning; } }
+        public static NetPeerStatus State => Peer?.Status ?? NetPeerStatus.NotRunning;
         public static void StartHosting(NetPeerConfiguration config) { Peer = new NetServer(config); Peer.Start(); }
-        public static void StartHosting(int port, int maxConnections) { var Configuration = DefaultConfiguration; Configuration.Port = port; Configuration.MaximumConnections = maxConnections; StartHosting(Configuration); }
-        public static bool StopHosting() { if (IsServer && (State == NetPeerStatus.Running)) { Peer.Shutdown(string.Empty); return true; } else return false; }
+        public static void StartHosting(int port, int maxConnections) { var configuration = DefaultConfiguration; configuration.Port = port; configuration.MaximumConnections = maxConnections; StartHosting(configuration); }
 
-        public static void Connect(string ip, int port, NetPeerConfiguration config, Packet packet) { Peer = new NetClient(config); Peer.Start(); packet.Identifier = Globe.Version; Peer.Connect(ip, port, packet.Construct()); }
+        public static void Connect(string ip, int port, NetPeerConfiguration config, Packet packet) { Peer = new NetClient(config); Peer.Start(); Peer.Connect(ip, port, packet.Construct()); }
         public static void Connect(string ip, int port, Packet packet) { Connect(ip, port, DefaultConfiguration, packet); }
 
-        public static NetIncomingMessage ReadMessage() { if (State != NetPeerStatus.NotRunning) return Peer.ReadMessage(); else return null; }
+        public static NetIncomingMessage ReadMessage() { return State != NetPeerStatus.NotRunning ? Peer.ReadMessage() : null; }
         public static void Update()
         {
             NetIncomingMessage message;
             while ((message = ReadMessage()) != null)
             {
-                if (message.MessageType == NetIncomingMessageType.Data) { if (OnData != null) OnData(message); }
-                else if (message.MessageType == NetIncomingMessageType.ConnectionApproval) { if (OnConnectionApproval != null) OnConnectionApproval(message); }
-                else if (message.MessageType == NetIncomingMessageType.StatusChanged) { if (OnStatusChanged != null) OnStatusChanged(message); }
-                else if (message.MessageType == NetIncomingMessageType.ConnectionLatencyUpdated) { if (OnLatencyUpdated != null) OnLatencyUpdated(message); }
-                else if (message.MessageType == NetIncomingMessageType.DiscoveryRequest) { if (OnDiscoveryRequest != null) OnDiscoveryRequest(message); }
-                else if (message.MessageType == NetIncomingMessageType.DiscoveryResponse) { if (OnDiscoveryResponse != null) OnDiscoveryResponse(message); }
-                else if (message.MessageType == NetIncomingMessageType.NatIntroductionSuccess) { if (OnNatIntroSuccess != null) OnNatIntroSuccess(message); }
-                else if (message.MessageType == NetIncomingMessageType.Receipt) { if (OnReceipt != null) OnReceipt(message); }
-                else if (message.MessageType == NetIncomingMessageType.UnconnectedData) { if (OnUnconnectedData != null) OnUnconnectedData(message); }
-                else if (message.MessageType == NetIncomingMessageType.VerboseDebugMessage) { if (OnVerboseDebugmessage != null) OnVerboseDebugmessage(message); }
-                else if (message.MessageType == NetIncomingMessageType.WarningMessage) { if (OnWarning != null) OnWarning(message); }
-                else if (message.MessageType == NetIncomingMessageType.Error) { if (OnError != null) OnError(message); }
-                else if (message.MessageType == NetIncomingMessageType.ErrorMessage) { if (OnErrormessage != null) OnErrormessage(message); }
-                else if (message.MessageType == NetIncomingMessageType.DebugMessage) { if (OnDebugmessage != null) OnDebugmessage(message); }
+                if (message.MessageType == NetIncomingMessageType.Data) OnData?.Invoke(message);
+                else if (message.MessageType == NetIncomingMessageType.ConnectionApproval) OnConnectionApproval?.Invoke(message);
+                else if (message.MessageType == NetIncomingMessageType.StatusChanged) OnStatusChanged?.Invoke(message);
+                else if (message.MessageType == NetIncomingMessageType.ConnectionLatencyUpdated) OnLatencyUpdated?.Invoke(message);
+                else if (message.MessageType == NetIncomingMessageType.DiscoveryRequest) OnDiscoveryRequest?.Invoke(message);
+                else if (message.MessageType == NetIncomingMessageType.DiscoveryResponse) OnDiscoveryResponse?.Invoke(message);
+                else if (message.MessageType == NetIncomingMessageType.NatIntroductionSuccess) OnNatIntroSuccess?.Invoke(message);
+                else if (message.MessageType == NetIncomingMessageType.Receipt) OnReceipt?.Invoke(message);
+                else if (message.MessageType == NetIncomingMessageType.UnconnectedData) OnUnconnectedData?.Invoke(message);
+                else if (message.MessageType == NetIncomingMessageType.VerboseDebugMessage) OnVerboseDebugmessage?.Invoke(message);
+                else if (message.MessageType == NetIncomingMessageType.WarningMessage) OnWarning?.Invoke(message);
+                else if (message.MessageType == NetIncomingMessageType.Error) OnError?.Invoke(message);
+                else if (message.MessageType == NetIncomingMessageType.ErrorMessage) OnErrormessage?.Invoke(message);
+                else if (message.MessageType == NetIncomingMessageType.DebugMessage) OnDebugmessage?.Invoke(message);
             }
         }
 
-        public delegate void messageRecieved(NetIncomingMessage message);
-        public static event messageRecieved OnData, OnConnectionApproval, OnStatusChanged, OnLatencyUpdated, OnDiscoveryRequest, OnDiscoveryResponse,
+        public delegate void MessageRecieved(NetIncomingMessage message);
+        public static event MessageRecieved OnData, OnConnectionApproval, OnStatusChanged, OnLatencyUpdated, OnDiscoveryRequest, OnDiscoveryResponse,
             OnNatIntroSuccess, OnReceipt, OnUnconnectedData, OnVerboseDebugmessage, OnWarning, OnError, OnErrormessage, OnDebugmessage;
 
         public static void Send(Packet packet, NetDeliveryMethod deliveryMethod = NetDeliveryMethod.ReliableOrdered, int channel = 0) { Send(packet.Construct(), deliveryMethod, channel); }
@@ -79,18 +76,19 @@ namespace SharpXNA
         public static void Send(NetOutgoingMessage message, NetDeliveryMethod deliveryMethod = NetDeliveryMethod.ReliableOrdered, int channel = 0)
         { if (IsServer) { if (Peer.ConnectionsCount > 0) Peer.SendMessage(message, Peer.Connections, deliveryMethod, channel); } else if (IsClient) (Peer as NetClient).SendMessage(message, deliveryMethod, channel); }
         public static bool Send(NetOutgoingMessage message, NetConnection except, NetDeliveryMethod deliveryMethod = NetDeliveryMethod.ReliableOrdered, int channel = 0)
-        { if (IsServer) { if (Peer.ConnectionsCount > 0) { (Peer as NetServer).SendToAll(message, except, deliveryMethod, channel); return true; } else return false; } else return false; }
+        { if (IsServer) { if (Peer.ConnectionsCount > 0) { (Peer as NetServer).SendToAll(message, except, deliveryMethod, channel); return true; } return false; } return false; }
         public static bool SendTo(NetOutgoingMessage message, NetConnection recipient, NetDeliveryMethod deliveryMethod = NetDeliveryMethod.ReliableOrdered, int channel = 0)
-        { if (IsServer) { if (Peer.ConnectionsCount > 0) { (Peer as NetServer).SendMessage(message, recipient, deliveryMethod, channel); return true; } else return false; } else return false; }
+        { if (IsServer) { if (Peer.ConnectionsCount > 0) { (Peer as NetServer).SendMessage(message, recipient, deliveryMethod, channel); return true; } return false; } return false; }
 
-        public static void Flush() { if (Peer != null) Peer.FlushSendQueue(); }
-        public static void Shutdown(string reason = null) { if (Peer != null) { Peer.Shutdown(reason ?? string.Empty); Peer = null; } }
+        public static void Flush() { Peer?.FlushSendQueue(); }
+        public static void Shutdown(string reason = null) { if (Peer == null) return; Peer.Shutdown(reason ?? string.Empty); Peer = null; }
 
         #region Extensions
         public static void Write(this NetBuffer message, object variable)
         {
-            if (variable is Array)
-                for (var i = 0; i < (variable as Array).Length; i++)
+            var c = variable as Array;
+            if (c != null)
+                for (var i = 0; i < c.Length; i++)
                 {
                     if (variable is bool[]) message.Write((variable as bool[])[i]);
                     else if (variable is sbyte[]) message.Write((variable as sbyte[])[i]);
@@ -118,31 +116,31 @@ namespace SharpXNA
                     else message.Write((variable as object[])[i]);
                 }
             else if (variable is List<object>)
-                for (var i = 0; i < (variable as List<object>).Count; i++)
-                    message.Write((variable as List<object>)[i]);
-            else if (variable.GetType() == typeof(bool)) message.Write((bool)variable); // 1 byte, 8 bits
-            else if (variable.GetType() == typeof(sbyte)) message.Write((sbyte)variable); // 1 byte, 8 bits
-            else if (variable.GetType() == typeof(byte)) message.Write((byte)variable); // 1 byte, 8 bits
-            else if (variable.GetType() == typeof(char)) message.Write((char)variable); // 2 bytes, 16 bits
-            else if (variable.GetType() == typeof(short)) message.Write((short)variable); // 2 bytes, 16 bits
-            else if (variable.GetType() == typeof(ushort)) message.Write((ushort)variable); // 2 bytes, 16 bits
-            else if (variable.GetType() == typeof(float)) message.Write((float)variable); // 4 bytes, 32 bits
-            else if (variable.GetType() == typeof(int)) message.Write((int)variable); // 4 bytes, 32 bits
-            else if (variable.GetType() == typeof(uint)) message.Write((uint)variable); // 4 bytes, 32 bits
-            else if (variable.GetType() == typeof(Vector2)) message.Write((Vector2)variable); // 8 bytes, 64 bits
-            else if (variable.GetType() == typeof(Point)) message.Write((Point)variable); // 8 bytes, 64 bits
-            else if (variable.GetType() == typeof(double)) message.Write((double)variable); // 8 bytes, 64 bits
-            else if (variable.GetType() == typeof(long)) message.Write((long)variable); // 8 bytes, 64 bits
-            else if (variable.GetType() == typeof(ulong)) message.Write((ulong)variable); // 8 bytes, 64 bits
-            else if (variable.GetType() == typeof(Vector3)) message.Write((Vector3)variable); // 12 bytes, 96 bits
-            else if (variable.GetType() == typeof(Vector4)) message.Write((Vector4)variable); // 16 bytes, 128 bits
-            else if (variable.GetType() == typeof(Line)) message.Write((Line)variable); // 16 bytes, 128 bits
-            else if (variable.GetType() == typeof(Rectangle)) message.Write((Rectangle)variable); // 16 bytes, 128 bits
-            else if (variable.GetType() == typeof(Quaternion)) message.Write((Quaternion)variable, 24); // 16 bytes, 128 bits
-            else if (variable.GetType() == typeof(BoundingSphere)) message.Write((BoundingSphere)variable); // 16 bytes, 128 bits
-            else if (variable.GetType() == typeof(Matrix)) message.Write((Matrix)variable); // 28 bytes, 224 bits
-            else if (variable.GetType() == typeof(string)) message.Write((string)variable); // ~~
-            else if (variable.GetType() == typeof(Polygon)) message.Write((Polygon)variable); // ~~
+                for (var i = 0; i < ((List<object>) variable).Count; i++)
+                    message.Write(((List<object>) variable)[i]);
+            else if (variable is bool) message.Write((bool) variable); // 1 byte, 8 bits
+            else if (variable is sbyte) message.Write((sbyte) variable); // 1 byte, 8 bits
+            else if (variable is byte) message.Write((byte) variable); // 1 byte, 8 bits
+            else if (variable is char) message.Write((char) variable); // 2 bytes, 16 bits
+            else if (variable is short) message.Write((short) variable); // 2 bytes, 16 bits
+            else if (variable is ushort) message.Write((ushort) variable); // 2 bytes, 16 bits
+            else if (variable is float) message.Write((float) variable); // 4 bytes, 32 bits
+            else if (variable is int) message.Write((int) variable); // 4 bytes, 32 bits
+            else if (variable is uint) message.Write((uint) variable); // 4 bytes, 32 bits
+            else if (variable is Vector2) message.Write((Vector2) variable); // 8 bytes, 64 bits
+            else if (variable is Point) message.Write((Point) variable); // 8 bytes, 64 bits
+            else if (variable is double) message.Write((double) variable); // 8 bytes, 64 bits
+            else if (variable is long) message.Write((long) variable); // 8 bytes, 64 bits
+            else if (variable is ulong) message.Write((ulong) variable); // 8 bytes, 64 bits
+            else if (variable is Vector3) message.Write((Vector3) variable); // 12 bytes, 96 bits
+            else if (variable is Vector4) message.Write((Vector4) variable); // 16 bytes, 128 bits
+            else if (variable is Line) message.Write((Line) variable); // 16 bytes, 128 bits
+            else if (variable is Rectangle) message.Write((Rectangle) variable); // 16 bytes, 128 bits
+            else if (variable is Quaternion) message.Write((Quaternion) variable, 24); // 16 bytes, 128 bits
+            else if (variable is BoundingSphere) message.Write((BoundingSphere) variable); // 16 bytes, 128 bits
+            else if (variable is Matrix) message.Write((Matrix) variable); // 28 bytes, 224 bits
+            else if (variable is string) message.Write((string) variable); // ~~
+            else if (variable is Polygon) message.Write((Polygon)variable); // ~~
         }
 
         public static void Write(this NetBuffer message, Point point) { message.Write(point.X); message.Write(point.Y); }
@@ -170,10 +168,10 @@ namespace SharpXNA
         public static Quaternion ReadQuaternion(this NetBuffer message, int bits) { return new Quaternion(message.ReadSignedSingle(bits), message.ReadSignedSingle(bits), message.ReadSignedSingle(bits), message.ReadSignedSingle(bits)); }
 
         public static void Write(this NetBuffer message, Matrix matrix) { var quaternion = Quaternion.CreateFromRotationMatrix(matrix); Write(message, quaternion, 24); message.Write(matrix.M41); message.Write(matrix.M42); message.Write(matrix.M43); }
-        public static Matrix ReadMatrix(this NetBuffer message) { var quaternion = ReadQuaternion(message, 24); var Matrix = Microsoft.Xna.Framework.Matrix.CreateFromQuaternion(quaternion); Matrix.M41 = message.ReadFloat(); Matrix.M42 = message.ReadFloat(); Matrix.M43 = message.ReadFloat(); return Matrix; }
+        public static Matrix ReadMatrix(this NetBuffer message) { var quaternion = ReadQuaternion(message, 24); var matrix = Matrix.CreateFromQuaternion(quaternion); matrix.M41 = message.ReadFloat(); matrix.M42 = message.ReadFloat(); matrix.M43 = message.ReadFloat(); return matrix; }
 
-        public static void Write(this NetBuffer message, Polygon polygon) { message.Write((byte)polygon.Lines.Length); message.Write(polygon.position); message.Write(polygon.angle); for (int i = 0; i < polygon.Lines.Length; i++) message.Write(polygon.Lines[i]); }
-        public static Polygon ReadPolygon(this NetBuffer message) { var polygon = new Polygon(new Line[message.ReadByte()]) { position = message.ReadVector2(), angle = message.ReadFloat() }; for (int i = 0; i < polygon.Lines.Length; i++) polygon.Lines[i] = ReadLine(message); return polygon; }
+        public static void Write(this NetBuffer message, Polygon polygon) { message.Write((byte)polygon.Lines.Length); message.Write(polygon.position); message.Write(polygon.angle); foreach (var t in polygon.Lines) message.Write(t); }
+        public static Polygon ReadPolygon(this NetBuffer message) { var polygon = new Polygon(new Line[message.ReadByte()]) { position = message.ReadVector2(), angle = message.ReadFloat() }; for (var i = 0; i < polygon.Lines.Length; i++) polygon.Lines[i] = ReadLine(message); return polygon; }
         #endregion
 
         public struct Packet
@@ -181,38 +179,31 @@ namespace SharpXNA
             public object Identifier;
             
             public object[] Data;
-            internal List<object> dataList;
+            internal List<object> DataList;
 
-            public Packet(object identifier, params object[] data) { Identifier = identifier; Data = data; dataList = null; }
+            public Packet(object identifier, params object[] data) { Identifier = identifier; Data = data; DataList = null; }
 
             public NetOutgoingMessage Construct()
             {
-                if (Peer != null)
-                {
-                    NetOutgoingMessage message = Peer.CreateMessage();
-                    if (Identifier != null) message.Write(Identifier);
-                    if ((Data != null) && (Data.Length > 0)) message.Write(Data);
-                    if (dataList != null) message.Write(dataList);
-                    return message;
-                }
-                else return null;
+                var message = Peer.CreateMessage();
+                if (Identifier != null) message.Write(Identifier);
+                if ((Data != null) && (Data.Length > 0)) message.Write(Data);
+                if (DataList != null) message.Write(DataList);
+                return message;
             }
             public Packet Clone() { return Clone(Identifier); }
             public Packet Clone(object identifier)
             {
-                Packet packet = new Packet(identifier);
-                packet.Data = new object[Data.Length];
-                for (int i = 0; i < Data.Length; i++) packet.Data[i] = Data[i];
-                if (dataList != null)
-                {
-                    packet.dataList = new List<object>(dataList.Count);
-                    for (int i = 0; i < dataList.Count; i++) packet.dataList.Add(dataList[i]);
-                }
+                var packet = new Packet(identifier) {Data = new object[Data.Length]};
+                for (var i = 0; i < Data.Length; i++) packet.Data[i] = Data[i];
+                if (DataList == null) return packet;
+                packet.DataList = new List<object>(DataList.Count);
+                for (var i = 0; i < DataList.Count; i++) packet.DataList.Add(DataList[i]);
                 return packet;
             }
 
-            public void Set(params object[] data) { Data = data; dataList = null; }
-            public void Add(params object[] data) { if (dataList == null) dataList = new List<object>(data.Length); dataList.AddRange(data); }
+            public void Set(params object[] data) { Data = data; DataList = null; }
+            public void Add(params object[] data) { if (DataList == null) DataList = new List<object>(data.Length); DataList.AddRange(data); }
 
             public void Send(NetDeliveryMethod deliveryMethod = NetDeliveryMethod.ReliableOrdered, int channel = 0) { Network.Send(this, deliveryMethod, channel); }
             public bool Send(NetConnection except, NetDeliveryMethod deliveryMethod = NetDeliveryMethod.ReliableOrdered, int channel = 0) { return Network.Send(this, except, deliveryMethod, channel); }

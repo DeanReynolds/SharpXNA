@@ -11,11 +11,11 @@ namespace SharpXNA
         public Node[,] Nodes;
 
         protected HashSet<Node> open, closed;
-        public HashSet<Node> Open { get { return open; } }
-        public HashSet<Node> Closed { get { return closed; } }
+        public HashSet<Node> Open => open;
+        public HashSet<Node> Closed => closed;
 
-        public int Width { get { return Nodes.GetLength(0); } }
-        public int Height { get { return Nodes.GetLength(1); } }
+        public int Width => Nodes.GetLength(0);
+        public int Height => Nodes.GetLength(1);
 
         internal Dictionary<Node, Dictionary<Node, Path>> pathsMemory;
 
@@ -31,18 +31,36 @@ namespace SharpXNA
         public bool InBounds(Point point) { return !((point.X < 0) || (point.Y < 0) || (point.X >= Width) || (point.Y >= Height)); }
         public virtual HashSet<Node> Neighbours(Node node, bool cutCorners, ref HashSet<Node> closed)
         {
-            if (!cutCorners)
+            if (cutCorners)
             {
-                HashSet<Node> neighbours = new HashSet<Node>();
-                if (((node.Y - 1) >= 0) && !closed.Contains(Nodes[node.X, (node.Y - 1)]) && Nodes[node.X, (node.Y - 1)].Walkable) neighbours.Add(Nodes[node.X, (node.Y - 1)]);
-                if (((node.Y + 1) < Height) && !closed.Contains(Nodes[node.X, (node.Y + 1)]) && Nodes[node.X, (node.Y + 1)].Walkable) neighbours.Add(Nodes[node.X, (node.Y + 1)]);
+                var neighbours = new HashSet<Node>();
+                if (((node.Y - 1) >= 0) && Nodes[node.X, (node.Y - 1)].Walkable)
+                {
+                    if (!closed.Contains(Nodes[node.X, (node.Y - 1)])) neighbours.Add(Nodes[node.X, (node.Y - 1)]);
+                    if (((node.X - 1) >= 0) && !closed.Contains(Nodes[(node.X - 1), (node.Y - 1)]) && Nodes[(node.X - 1), (node.Y - 1)].Walkable &&
+                        (Nodes[(node.X - 1), node.Y].Walkable || Nodes[node.X, (node.Y - 1)].Walkable))
+                        neighbours.Add(Nodes[(node.X - 1), (node.Y - 1)]);
+                    if (((node.X + 1) < Width) && !closed.Contains(Nodes[(node.X + 1), (node.Y - 1)]) && Nodes[(node.X + 1), (node.Y - 1)].Walkable &&
+                        (Nodes[node.X, (node.Y - 1)].Walkable || Nodes[(node.X + 1), node.Y].Walkable))
+                        neighbours.Add(Nodes[(node.X + 1), (node.Y - 1)]);
+                }
+                if (((node.Y + 1) < Height) && Nodes[node.X, (node.Y + 1)].Walkable)
+                {
+                    if (!closed.Contains(Nodes[node.X, (node.Y + 1)])) neighbours.Add(Nodes[node.X, (node.Y + 1)]);
+                    if (((node.X - 1) >= 0) && !closed.Contains(Nodes[(node.X - 1), (node.Y + 1)]) && Nodes[(node.X - 1), (node.Y + 1)].Walkable &&
+                        (Nodes[(node.X - 1), node.Y].Walkable || Nodes[node.X, (node.Y + 1)].Walkable))
+                        neighbours.Add(Nodes[(node.X - 1), (node.Y + 1)]);
+                    if (((node.X + 1) < Width) && !closed.Contains(Nodes[(node.X + 1), (node.Y + 1)]) && Nodes[(node.X + 1), (node.Y + 1)].Walkable &&
+                        (Nodes[node.X, (node.Y + 1)].Walkable || Nodes[(node.X + 1), node.Y].Walkable))
+                        neighbours.Add(Nodes[(node.X + 1), (node.Y + 1)]);
+                }
                 if (((node.X - 1) >= 0) && !closed.Contains(Nodes[(node.X - 1), node.Y]) && Nodes[(node.X - 1), node.Y].Walkable) neighbours.Add(Nodes[(node.X - 1), node.Y]);
                 if (((node.X + 1) < Width) && !closed.Contains(Nodes[(node.X + 1), node.Y]) && Nodes[(node.X + 1), node.Y].Walkable) neighbours.Add(Nodes[(node.X + 1), node.Y]);
                 return neighbours;
             }
             else
             {
-                HashSet<Node> neighbours = new HashSet<Node>();
+                var neighbours = new HashSet<Node>();
                 if (((node.Y - 1) >= 0) && Nodes[node.X, (node.Y - 1)].Walkable)
                 {
                     if (!closed.Contains(Nodes[node.X, (node.Y - 1)])) neighbours.Add(Nodes[node.X, (node.Y - 1)]);
@@ -69,64 +87,61 @@ namespace SharpXNA
             }
         }
 
-        public virtual Path Find(Point start, Point end, bool cutCorners = true, bool memorize = false)
+        public virtual Path Find(Point start, Point end, bool cutCorners = false, bool memorize = false)
         {
             if ((start == end) || !InBounds(start) || !InBounds(end) || !Nodes[start.X, start.Y].Walkable || !Nodes[end.X, end.Y].Walkable) return null;
-            else
+            Node source = Nodes[start.X, start.Y], goal = Nodes[end.X, end.Y];
+            if (memorize && pathsMemory.ContainsKey(source) && pathsMemory[source].ContainsKey(goal)) return pathsMemory[source][goal].Clone();
+            open.Clear();
+            open.Add(Nodes[source.X, source.Y]);
+            closed.Clear();
+            while (open.Count > 0)
             {
-                Node source = Nodes[start.X, start.Y], goal = Nodes[end.X, end.Y];
-                if (memorize && pathsMemory.ContainsKey(source) && pathsMemory[source].ContainsKey(goal)) return pathsMemory[source][goal].Clone();
-                open.Clear(); open.Add(Nodes[source.X, source.Y]); closed.Clear();
-                while (open.Count > 0)
+                var current = open.LowestFScore(source);
+                if (current == goal) return ConstructPath(source, goal, memorize);
+                open.Remove(current);
+                closed.Add(current);
+                var neighbours = Neighbours(current, cutCorners, ref closed);
+                foreach (var neighbour in neighbours)
                 {
-                    var current = open.LowestFScore(source);
-                    if (current == goal) return ConstructPath(source, goal, memorize);
-                    open.Remove(current);
-                    closed.Add(current);
-                    var neighbours = Neighbours(current, cutCorners, ref closed);
-                    foreach (Node neighbour in neighbours)
-                    {
-                        double gScore = (current.GScore + neighbour.CostFrom(current));
-                        if (!open.Contains(neighbour)) open.Add(neighbour);
-                        else if (gScore >= neighbour.GScore) continue;
-                        neighbour.Parent = current;
-                        neighbour.GScore = gScore;
-                        neighbour.FScore = (gScore + (2 * Heuristics.Euclidean(neighbour, goal)));
-                    }
+                    var gScore = (current.GScore + neighbour.CostFrom(current));
+                    if (!open.Contains(neighbour)) open.Add(neighbour);
+                    else if (gScore >= neighbour.GScore) continue;
+                    neighbour.Parent = current;
+                    neighbour.GScore = gScore;
+                    neighbour.FScore = (gScore + (2*Heuristics.Euclidean(neighbour, goal)));
                 }
-                return null;
             }
+            return null;
         }
+
         protected virtual Path ConstructPath(Node source, Node goal, bool memorize)
         {
-            Path path = new Path(1);
-            path.Add(goal);
-            Node c = goal;
+            var path = new Path(1) {goal};
+            var c = goal;
             while (c != source) { path.Insert(0, c); c = c.Parent; }
-            if (memorize)
-            {
-                if (pathsMemory.ContainsKey(source)) { if (!pathsMemory[source].ContainsKey(goal)) pathsMemory[source].Add(goal, path.Clone()); }
-                else { pathsMemory.Add(source, new Dictionary<Node, Path>()); pathsMemory[source].Add(goal, path.Clone()); }
-                Path reversedPath = path.Clone();
-                reversedPath.Reverse();
-                reversedPath.RemoveAt(0);
-                reversedPath.Add(source);
-                if (pathsMemory.ContainsKey(goal)) { if (!pathsMemory[goal].ContainsKey(source)) pathsMemory[goal].Add(source, reversedPath); }
-                else { pathsMemory.Add(goal, new Dictionary<Node, Path>()); pathsMemory[goal].Add(source, reversedPath); }
-            }
+            if (!memorize) return path;
+            if (pathsMemory.ContainsKey(source)) { if (!pathsMemory[source].ContainsKey(goal)) pathsMemory[source].Add(goal, path.Clone()); }
+            else { pathsMemory.Add(source, new Dictionary<Node, Path>()); pathsMemory[source].Add(goal, path.Clone()); }
+            var reversedPath = path.Clone();
+            reversedPath.Reverse();
+            reversedPath.RemoveAt(0);
+            reversedPath.Add(source);
+            if (pathsMemory.ContainsKey(goal)) { if (!pathsMemory[goal].ContainsKey(source)) pathsMemory[goal].Add(source, reversedPath); }
+            else { pathsMemory.Add(goal, new Dictionary<Node, Path>()); pathsMemory[goal].Add(source, reversedPath); }
             return path;
         }
 
         public virtual Point? RandomWalkableNode(bool guesstimate = true)
         {
-            List<Point> nodes = new List<Point>(Width * Height);
-            for (int x = 0; x < Width; x++) for (int y = 0; y < Height; y++) if (Nodes[x, y].Walkable) nodes.Add(new Point(x, y));
+            var nodes = new List<Point>(Width * Height);
+            for (var x = 0; x < Width; x++) for (var y = 0; y < Height; y++) if (Nodes[x, y].Walkable) nodes.Add(new Point(x, y));
             if (nodes.Count > 0) return nodes[(nodes.Count == 1) ? 0 : Globe.Random(nodes.Count - 1)]; else return null;
         }
         public virtual Point? RandomNonWalkableNode(bool guesstimate = true)
         {
-            List<Point> nodes = new List<Point>(Width * Height);
-            for (int x = 0; x < Width; x++) for (int y = 0; y < Height; y++) if (!Nodes[x, y].Walkable) nodes.Add(new Point(x, y));
+            var nodes = new List<Point>(Width * Height);
+            for (var x = 0; x < Width; x++) for (var y = 0; y < Height; y++) if (!Nodes[x, y].Walkable) nodes.Add(new Point(x, y));
             if (nodes.Count > 0) return nodes[(nodes.Count == 1) ? 0 : Globe.Random(nodes.Count - 1)]; else return null;
         }
 
@@ -173,9 +188,9 @@ namespace SharpXNA
     {
         internal static Pathfinder.Node LowestFScore(this HashSet<Pathfinder.Node> nodes, Pathfinder.Node source)
         {
-            Pathfinder.Node chosenNode = source;
-            double lowestFScore = double.MaxValue;
-            foreach (Pathfinder.Node node in nodes) if (node.FScore < lowestFScore) { lowestFScore = node.FScore; chosenNode = node; }
+            var chosenNode = source;
+            var lowestFScore = double.MaxValue;
+            foreach (var node in nodes) if (node.FScore < lowestFScore) { lowestFScore = node.FScore; chosenNode = node; }
             return chosenNode;
         }
     }

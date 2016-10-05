@@ -76,5 +76,11 @@ namespace SharpXNA.Collision
 
         public void Add(Vector2 position) { Start += position; End += position; }
         public void Subtract(Vector2 position) { Start -= position; End -= position; }
+        public void Add(float x, float y) { AddX(x); AddY(y); }
+        public void Subtract(float x, float y) { SubtractX(x); SubtractY(y); }
+        public void AddX(float value) { Start.X += value; End.X += value; }
+        public void SubtractX(float value) { Start.X -= value; End.X -= value; }
+        public void AddY(float value) { Start.Y += value; End.Y += value; }
+        public void SubtractY(float value) { Start.Y -= value; End.Y -= value; }
     }
 }

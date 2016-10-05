@@ -1,38 +1,5 @@
-c:\users\dean\documents\visual studio 2015\Projects\SharpXNA\SharpXNA\obj\Debug\SharpXNA.csprojResolveAssemblyReference.cache
-c:\users\dean\documents\visual studio 2015\Projects\SharpXNA\SharpXNA\bin\Debug\SharpXNA.dll
-c:\users\dean\documents\visual studio 2015\Projects\SharpXNA\SharpXNA\bin\Debug\SharpXNA.pdb
-c:\users\dean\documents\visual studio 2015\Projects\SharpXNA\SharpXNA\bin\Debug\ColorMine.dll
-c:\users\dean\documents\visual studio 2015\Projects\SharpXNA\SharpXNA\bin\Debug\CSVorbis.dll
-c:\users\dean\documents\visual studio 2015\Projects\SharpXNA\SharpXNA\bin\Debug\Lidgren.Network.dll
-c:\users\dean\documents\visual studio 2015\Projects\SharpXNA\SharpXNA\bin\Debug\MonoGame.Framework.dll
-c:\users\dean\documents\visual studio 2015\Projects\SharpXNA\SharpXNA\bin\Debug\SharpDX.MediaFoundation.dll
-c:\users\dean\documents\visual studio 2015\Projects\SharpXNA\SharpXNA\bin\Debug\SharpDX.dll
-c:\users\dean\documents\visual studio 2015\Projects\SharpXNA\SharpXNA\bin\Debug\SharpDX.XAudio2.dll
-c:\users\dean\documents\visual studio 2015\Projects\SharpXNA\SharpXNA\bin\Debug\SharpDX.DXGI.dll
-c:\users\dean\documents\visual studio 2015\Projects\SharpXNA\SharpXNA\bin\Debug\SharpDX.Direct3D11.dll
-c:\users\dean\documents\visual studio 2015\Projects\SharpXNA\SharpXNA\bin\Debug\SharpDX.Direct2D1.dll
-c:\users\dean\documents\visual studio 2015\Projects\SharpXNA\SharpXNA\bin\Debug\SharpDX.XInput.dll
-c:\users\dean\documents\visual studio 2015\Projects\SharpXNA\SharpXNA\bin\Debug\SharpDX.RawInput.dll
-c:\users\dean\documents\visual studio 2015\Projects\SharpXNA\SharpXNA\bin\Debug\SharpDX.Direct3D9.dll
-c:\users\dean\documents\visual studio 2015\Projects\SharpXNA\SharpXNA\bin\Debug\ColorMine.pdb
-c:\users\dean\documents\visual studio 2015\Projects\SharpXNA\SharpXNA\bin\Debug\CSVorbis.pdb
-c:\users\dean\documents\visual studio 2015\Projects\SharpXNA\SharpXNA\bin\Debug\Lidgren.Network.pdb
-c:\users\dean\documents\visual studio 2015\Projects\SharpXNA\SharpXNA\bin\Debug\Lidgren.Network.xml
-c:\users\dean\documents\visual studio 2015\Projects\SharpXNA\SharpXNA\bin\Debug\MonoGame.Framework.xml
-c:\users\dean\documents\visual studio 2015\Projects\SharpXNA\SharpXNA\bin\Debug\SharpDX.MediaFoundation.xml
-c:\users\dean\documents\visual studio 2015\Projects\SharpXNA\SharpXNA\bin\Debug\SharpDX.xml
-c:\users\dean\documents\visual studio 2015\Projects\SharpXNA\SharpXNA\bin\Debug\SharpDX.XAudio2.xml
-c:\users\dean\documents\visual studio 2015\Projects\SharpXNA\SharpXNA\bin\Debug\SharpDX.DXGI.xml
-c:\users\dean\documents\visual studio 2015\Projects\SharpXNA\SharpXNA\bin\Debug\SharpDX.Direct3D11.xml
-c:\users\dean\documents\visual studio 2015\Projects\SharpXNA\SharpXNA\bin\Debug\SharpDX.Direct2D1.xml
-c:\users\dean\documents\visual studio 2015\Projects\SharpXNA\SharpXNA\bin\Debug\SharpDX.XInput.xml
-c:\users\dean\documents\visual studio 2015\Projects\SharpXNA\SharpXNA\bin\Debug\SharpDX.RawInput.xml
-c:\users\dean\documents\visual studio 2015\Projects\SharpXNA\SharpXNA\bin\Debug\SharpDX.Direct3D9.xml
-c:\users\dean\documents\visual studio 2015\Projects\SharpXNA\SharpXNA\obj\Debug\SharpXNA.dll
-c:\users\dean\documents\visual studio 2015\Projects\SharpXNA\SharpXNA\obj\Debug\SharpXNA.pdb
 C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\bin\Debug\SharpXNA.dll
 C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\bin\Debug\SharpXNA.pdb
-C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\bin\Debug\Lidgren.Network.dll
 C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\bin\Debug\MonoGame.Framework.dll
 C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\bin\Debug\SharpDX.MediaFoundation.dll
 C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\bin\Debug\SharpDX.dll
@@ -53,6 +20,6 @@ C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\bin\Debug\SharpDX.Direct2D1.xml
 C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\bin\Debug\SharpDX.XInput.xml
 C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\bin\Debug\SharpDX.RawInput.xml
 C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\bin\Debug\SharpDX.Direct3D9.xml
-C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\obj\Debug\SharpXNA.csprojResolveAssemblyReference.cache
 C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\obj\Debug\SharpXNA.dll
 C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\obj\Debug\SharpXNA.pdb
+C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\obj\Debug\SharpXNA.csprojResolveAssemblyReference.cache

@@ -69,14 +69,14 @@ namespace SharpXNA.Input
         public static object KeyFromIndex(this OrderedDictionary dictionary, int index) { if (index == -1) return null; return ((dictionary.Count > index) ? dictionary.Cast<DictionaryEntry>().ElementAt(index).Key : null); }
         public static Keys[] GetPressedKeys()
         {
-            Microsoft.Xna.Framework.Input.Keys[] origPressedKeys = KeyState.GetPressedKeys();
-            List<Keys> pressedKeys = new List<Keys>(origPressedKeys.Length);
-            for (int i = 0; i < KeyStatesH.Count; i++) if (!origPressedKeys.Contains((Microsoft.Xna.Framework.Input.Keys)KeyStatesH.KeyFromIndex(i))) { KeyStatesH.RemoveAt(i); i--; continue; }
-            for (int i = 0; i < origPressedKeys.Length; i++)
+            var origPressedKeys = KeyState.GetPressedKeys();
+            var pressedKeys = new List<Keys>(origPressedKeys.Length);
+            for (var i = 0; i < KeyStatesH.Count; i++) if (!origPressedKeys.Contains((Microsoft.Xna.Framework.Input.Keys)KeyStatesH.KeyFromIndex(i))) { KeyStatesH.RemoveAt(i); i--; continue; }
+            for (var i = 0; i < origPressedKeys.Length; i++)
             {
-                Keys key = (Keys)origPressedKeys[i];
+                var key = (Keys)origPressedKeys[i];
                 if (KeyStatesH.Contains(key)) { if (((KeyStateH)KeyStatesH[key]).Timer <= 0) pressedKeys.Add(key); }
-                else { KeyStatesH.Add(key, new KeyStateH(.4)); pressedKeys.Add(key); }
+                else { KeyStatesH.Add(key, new KeyStateH(.6)); pressedKeys.Add(key); }
             }
             return pressedKeys.ToArray();
         }
