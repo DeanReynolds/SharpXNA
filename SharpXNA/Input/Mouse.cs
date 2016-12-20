@@ -8,7 +8,6 @@ namespace SharpXNA.Input
     public static class Mouse
     {
         private static MouseState state, lastState;
-        public static Vector2 CameraPosition;
 
         public static int X { get { return (int)((state.X / (float)Screen.WindowWidth) * Screen.BackBufferWidth); } }
         public static int Y { get { return (int)((state.Y / (float)Screen.WindowHeight) * Screen.BackBufferHeight); } }

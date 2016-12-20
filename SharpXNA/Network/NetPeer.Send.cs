@@ -113,7 +113,8 @@ namespace Lidgren.Network
 			{
 				if (msg.m_isSent == false)
 					Recycle(msg);
-				throw new NetException("recipients must contain at least one item");
+                //throw new NetException("recipients must contain at least one item");
+                return;
 			}
 			if (method == NetDeliveryMethod.Unreliable || method == NetDeliveryMethod.ReliableUnordered)
 				NetException.Assert(sequenceChannel == 0, "Delivery method " + method + " cannot use sequence channels other than 0!");
@@ -134,6 +135,13 @@ namespace Lidgren.Network
 						Interlocked.Decrement(ref msg.m_recyclingCount);
 						continue;
 					}
+                    if (conn.m_isThrottled)
+                    {
+                        //Console.WriteLine("enqueing throttled msg..");
+                        Interlocked.Decrement(ref msg.m_recyclingCount);
+                        conn.m_throttledMessages.Add(new NetConnection.ThrottledMessage(msg, method, sequenceChannel));
+                        continue;
+                    }
 					NetSendResult res = conn.EnqueueMessage(msg, method, sequenceChannel);
 					if (res == NetSendResult.Dropped)
 						Interlocked.Decrement(ref msg.m_recyclingCount);

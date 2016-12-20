@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 #if !__NOIPENDPOINT__
 using NetEndPoint = System.Net.IPEndPoint;
@@ -34,6 +35,8 @@ namespace Lidgren.Network
 		private int m_sendBufferNumMessages;
 		private object m_tag;
 		internal NetConnectionStatistics m_statistics;
+        internal bool m_isThrottled;
+        internal List<ThrottledMessage> m_throttledMessages;
 
 		/// <summary>
 		/// Gets or sets the application defined object containing data about the connection
@@ -73,6 +76,43 @@ namespace Lidgren.Network
 		/// Gets the local hail message that was sent as part of the handshake
 		/// </summary>
 		public NetOutgoingMessage LocalHailMessage { get { return m_localHailMessage; } }
+
+        public bool IsThrottled
+        {
+            get { return m_isThrottled; }
+            set
+            {
+                m_isThrottled = value;
+                if (m_isThrottled) m_throttledMessages = new List<ThrottledMessage>();
+                else
+                {
+                    foreach (var msg in m_throttledMessages)
+                    {
+                        //Console.WriteLine("sending a throttled msg..");
+                        Interlocked.Add(ref msg.Msg.m_recyclingCount, 1);
+                        NetSendResult res = EnqueueMessage(msg.Msg, msg.Method, msg.SequenceChannel);
+                        if (res == NetSendResult.Dropped)
+                            Interlocked.Decrement(ref msg.Msg.m_recyclingCount);
+                    }
+                    m_throttledMessages.Clear();
+                    m_throttledMessages = null;
+                }
+            }
+        }
+
+        public struct ThrottledMessage
+        {
+            public NetOutgoingMessage Msg;
+            public NetDeliveryMethod Method;
+            public int SequenceChannel;
+
+            public ThrottledMessage(NetOutgoingMessage msg, NetDeliveryMethod method, int sequenceChannel)
+            {
+                Msg = msg;
+                Method = method;
+                SequenceChannel = sequenceChannel;
+            }
+        }
 
 		// gets the time before automatically resending an unacked message
 		internal double GetResendDelay()

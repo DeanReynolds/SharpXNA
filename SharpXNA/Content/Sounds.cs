@@ -32,7 +32,7 @@ namespace SharpXNA
         {
             if (path == null) path = Path.GetDirectoryName(Globe.Assembly.Location);
             else if (path.StartsWith(".")) path = (Path.GetDirectoryName(Globe.Assembly.Location) + path.Substring(1));
-            var mainPath = (Path.GetDirectoryName(Globe.Assembly.Location) + "\\" + Globe.ContentManager.RootDirectory + "\\" + RootDirectory);
+            var mainPath = (Path.GetDirectoryName(Globe.Assembly.Location) + "\\" + (!string.IsNullOrEmpty(Globe.ContentManager.RootDirectory) ? (Globe.ContentManager.RootDirectory + "\\") : null) + RootDirectory);
             if (!Directory.Exists(path)) return;
             var files = Globe.DirSearch(path, ".wav");
             foreach (var file in files)
@@ -75,7 +75,7 @@ namespace SharpXNA
         {
             for (var i = 0; i < Channels.Length; i++)
             {
-                if ((Channels[i] != null) || (_kill[i] && (Channels[i].State == SoundState.Stopped))) continue;
+                if ((Channels[i] != null) && (!_kill[i] || (Channels[i].State != SoundState.Stopped))) continue;
                 Channels[i] = sound.CreateInstance();
                 Channels[i].IsLooped = loop;
                 Channels[i].Volume = volume;
@@ -86,6 +86,7 @@ namespace SharpXNA
             return null;
         }
         
+        public static void Kill(byte channel) { if (Channels[channel] != null) { Channels[channel].Stop(); Channels[channel] = null; } }
         private static void WriteWave(BinaryWriter writer, int channels, int rate, byte[] data)
         {
             writer.Write(new char[4] { 'R', 'I', 'F', 'F' });

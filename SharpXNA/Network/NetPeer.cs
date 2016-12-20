@@ -84,7 +84,12 @@ namespace Lidgren.Network
 			get
 			{
 				lock (m_connections)
-					return new List<NetConnection>(m_connections);
+                {
+                    //var connections = new List<NetConnection>(m_connections);
+                    //for (var i = 0; i < connections.Count; i++) if (connections[i].throttled) { connections.RemoveAt(i); i--; }
+                    //return connections;
+                    return new List<NetConnection>(m_connections);
+                }
 			}
 		}
 

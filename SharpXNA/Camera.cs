@@ -19,7 +19,12 @@ namespace SharpXNA
         internal Matrix _linearPositionTranslation, _pointPositionTranslation, _rotationZ, _scale, _screenTranslation, _linearMatrix, _pointMatrix, _invert;
 
         public void UpdatePositionMatrices() { _linearPositionTranslation = CreateLinearPositionTranslation(_position); _pointPositionTranslation = CreatePointPositionTranslation(_position); }
-        public void UpdateViewMatrices() { _linearMatrix = CreateCameraMatrix(_linearPositionTranslation, _rotationZ, _scale, ScreenTranslation); _pointMatrix = CreateCameraMatrix(_pointPositionTranslation, _rotationZ, _scale, ScreenTranslation); _invert = Matrix.Invert(_linearMatrix); }
+        public void UpdateViewMatrices()
+        {
+            _linearMatrix = CreateCameraMatrix(_linearPositionTranslation, _rotationZ, _scale, ScreenTranslation);
+            _pointMatrix = CreateCameraMatrix(_pointPositionTranslation, _rotationZ, _scale, ScreenTranslation);
+            _invert = Matrix.Invert(_linearMatrix); UpdateMousePosition();
+        }
 
         public static Matrix CreateLinearPositionTranslation(Vector2 position) { return Matrix.CreateTranslation(new Vector3(-position, 0)); }
         public static Matrix CreatePointPositionTranslation(Vector2 position) { return Matrix.CreateTranslation(new Vector3(-new Vector2((int)Math.Round(position.X), (int)Math.Round(position.Y)), 0)); }
@@ -48,11 +53,14 @@ namespace SharpXNA
         }
 
         public enum Samplers { Linear, Point }
-        public Matrix View(Samplers sampler = Samplers.Linear)
+        public Matrix View(Samplers sampler = Samplers.Linear) { return ((sampler == Samplers.Linear) ? _linearMatrix : _pointMatrix); }
+
+        public void UpdateMousePosition()
         {
-            Mouse.CameraPosition = Mouse.Position.ToVector2();
-            Vector2.Transform(ref Mouse.CameraPosition, ref _invert, out Mouse.CameraPosition);
-            return ((sampler == Samplers.Linear) ? _linearMatrix : _pointMatrix);
+            var mousePos = Mouse.Position.ToVector2();
+            Vector2.Transform(ref mousePos, ref _invert, out mousePos);
+            MousePosition = mousePos;
         }
+        public Vector2 MousePosition { get; private set; }
     }
 }

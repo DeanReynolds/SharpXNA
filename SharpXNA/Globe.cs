@@ -32,7 +32,7 @@ namespace SharpXNA
         public static void Add<T>(T service) { _container.AddService(typeof(T), service); }
         public static void Remove<T>() { _container.RemoveService(typeof(T)); }
 
-        public static Assembly Assembly => Assembly.GetExecutingAssembly();
+        public static Assembly Assembly { get { return Assembly.GetExecutingAssembly(); } }
 
         public static string[] StringsBetween(string text, char both) { return StringsBetween(text, both, both); }
         public static string[] StringsBetween(string text, string both) { return StringsBetween(text, both, both); }
@@ -94,17 +94,6 @@ namespace SharpXNA
         public static Vector2 Move(Vector2 position, float angle, float velocity) { return (position + new Vector2(((float)Math.Cos(angle) * velocity), ((float)Math.Sin(angle) * velocity))); }
         public static Vector2 Move(Vector2 position, Vector2 other, float velocity) { return Move(position, Angle(position, other), velocity); }
 
-        public static int Difference(sbyte a, sbyte b) { return (Math.Max(a, b) - Math.Min(a, b)); }
-        public static int Difference(byte a, byte b) { return (Math.Max(a, b) - Math.Min(a, b)); }
-        public static int Difference(short a, short b) { return (Math.Max(a, b) - Math.Min(a, b)); }
-        public static int Difference(ushort a, ushort b) { return (Math.Max(a, b) - Math.Min(a, b)); }
-        public static int Difference(int a, int b) { return (Math.Max(a, b) - Math.Min(a, b)); }
-        public static uint Difference(uint a, uint b) { return (Math.Max(a, b) - Math.Min(a, b)); }
-        public static float Difference(float a, float b) { return (Math.Max(a, b) - Math.Min(a, b)); }
-        public static double Difference(double a, double b) { return (Math.Max(a, b) - Math.Min(a, b)); }
-        public static long Difference(long a, long b) { return (Math.Max(a, b) - Math.Min(a, b)); }
-        public static ulong Difference(ulong a, ulong b) { return (Math.Max(a, b) - Math.Min(a, b)); }
-
         public static float VolumeFromDistance(this Vector2 from, Vector2 to, float fade, float max) { return MathHelper.Clamp(((fade - (Vector2.Distance(from, to) - max)) / fade), 0, 1); }
         public static float AngleDifference(float a, float b)
         {
@@ -116,8 +105,8 @@ namespace SharpXNA
         public static double RandomDouble() { return _systemRandom.NextDouble(); }
         public static int Random(int min, int max) { return _systemRandom.Next(min, (max + 1)); }
         public static float Random(float min, float max) { return (float)Random(min, (double)max); }
-        public static double Random(double min, double max) { return (min + (_systemRandom.NextDouble() * Difference(min, max))); }
-        public static long Random(long min, long max) { return (long)(min + (_systemRandom.NextDouble() * Difference(min, max))); }
+        public static double Random(double min, double max) { return (min + (_systemRandom.NextDouble() * Math.Abs(max - min))); }
+        public static long Random(long min, long max) { return (long)(min + (_systemRandom.NextDouble() * Math.Abs(max - min))); }
         public static int Random(int max) { return Random(0, max); }
         public static float Random(float max) { return (float)Random((double)max); }
         public static double Random(double max) { return Random(0, max); }
@@ -147,18 +136,6 @@ namespace SharpXNA
         public static ulong Max(params ulong[] values) { var value = values[0]; for (var i = 1; i < values.Length; i++) value = System.Math.Max(value, values[i]); return value; }
         public static ushort Max(params ushort[] values) { var value = values[0]; for (var i = 1; i < values.Length; i++) value = System.Math.Max(value, values[i]); return value; }
 
-        public static byte Dif(byte a, byte b) { return (byte)(Max(a, b) - Min(a, b)); }
-        public static decimal Dif(decimal a, decimal b) { return (Max(a, b) - Min(a, b)); }
-        public static double Dif(double a, double b) { return (Max(a, b) - Min(a, b)); }
-        public static float Dif(float a, float b) { return (Max(a, b) - Min(a, b)); }
-        public static int Dif(int a, int b) { return (Max(a, b) - Min(a, b)); }
-        public static long Dif(long a, long b) { return (Max(a, b) - Min(a, b)); }
-        public static sbyte Dif(sbyte a, sbyte b) { return (sbyte)(Max(a, b) - Min(a, b)); }
-        public static short Dif(short a, short b) { return (short)(Max(a, b) - Min(a, b)); }
-        public static uint Dif(uint a, uint b) { return (Max(a, b) - Min(a, b)); }
-        public static ulong Dif(ulong a, ulong b) { return (Max(a, b) - Min(a, b)); }
-        public static ushort Dif(ushort a, ushort b) { return (ushort)(Max(a, b) - Min(a, b)); }
-
         public static double Avg(params byte[] values) { double value = values[0]; for (int i = 1; i < values.Length; i++) value += values[i]; return (value / values.Length); }
         public static decimal Avg(params decimal[] values) { decimal value = values[0]; for (int i = 1; i < values.Length; i++) value += values[i]; return (value / values.Length); }
         public static double Avg(params double[] values) { double value = values[0]; for (int i = 1; i < values.Length; i++) value += values[i]; return (value / values.Length); }
@@ -172,7 +149,7 @@ namespace SharpXNA
         public static double Avg(params ushort[] values) { double value = values[0]; for (int i = 1; i < values.Length; i++) value += values[i]; return (value / values.Length); }
 
         public static T Pick<T>(params T[] values) { return (T)values[Random(values.Length - 1)]; }
-        public static bool Chance(int value, int max = 100) { return (Random((max - 1)) <= (value - 1)); }
+        public static bool Chance(float value) { return (Random(100f) <= value); }
 
         public static bool Matches<T>(this T obj, params T[] args) { return args.Contains(obj); }
         public static bool Matches<T>(this List<T> original, List<T> other)
