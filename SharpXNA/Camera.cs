@@ -39,7 +39,7 @@ namespace SharpXNA
             UpdatePositionMatrices();
             _angle = angle; _rotationZ = CreateRotationZ(angle);
             _zoom = zoom; _scale = CreateScale(zoom);
-            _screenTranslation = CreateScreenTranslation(Screen.BackBufferWidth, Screen.BackBufferHeight);
+            _screenTranslation = CreateScreenTranslation(Screen.ViewportWidth, Screen.ViewportHeight);
             UpdateViewMatrices();
         }
         public Camera(Vector2 position, float angle = 0, float zoom = 1)
@@ -48,7 +48,7 @@ namespace SharpXNA
             UpdatePositionMatrices();
             _angle = angle; _rotationZ = CreateRotationZ(angle);
             _zoom = zoom; _scale = CreateScale(zoom);
-            _screenTranslation = CreateScreenTranslation(Screen.BackBufferWidth, Screen.BackBufferHeight);
+            _screenTranslation = CreateScreenTranslation(Screen.ViewportWidth, Screen.ViewportHeight);
             UpdateViewMatrices();
         }
 

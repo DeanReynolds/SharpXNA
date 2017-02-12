@@ -9,8 +9,8 @@ namespace SharpXNA.Input
     {
         private static MouseState state, lastState;
 
-        public static int X { get { return (int)((state.X / (float)Screen.WindowWidth) * Screen.BackBufferWidth); } }
-        public static int Y { get { return (int)((state.Y / (float)Screen.WindowHeight) * Screen.BackBufferHeight); } }
+        public static int X { get { return (int)(((state.X / (float)Screen.WindowWidth) * Screen.BackBufferWidth) - Globe.Viewport.X); } }
+        public static int Y { get { return (int)(((state.Y / (float)Screen.WindowHeight) * Screen.BackBufferHeight) - Globe.Viewport.Y); } }
         public static Point Position { get { return new Point(X, Y); } set { Microsoft.Xna.Framework.Input.Mouse.SetPosition(value.X, value.Y); } }
 
         static Mouse() { released = new Dictionary<Buttons, bool>(3); for (int i = 0; i < 3; i++) released.Add((Buttons)i, true); }

@@ -54,14 +54,14 @@ namespace SharpXNA
         public void Add(Texture2D texture, string path) { _assets.Add(path, texture); }
         public Texture2D Load(string path)
         {
-            using (var fs = new FileStream((@".\" + Globe.ContentManager.RootDirectory + "\\" + RootDirectory + "\\" + path), FileMode.Open))
+            using (var fs = new FileStream((@".\" + Globe.ContentManager.RootDirectory + "\\" + RootDirectory + "\\" + path), FileMode.Open, FileAccess.Read, FileShare.Read))
                 _assets.Add(path, Texture2D.FromStream(Globe.GraphicsDevice, fs));
             return _assets[path];
         }
         public void LoadAll(string path = null)
         {
-            if (path == null) path = Path.GetDirectoryName(Globe.Assembly.Location);
-            else if (path.StartsWith(".")) path = (Path.GetDirectoryName(Globe.Assembly.Location) + path.Substring(1));
+            if (path == null) path = (Path.GetDirectoryName(Globe.Assembly.Location) + "\\" + Globe.ContentManager.RootDirectory + "\\" + RootDirectory);
+            else if (path.StartsWith(".")) path = (Path.GetDirectoryName(Globe.Assembly.Location) + "\\" + Globe.ContentManager.RootDirectory + "\\" + RootDirectory + "\\" + path.Substring(1));
             var mainPath = (Path.GetDirectoryName(Globe.Assembly.Location) + "\\" + (!string.IsNullOrEmpty(Globe.ContentManager.RootDirectory) ? (Globe.ContentManager.RootDirectory + "\\") : null) + RootDirectory);
             if (!Directory.Exists(path)) return;
             var files = Globe.DirSearch(path, ".png", ".jpeg", ".jpg", ".dds");
@@ -70,7 +70,7 @@ namespace SharpXNA
                 var directoryName = Path.GetDirectoryName(file);
                 if (directoryName == null) continue;
                 var name = ((directoryName.Length == mainPath.Length) ? Path.GetFileName(file) : Path.Combine(directoryName.Remove(0, mainPath.Length + 1), Path.GetFileName(file)));
-                using (var fs = new FileStream(file, FileMode.Open)) Add(Texture2D.FromStream(Globe.GraphicsDevice, fs), name);
+                using (var fs = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read)) Add(Texture2D.FromStream(Globe.GraphicsDevice, fs), name);
             }
         }
         public void Dispose(string path) { _assets[path].Dispose(); _assets.Remove(path); }

@@ -30,8 +30,8 @@ namespace SharpXNA.Collision
             }
         }
 
-        public Polygon(params Line[] lines) { Lines = lines; }
-        public Polygon(List<Line> lines) { Lines = lines.ToArray(); }
+        public Polygon(params Line[] lines) { Lines = lines; FixedWidth = Width; FixedHeight = Height; }
+        public Polygon(List<Line> lines) { Lines = lines.ToArray(); FixedWidth = Width; FixedHeight = Height; }
 
         public void Draw() { Draw(Color.White, 1, SpriteEffects.None, 0); }
         public void Draw(SpriteEffects effect) { Draw(Color.White, 1, effect, 0); }
@@ -73,6 +73,8 @@ namespace SharpXNA.Collision
         public float MaxY { get { var maxY = float.MinValue; foreach (var t in Lines) maxY = MathHelper.Max(maxY, MathHelper.Max(t.StartY, t.EndY)); return maxY; } }
         public float Width => (MaxX - MinX);
         public float Height => (MaxY - MinY);
+        public float FixedWidth { get; private set; }
+        public float FixedHeight { get; private set; }
 
         public Polygon Clone()
         {

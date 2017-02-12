@@ -14,7 +14,7 @@ namespace SharpXNA
             {
                 var config = new NetPeerConfiguration("Game") { AutoFlushSendQueue = true };
                 config.EnableMessageType(NetIncomingMessageType.ConnectionApproval);
-                config.DisableMessageType(NetIncomingMessageType.ConnectionLatencyUpdated);
+                config.EnableMessageType(NetIncomingMessageType.ConnectionLatencyUpdated);
                 config.DisableMessageType(NetIncomingMessageType.DebugMessage);
                 config.DisableMessageType(NetIncomingMessageType.DiscoveryRequest);
                 config.DisableMessageType(NetIncomingMessageType.DiscoveryResponse);

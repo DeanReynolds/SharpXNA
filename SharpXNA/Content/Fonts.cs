@@ -20,8 +20,8 @@ namespace SharpXNA
         public SpriteFont Load(string path) { _assets.Add(path, Globe.ContentManager.Load<SpriteFont>(RootDirectory + "\\" + path)); return _assets[path]; }
         public void LoadAll(string path = null)
         {
-            if (path == null) path = Path.GetDirectoryName(Globe.Assembly.Location);
-            else if (path.StartsWith(".")) path = (Path.GetDirectoryName(Globe.Assembly.Location) + path.Substring(1));
+            if (path == null) path = (Path.GetDirectoryName(Globe.Assembly.Location) + "\\" + Globe.ContentManager.RootDirectory + "\\" + RootDirectory);
+            else if (path.StartsWith(".")) path = (Path.GetDirectoryName(Globe.Assembly.Location) + "\\" + Globe.ContentManager.RootDirectory + "\\" + RootDirectory + "\\" + path.Substring(1));
             var mainPath = (Path.GetDirectoryName(Globe.Assembly.Location) + "\\" + Globe.ContentManager.RootDirectory + "\\" + RootDirectory);
             if (!Directory.Exists(path)) return;
             var files = Globe.DirSearch(path, ".xnb");
@@ -29,7 +29,7 @@ namespace SharpXNA
             {
                 var directoryName = Path.GetDirectoryName(file);
                 if (directoryName == null) continue;
-                var name = Path.GetFileNameWithoutExtension(((directoryName.Length == mainPath.Length) ? Path.GetFileName(file) : Path.Combine(directoryName.Remove(0, mainPath.Length + 1), Path.GetFileName(file))));
+                var name = Path.GetFileNameWithoutExtension(((directoryName.Length == mainPath.Length) ? Path.GetFileNameWithoutExtension(file) : Path.Combine(directoryName.Remove(0, mainPath.Length + 1), Path.GetFileNameWithoutExtension(file))));
                 Add(Globe.ContentManager.Load<SpriteFont>($"{RootDirectory}\\{name}"), name);
             }
         }

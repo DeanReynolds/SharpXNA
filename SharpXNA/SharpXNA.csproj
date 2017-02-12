@@ -60,6 +60,7 @@
     <Compile Include="Content\Fonts.cs" />
     <Compile Include="Content\Origin.cs" />
     <Compile Include="Content\Sounds.cs" />
+    <Compile Include="Content\Effects.cs" />
     <Compile Include="Content\Textures.cs" />
     <Compile Include="Globe.cs" />
     <Compile Include="Input\Keyboard.cs" />

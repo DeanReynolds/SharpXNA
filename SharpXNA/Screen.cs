@@ -17,7 +17,7 @@ namespace SharpXNA
         public static void Set(int width, int height, bool vsync) { Globe.GraphicsDeviceManager.PreferredBackBufferWidth = width; Globe.GraphicsDeviceManager.PreferredBackBufferHeight = height; Globe.GraphicsDeviceManager.SynchronizeWithVerticalRetrace = vsync; Globe.GraphicsDeviceManager.ApplyChanges(); }
         public static void Set(int width, int height, bool fullscreen, bool vsync) { Globe.GraphicsDeviceManager.PreferredBackBufferWidth = width; Globe.GraphicsDeviceManager.PreferredBackBufferHeight = height; Globe.GraphicsDeviceManager.IsFullScreen = fullscreen; Globe.GraphicsDeviceManager.SynchronizeWithVerticalRetrace = vsync; Globe.GraphicsDeviceManager.ApplyChanges(); }
 
-        public static Rectangle ViewportBounds { get { try { return Globe.Viewport.Bounds; } catch { return Rectangle.Empty; } } }
+        public static Rectangle ViewportBounds { get { try { return new Rectangle(0, 0, Globe.Viewport.Width, Globe.Viewport.Height); } catch { return Rectangle.Empty; } } }
         public static int ViewportWidth { get { try { return Globe.Viewport.Width; } catch { return 0; } } }
         public static int ViewportHeight { get { try { return Globe.Viewport.Height; } catch { return 0; } } }
 
@@ -25,6 +25,49 @@ namespace SharpXNA
         public static int WindowWidth { get { try { return Globe.GameWindow.ClientBounds.Width; } catch { return 0; } } }
         public static int WindowHeight { get { try { return Globe.GameWindow.ClientBounds.Height; } catch { return 0; } } }
 
+        public static int VirtualWidth { get; internal set; }
+        public static int VirtualHeight { get; internal set; }
+
+        public static void SetupVirtualResolution(int width, int height)
+        {
+            VirtualWidth = width; VirtualHeight = height;
+            var targetAspectRatio = (width / (float)height);
+            var width2 = BackBufferWidth;
+            var height2 = (int)(width2 / targetAspectRatio + .5f);
+            if (height2 > BackBufferHeight)
+            {
+                height2 = BackBufferHeight;
+                width2 = (int)(height2 * targetAspectRatio + .5f);
+            }
+            Globe.Viewport = new Viewport()
+            {
+                X = ((BackBufferWidth / 2) - (width2 / 2)),
+                Y = ((BackBufferHeight / 2) - (height2 / 2)),
+                Width = width2,
+                Height = height2
+            };
+        }
+        public static void SetupVirtualResolution(int width, int height, out float zoom)
+        {
+            VirtualWidth = width; VirtualHeight = height;
+            float xZoom = (BackBufferWidth / (float)width), yZoom = (BackBufferHeight / (float)height);
+            var targetAspectRatio = (width / (float)height);
+            var width2 = BackBufferWidth;
+            var height2 = (int)(width2 / targetAspectRatio + .5f);
+            if (height2 > BackBufferHeight)
+            {
+                height2 = BackBufferHeight;
+                width2 = (int)(height2 * targetAspectRatio + .5f);
+            }
+            Globe.Viewport = new Viewport()
+            {
+                X = ((BackBufferWidth / 2) - (width2 / 2)),
+                Y = ((BackBufferHeight / 2) - (height2 / 2)),
+                Width = width2,
+                Height = height2
+            };
+            zoom = MathHelper.Min(xZoom, yZoom);
+        }
         public static void Expand(bool hideControlBar)
         {
             if (hideControlBar) Globe.Form.FormBorderStyle = FormBorderStyle.None;

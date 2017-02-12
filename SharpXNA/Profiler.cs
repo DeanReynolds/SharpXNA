@@ -34,16 +34,16 @@ namespace SharpXNA
             lock (Profiles)
             {
                 batch.Begin(SpriteSortMode.Deferred, SamplerState.PointClamp);
-                int x = (Screen.BackBufferWidth - (width + 5)), y = 5;
-                batch.FillRectangle(new Rectangle(x, y, width, (Screen.BackBufferHeight - 10)), (Color.Black*.8f), 1);
+                int x = (Screen.ViewportWidth - (width + 5)), y = 5;
+                batch.FillRectangle(new Rectangle(x, y, width, (Screen.ViewportHeight - 10)), (Color.Black*.8f), 1);
                 var str = $"Update FPS: {Math.Round(Performance.UpdateFPS.Current)} (Avg: {Math.Round(Performance.UpdateFPS.Average)}) - Draw FPS: {Math.Round(Performance.DrawFPS.Current)} (Avg: {Math.Round(Math.Round(Performance.DrawFPS.Average))})";
                 var fontScale = new Vector2(.15f);
                 batch.DrawString(str, font, new Vector2((x + (width/2f)), (y + ((font.MeasureString(str).Y*fontScale.Y)/2))), (Color.White*.8f), (Color.Black*.8f), Origin.Center, fontScale);
                 y += (int) (Math.Ceiling(font.MeasureString(str).Y*fontScale.Y) + 1);
                 batch.DrawLine(new Vector2(x, y), new Vector2((x + width), y), (Color.White*.8f));
                 batch.DrawLine(new Vector2(x, (y + 18)), new Vector2((x + width), (y + 18)), (Color.White*.8f));
-                batch.DrawLine(new Vector2((x + ((width/5)*3)), y), new Vector2((x + ((width/5)*3)), (y + (Screen.BackBufferHeight - 25))), (Color.White*.8f));
-                batch.DrawLine(new Vector2((x + ((width/5)*4)), y), new Vector2((x + ((width/5)*4)), (y + (Screen.BackBufferHeight - 25))), (Color.White*.8f));
+                batch.DrawLine(new Vector2((x + ((width/5)*3)), y), new Vector2((x + ((width/5)*3)), (y + (Screen.ViewportHeight - 25))), (Color.White*.8f));
+                batch.DrawLine(new Vector2((x + ((width/5)*4)), y), new Vector2((x + ((width/5)*4)), (y + (Screen.ViewportHeight - 25))), (Color.White*.8f));
                 x += 3;
                 y += 3;
                 fontScale = new Vector2(.1f);

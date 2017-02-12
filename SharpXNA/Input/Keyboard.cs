@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Collections;
+using SharpXNA.Plugins;
 
 namespace SharpXNA.Input
 {
@@ -66,7 +67,6 @@ namespace SharpXNA.Input
         public static event InputRecievedEvent InputRecieved;
 
         public static OrderedDictionary KeyStatesH = new OrderedDictionary(System.Enum.GetValues(typeof(Keys)).Length);
-        public static object KeyFromIndex(this OrderedDictionary dictionary, int index) { if (index == -1) return null; return ((dictionary.Count > index) ? dictionary.Cast<DictionaryEntry>().ElementAt(index).Key : null); }
         public static Keys[] GetPressedKeys()
         {
             var origPressedKeys = KeyState.GetPressedKeys();

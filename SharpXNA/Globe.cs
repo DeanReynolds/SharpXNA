@@ -21,7 +21,7 @@ namespace SharpXNA
         static Globe() { _container = new GameServiceContainer(); _systemRandom = new Random(); }
 
         public static Form Form { get { return Get<Form>(); } set { Add(value); } }
-        public static Viewport Viewport { get { return Get<Viewport>(); } set { Add(value); } }
+        public static Viewport Viewport { get { return GraphicsDevice.Viewport; } set { GraphicsDevice.Viewport = value; } }
         public static GameWindow GameWindow { get { return Get<GameWindow>(); } set { Add(value); } }
         public static ContentManager ContentManager { get { return Get<ContentManager>(); } set { Add(value); } }
         public static GraphicsDevice GraphicsDevice { get { return Get<GraphicsDevice>(); } set { Add(value); } }
