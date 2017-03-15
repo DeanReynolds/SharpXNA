@@ -27,7 +27,7 @@ namespace SharpXNA
         }
 
         public static Matrix CreateLinearPositionTranslation(Vector2 position) { return Matrix.CreateTranslation(new Vector3(-position, 0)); }
-        public static Matrix CreatePointPositionTranslation(Vector2 position) { return Matrix.CreateTranslation(new Vector3(-new Vector2((int)Math.Round(position.X), (int)Math.Round(position.Y)), 0)); }
+        public static Matrix CreatePointPositionTranslation(Vector2 position) { return Matrix.CreateTranslation(new Vector3(-new Vector2((int)position.X, (int)position.Y), 0)); }
         public static Matrix CreateRotationZ(float angle) { return Matrix.CreateRotationZ(-angle); }
         public static Matrix CreateScale(float zoom) { return Matrix.CreateScale(new Vector3(zoom, zoom, 1)); }
         public static Matrix CreateScreenTranslation(float width, float height) { return Matrix.CreateTranslation((width / 2), (height / 2), 0); }

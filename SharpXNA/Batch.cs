@@ -306,6 +306,6 @@ namespace SharpXNA
         public void DrawLine(Vector2 start, Vector2 end, Color color, float thickness) { DrawLine(start, end, color, thickness, SpriteEffects.None, 0); }
         public void DrawLine(Vector2 start, Vector2 end, Color color, float thickness, float layer) { DrawLine(start, end, color, thickness, SpriteEffects.None, layer); }
         public void DrawLine(Vector2 start, Vector2 end, Color color, float thickness, SpriteEffects effect) { DrawLine(start, end, color, thickness, effect, 0); }
-        public void DrawLine(Vector2 start, Vector2 end, Color color, float thickness, SpriteEffects effect, float layer) { Draw(WhitePixel, start, null, color, Globe.Angle(start, end), new Origin(0, .5f), new Vector2(MathHelper.Max(1, Vector2.Distance(start, end)), thickness), effect, layer); }
+        public void DrawLine(Vector2 start, Vector2 end, Color color, float thickness, SpriteEffects effect, float layer) { Draw(WhitePixel, start, null, color, Engine.Angle(start, end), new Origin(0, .5f), new Vector2(MathHelper.Max(1, Vector2.Distance(start, end)), thickness), effect, layer); }
     }
 }

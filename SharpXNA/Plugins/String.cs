@@ -30,7 +30,7 @@ namespace SharpXNA.Plugins
            (key == Keyboard.Keys.RightAlt) || (key == Keyboard.Keys.LeftWindows) || (key == Keyboard.Keys.RightWindows) || (key == Keyboard.Keys.Up) || (key == Keyboard.Keys.Down) ||
            (key == Keyboard.Keys.Left) || (key == Keyboard.Keys.Right) || (key == Keyboard.Keys.Add) || (key == Keyboard.Keys.Subtract) || (key == Keyboard.Keys.Divide) ||
            (key == Keyboard.Keys.Apps) || (key == Keyboard.Keys.PrintScreen) || (key == Keyboard.Keys.Print) || (key == Keyboard.Keys.Scroll) || (key == Keyboard.Keys.Pause))
-                    return newString;
+                    continue;
                 bool caps = System.Windows.Forms.Control.IsKeyLocked(System.Windows.Forms.Keys.CapsLock), shift = (Keyboard.Holding(Keyboard.Keys.LeftShift) || Keyboard.Holding(Keyboard.Keys.RightShift));
                 if (key == Keyboard.Keys.Back) { if (!string.IsNullOrEmpty(newString)) newString = newString.Substring(0, (newString.Length - 1)); }
                 else if (key == Keyboard.Keys.OemPeriod)

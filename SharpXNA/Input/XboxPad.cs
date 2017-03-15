@@ -5,82 +5,45 @@ namespace SharpXNA.Input
 {
     public static class XboxPad
     {
-        private static readonly GamePadState[] S = new GamePadState[4];
-        private static readonly GamePadState[] LastS = new GamePadState[4];
+        internal static readonly GamePadState[] _state, _lastState;
 
-        public static void Update(GameTime Time)
+        static XboxPad() { _state = new GamePadState[4]; _lastState = new GamePadState[4]; }
+
+        public static void Update()
         {
             for (var i = 0; i < 4; i++)
             {
-                LastS[i] = S[i];
-                S[i] = GamePad.GetState((PlayerIndex)i);
+                _lastState[i] = _state[i];
+                _state[i] = GamePad.GetState((PlayerIndex)i);
             }
         }
-
-        /// <summary>
-        /// Check if a buttton on a pad has been pressed
-        /// </summary>
-        /// <param name="Button">The xbox pad button, to check.</param>
-        /// <param name="PlayerIndex">The pad (index) to check, use null for ANY pad.</param>
-        /// <returns>A True/False statement.</returns>
-        public static bool Pressed(Buttons Button, PlayerIndex? PlayerIndex = null)
+        
+        public static bool Pressed(Buttons button, PlayerIndex? playerIndex = null)
         {
-            if (PlayerIndex.HasValue)
-                return (S[(int)PlayerIndex].IsButtonDown((Microsoft.Xna.Framework.Input.Buttons)Button) &&
-                        ((LastS == null) ||
-                         LastS[(int)PlayerIndex].IsButtonUp((Microsoft.Xna.Framework.Input.Buttons)Button)));
-            var Pressing = false;
-            for (var i = 0; i < 4; i++)
-                if (S[i].IsButtonDown((Microsoft.Xna.Framework.Input.Buttons)Button) &&
-                    ((LastS == null) || LastS[i].IsButtonUp((Microsoft.Xna.Framework.Input.Buttons)Button)))
-                {
-                    Pressing = true;
-                    break;
-                }
-            return Pressing;
+            if (!playerIndex.HasValue)
+            {
+                for (var i = 0; i < 4; i++)
+                    if (_state[i].IsButtonDown((Microsoft.Xna.Framework.Input.Buttons)button) && ((_lastState[i] == null) || _lastState[i].IsButtonUp((Microsoft.Xna.Framework.Input.Buttons)button)))
+                        return true;
+                return false;
+            }
+            return (_state[(int)playerIndex].IsButtonDown((Microsoft.Xna.Framework.Input.Buttons)button) && ((_lastState[(int)playerIndex] == null) || _lastState[(int)playerIndex].IsButtonUp((Microsoft.Xna.Framework.Input.Buttons)button)));
         }
-
-        /// <summary>
-        /// Check if a buttton on a pad has been released
-        /// </summary>
-        /// <param name="Button">The xbox pad button, to check.</param>
-        /// <param name="PlayerIndex">The pad (index) to check, use null for ANY pad.</param>
-        /// <returns>A True/False statement.</returns>
-        public static bool Released(Buttons Button, PlayerIndex? PlayerIndex = null)
+        public static bool Released(Buttons button, PlayerIndex? playerIndex = null)
         {
-            if (PlayerIndex.HasValue)
-                return (S[(int)PlayerIndex].IsButtonUp((Microsoft.Xna.Framework.Input.Buttons)Button) &&
-                        ((LastS == null) ||
-                         LastS[(int)PlayerIndex].IsButtonDown((Microsoft.Xna.Framework.Input.Buttons)Button)));
-            var Pressing = false;
-            for (var i = 0; i < 4; i++)
-                if (S[i].IsButtonUp((Microsoft.Xna.Framework.Input.Buttons)Button) &&
-                    ((LastS == null) || LastS[i].IsButtonDown((Microsoft.Xna.Framework.Input.Buttons)Button)))
-                {
-                    Pressing = true;
-                    break;
-                }
-            return Pressing;
+            if (!playerIndex.HasValue)
+            {
+                for (var i = 0; i < 4; i++)
+                    if (_state[i].IsButtonUp((Microsoft.Xna.Framework.Input.Buttons)button) && ((_lastState[i] != null) && _lastState[i].IsButtonDown((Microsoft.Xna.Framework.Input.Buttons)button)))
+                        return true;
+                return false;
+            }
+            return (_state[(int)playerIndex].IsButtonUp((Microsoft.Xna.Framework.Input.Buttons)button) && ((_lastState[(int)playerIndex] != null) && _lastState[(int)playerIndex].IsButtonDown((Microsoft.Xna.Framework.Input.Buttons)button)));
         }
-
-        /// <summary>
-        /// Check if a buttton on a pad is being held
-        /// </summary>
-        /// <param name="Button">The xbox pad button, to check.</param>
-        /// <param name="PlayerIndex">The pad (index) to check, use null for ANY pad.</param>
-        /// <returns>A True/False statement.</returns>
-        public static bool Holding(Buttons Button, PlayerIndex? PlayerIndex = null)
+        public static bool Holding(Buttons button, PlayerIndex? playerIndex = null)
         {
-            if (PlayerIndex.HasValue)
-                return S[(int)PlayerIndex].IsButtonDown((Microsoft.Xna.Framework.Input.Buttons)Button);
-            var Pressing = false;
-            for (var i = 0; i < 4; i++)
-                if (S[i].IsButtonDown((Microsoft.Xna.Framework.Input.Buttons)Button))
-                {
-                    Pressing = true;
-                    break;
-                }
-            return Pressing;
+            if (!playerIndex.HasValue) { for (var i = 0; i < 4; i++) if (_state[i].IsButtonDown((Microsoft.Xna.Framework.Input.Buttons)button)) return true; }
+            return _state[(int)playerIndex].IsButtonDown((Microsoft.Xna.Framework.Input.Buttons)button);
         }
 
         public enum Buttons

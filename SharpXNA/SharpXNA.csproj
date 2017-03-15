@@ -62,7 +62,7 @@
     <Compile Include="Content\Sounds.cs" />
     <Compile Include="Content\Effects.cs" />
     <Compile Include="Content\Textures.cs" />
-    <Compile Include="Globe.cs" />
+    <Compile Include="Engine.cs" />
     <Compile Include="Input\Keyboard.cs" />
     <Compile Include="Input\Mouse.cs" />
     <Compile Include="Input\XboxPad.cs" />
@@ -141,11 +141,9 @@
     <Compile Include="Network\Platform\PlatformUnityExtras.cs" />
     <Compile Include="Network\Platform\PlatformWin32.cs" />
     <Compile Include="Network\Platform\PlatformWinRT.cs" />
-    <Compile Include="Plugins\Buffer.cs" />
     <Compile Include="Plugins\D2DMenu.cs" />
     <Compile Include="Plugins\INI.cs" />
     <Compile Include="Plugins\Pathfinder.cs" />
-    <Compile Include="Plugins\Performance.cs" />
     <Compile Include="Plugins\String.cs" />
     <Compile Include="Profiler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

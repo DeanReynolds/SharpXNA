@@ -6,24 +6,25 @@ namespace SharpXNA
 {
     public static class Screen
     {
-        public static Batch Batch { get { return Globe.Get<Batch>(); } set { Globe.Add(value); } }
+        internal static Batch _batch;
+        public static Batch Batch => _batch;
 
         public static Rectangle BackBufferBounds { get { try { return new Rectangle(0, 0, BackBufferWidth, BackBufferHeight); } catch { return Rectangle.Empty; } } }
-        public static int BackBufferWidth { get { return Globe.GraphicsDevice.PresentationParameters.BackBufferWidth; } set { Globe.GraphicsDeviceManager.PreferredBackBufferWidth = value; Globe.GraphicsDeviceManager.ApplyChanges(); } }
-        public static int BackBufferHeight { get { return Globe.GraphicsDevice.PresentationParameters.BackBufferHeight; } set { Globe.GraphicsDeviceManager.PreferredBackBufferHeight = value; Globe.GraphicsDeviceManager.ApplyChanges(); } }
-        public static bool Fullscreen { get { return Globe.GraphicsDeviceManager.IsFullScreen; } set { Globe.GraphicsDeviceManager.IsFullScreen = value; Globe.GraphicsDeviceManager.ApplyChanges(); } }
-        public static bool VSync { get { return Globe.GraphicsDeviceManager.SynchronizeWithVerticalRetrace; } set { Globe.GraphicsDeviceManager.SynchronizeWithVerticalRetrace = value; Globe.GraphicsDeviceManager.ApplyChanges(); } }
+        public static int BackBufferWidth { get { return Engine.GraphicsDevice.PresentationParameters.BackBufferWidth; } set { Engine.GraphicsDeviceManager.PreferredBackBufferWidth = value; Engine.GraphicsDeviceManager.ApplyChanges(); } }
+        public static int BackBufferHeight { get { return Engine.GraphicsDevice.PresentationParameters.BackBufferHeight; } set { Engine.GraphicsDeviceManager.PreferredBackBufferHeight = value; Engine.GraphicsDeviceManager.ApplyChanges(); } }
+        public static bool Fullscreen { get { return Engine.GraphicsDeviceManager.IsFullScreen; } set { Engine.GraphicsDeviceManager.IsFullScreen = value; Engine.GraphicsDeviceManager.ApplyChanges(); } }
+        public static bool VSync { get { return Engine.GraphicsDeviceManager.SynchronizeWithVerticalRetrace; } set { Engine.GraphicsDeviceManager.SynchronizeWithVerticalRetrace = value; Engine.GraphicsDeviceManager.ApplyChanges(); } }
         
-        public static void Set(int width, int height, bool vsync) { Globe.GraphicsDeviceManager.PreferredBackBufferWidth = width; Globe.GraphicsDeviceManager.PreferredBackBufferHeight = height; Globe.GraphicsDeviceManager.SynchronizeWithVerticalRetrace = vsync; Globe.GraphicsDeviceManager.ApplyChanges(); }
-        public static void Set(int width, int height, bool fullscreen, bool vsync) { Globe.GraphicsDeviceManager.PreferredBackBufferWidth = width; Globe.GraphicsDeviceManager.PreferredBackBufferHeight = height; Globe.GraphicsDeviceManager.IsFullScreen = fullscreen; Globe.GraphicsDeviceManager.SynchronizeWithVerticalRetrace = vsync; Globe.GraphicsDeviceManager.ApplyChanges(); }
+        public static void Set(int width, int height, bool vsync) { Engine.GraphicsDeviceManager.PreferredBackBufferWidth = width; Engine.GraphicsDeviceManager.PreferredBackBufferHeight = height; Engine.GraphicsDeviceManager.SynchronizeWithVerticalRetrace = vsync; Engine.GraphicsDeviceManager.ApplyChanges(); }
+        public static void Set(int width, int height, bool fullscreen, bool vsync) { Engine.GraphicsDeviceManager.PreferredBackBufferWidth = width; Engine.GraphicsDeviceManager.PreferredBackBufferHeight = height; Engine.GraphicsDeviceManager.IsFullScreen = fullscreen; Engine.GraphicsDeviceManager.SynchronizeWithVerticalRetrace = vsync; Engine.GraphicsDeviceManager.ApplyChanges(); }
 
-        public static Rectangle ViewportBounds { get { try { return new Rectangle(0, 0, Globe.Viewport.Width, Globe.Viewport.Height); } catch { return Rectangle.Empty; } } }
-        public static int ViewportWidth { get { try { return Globe.Viewport.Width; } catch { return 0; } } }
-        public static int ViewportHeight { get { try { return Globe.Viewport.Height; } catch { return 0; } } }
+        public static Rectangle ViewportBounds { get { try { return new Rectangle(0, 0, Engine.Viewport.Width, Engine.Viewport.Height); } catch { return Rectangle.Empty; } } }
+        public static int ViewportWidth { get { try { return Engine.Viewport.Width; } catch { return 0; } } }
+        public static int ViewportHeight { get { try { return Engine.Viewport.Height; } catch { return 0; } } }
 
-        public static Rectangle WindowBounds { get { try { return Globe.GameWindow.ClientBounds; } catch { return Rectangle.Empty; } } }
-        public static int WindowWidth { get { try { return Globe.GameWindow.ClientBounds.Width; } catch { return 0; } } }
-        public static int WindowHeight { get { try { return Globe.GameWindow.ClientBounds.Height; } catch { return 0; } } }
+        public static Rectangle WindowBounds { get { try { return Engine._gameWindow.ClientBounds; } catch { return Rectangle.Empty; } } }
+        public static int WindowWidth { get { try { return Engine._gameWindow.ClientBounds.Width; } catch { return 0; } } }
+        public static int WindowHeight { get { try { return Engine._gameWindow.ClientBounds.Height; } catch { return 0; } } }
 
         public static int VirtualWidth { get; internal set; }
         public static int VirtualHeight { get; internal set; }
@@ -39,7 +40,7 @@ namespace SharpXNA
                 height2 = BackBufferHeight;
                 width2 = (int)(height2 * targetAspectRatio + .5f);
             }
-            Globe.Viewport = new Viewport()
+            Engine.Viewport = new Viewport()
             {
                 X = ((BackBufferWidth / 2) - (width2 / 2)),
                 Y = ((BackBufferHeight / 2) - (height2 / 2)),
@@ -59,7 +60,7 @@ namespace SharpXNA
                 height2 = BackBufferHeight;
                 width2 = (int)(height2 * targetAspectRatio + .5f);
             }
-            Globe.Viewport = new Viewport()
+            Engine.Viewport = new Viewport()
             {
                 X = ((BackBufferWidth / 2) - (width2 / 2)),
                 Y = ((BackBufferHeight / 2) - (height2 / 2)),
@@ -70,84 +71,84 @@ namespace SharpXNA
         }
         public static void Expand(bool hideControlBar)
         {
-            if (hideControlBar) Globe.Form.FormBorderStyle = FormBorderStyle.None;
+            if (hideControlBar) Engine.Form.FormBorderStyle = FormBorderStyle.None;
             var screen = System.Windows.Forms.Screen.FromPoint(Cursor.Position);
-            Globe.Form.Location = screen.WorkingArea.Location;
-            Globe.Form.Size = screen.WorkingArea.Size;
+            Engine.Form.Location = screen.WorkingArea.Location;
+            Engine.Form.Size = screen.WorkingArea.Size;
         }
         public static void Center()
         {
-            var screen = System.Windows.Forms.Screen.FromRectangle(Globe.Form.Bounds);
-            Globe.Form.Location = new System.Drawing.Point(((screen.Bounds.X + (screen.Bounds.Width / 2)) - (int)System.Math.Round(Globe.Form.Width / 2f)),
-                ((screen.Bounds.Y + (screen.Bounds.Height / 2)) - (int)System.Math.Round(Globe.Form.Height / 2f)));
+            var screen = System.Windows.Forms.Screen.FromRectangle(Engine.Form.Bounds);
+            Engine.Form.Location = new System.Drawing.Point(((screen.Bounds.X + (screen.Bounds.Width / 2)) - (int)System.Math.Round(Engine.Form.Width / 2f)),
+                ((screen.Bounds.Y + (screen.Bounds.Height / 2)) - (int)System.Math.Round(Engine.Form.Height / 2f)));
         }
 
-        public static bool IsSetup => Batch.Begun;
-        public static void Setup(Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, matrix); }
-        public static void Setup(SpriteSortMode sortMode, Matrix? matrix = null) { Batch.Begin(sortMode, null, null, null, null, null, matrix); }
-        public static void Setup(BlendState blendState, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, null, null, null, null, matrix); }
-        public static void Setup(SpriteSortMode sortMode, BlendState blendState, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, null, null, null, null, matrix); }
-        public static void Setup(SamplerState samplerState, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, null, samplerState, null, null, null, matrix); }
-        public static void Setup(SpriteSortMode sortMode, SamplerState samplerState, Matrix? matrix = null) { Batch.Begin(sortMode, null, samplerState, null, null, null, matrix); }
-        public static void Setup(BlendState blendState, SamplerState samplerState, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, samplerState, null, null, null, matrix); }
-        public static void Setup(SpriteSortMode sortMode, BlendState blendState, SamplerState samplerState, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, samplerState, null, null, null, matrix); }
-        public static void Setup(DepthStencilState depthStencilState, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, null, null, depthStencilState, null, null, matrix); }
-        public static void Setup(SpriteSortMode sortMode, DepthStencilState depthStencilState, Matrix? matrix = null) { Batch.Begin(sortMode, null, null, depthStencilState, null, null, matrix); }
-        public static void Setup(BlendState blendState, DepthStencilState depthStencilState, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, null, depthStencilState, null, null, matrix); }
-        public static void Setup(SpriteSortMode sortMode, BlendState blendState, DepthStencilState depthStencilState, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, null, depthStencilState, null, null, matrix); }
-        public static void Setup(SamplerState samplerState, DepthStencilState depthStencilState, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, null, samplerState, depthStencilState, null, null, matrix); }
-        public static void Setup(SpriteSortMode sortMode, SamplerState samplerState, DepthStencilState depthStencilState, Matrix? matrix = null) { Batch.Begin(sortMode, null, samplerState, depthStencilState, null, null, matrix); }
-        public static void Setup(BlendState blendState, SamplerState samplerState, DepthStencilState depthStencilState, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, samplerState, depthStencilState, null, null, matrix); }
-        public static void Setup(SpriteSortMode sortMode, BlendState blendState, SamplerState samplerState, DepthStencilState depthStencilState, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, samplerState, depthStencilState, null, null, matrix); }
-        public static void Setup(RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, null, null, null, rasterizerState, null, matrix); }
-        public static void Setup(SpriteSortMode sortMode, RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(sortMode, null, null, null, rasterizerState, null, matrix); }
-        public static void Setup(BlendState blendState, RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, null, null, rasterizerState, null, matrix); }
-        public static void Setup(SpriteSortMode sortMode, BlendState blendState, RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, null, null, rasterizerState, null, matrix); }
-        public static void Setup(SamplerState samplerState, RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, null, samplerState, null, rasterizerState, null, matrix); }
-        public static void Setup(SpriteSortMode sortMode, SamplerState samplerState, RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(sortMode, null, samplerState, null, rasterizerState, null, matrix); }
-        public static void Setup(BlendState blendState, SamplerState samplerState, RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, samplerState, null, rasterizerState, null, matrix); }
-        public static void Setup(SpriteSortMode sortMode, BlendState blendState, SamplerState samplerState, RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, samplerState, null, rasterizerState, null, matrix); }
-        public static void Setup(DepthStencilState depthStencilState, RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, null, null, depthStencilState, rasterizerState, null, matrix); }
-        public static void Setup(SpriteSortMode sortMode, DepthStencilState depthStencilState, RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(sortMode, null, null, depthStencilState, rasterizerState, null, matrix); }
-        public static void Setup(BlendState blendState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, null, depthStencilState, rasterizerState, null, matrix); }
-        public static void Setup(SpriteSortMode sortMode, BlendState blendState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, null, depthStencilState, rasterizerState, null, matrix); }
-        public static void Setup(SamplerState samplerState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, null, samplerState, depthStencilState, rasterizerState, null, matrix); }
-        public static void Setup(SpriteSortMode sortMode, SamplerState samplerState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(sortMode, null, samplerState, depthStencilState, rasterizerState, null, matrix); }
-        public static void Setup(BlendState blendState, SamplerState samplerState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, samplerState, depthStencilState, rasterizerState, null, matrix); }
-        public static void Setup(SpriteSortMode sortMode, BlendState blendState, SamplerState samplerState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, samplerState, depthStencilState, rasterizerState, null, matrix); }
-        public static void Setup(Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, null, null, null, null, effect, matrix); }
-        public static void Setup(SpriteSortMode sortMode, Effect effect, Matrix? matrix = null) { Batch.Begin(sortMode, null, null, null, null, effect, matrix); }
-        public static void Setup(BlendState blendState, Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, null, null, null, effect, matrix); }
-        public static void Setup(SpriteSortMode sortMode, BlendState blendState, Effect effect, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, null, null, null, effect, matrix); }
-        public static void Setup(SamplerState samplerState, Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, null, samplerState, null, null, effect, matrix); }
-        public static void Setup(SpriteSortMode sortMode, SamplerState samplerState, Effect effect, Matrix? matrix = null) { Batch.Begin(sortMode, null, samplerState, null, null, effect, matrix); }
-        public static void Setup(BlendState blendState, SamplerState samplerState, Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, samplerState, null, null, effect, matrix); }
-        public static void Setup(SpriteSortMode sortMode, BlendState blendState, SamplerState samplerState, Effect effect, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, samplerState, null, null, effect, matrix); }
-        public static void Setup(DepthStencilState depthStencilState, Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, null, null, depthStencilState, null, effect, matrix); }
-        public static void Setup(SpriteSortMode sortMode, DepthStencilState depthStencilState, Effect effect, Matrix? matrix = null) { Batch.Begin(sortMode, null, null, depthStencilState, null, effect, matrix); }
-        public static void Setup(BlendState blendState, DepthStencilState depthStencilState, Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, null, depthStencilState, null, effect, matrix); }
-        public static void Setup(SpriteSortMode sortMode, BlendState blendState, DepthStencilState depthStencilState, Effect effect, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, null, depthStencilState, null, effect, matrix); }
-        public static void Setup(SamplerState samplerState, DepthStencilState depthStencilState, Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, null, samplerState, depthStencilState, null, effect, matrix); }
-        public static void Setup(SpriteSortMode sortMode, SamplerState samplerState, DepthStencilState depthStencilState, Effect effect, Matrix? matrix = null) { Batch.Begin(sortMode, null, samplerState, depthStencilState, null, effect, matrix); }
-        public static void Setup(BlendState blendState, SamplerState samplerState, DepthStencilState depthStencilState, Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, samplerState, depthStencilState, null, effect, matrix); }
-        public static void Setup(SpriteSortMode sortMode, BlendState blendState, SamplerState samplerState, DepthStencilState depthStencilState, Effect effect, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, samplerState, depthStencilState, null, effect, matrix); }
-        public static void Setup(RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, null, null, null, rasterizerState, effect, matrix); }
-        public static void Setup(SpriteSortMode sortMode, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Batch.Begin(sortMode, null, null, null, rasterizerState, effect, matrix); }
-        public static void Setup(BlendState blendState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, null, null, rasterizerState, effect, matrix); }
-        public static void Setup(SpriteSortMode sortMode, BlendState blendState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, null, null, rasterizerState, effect, matrix); }
-        public static void Setup(SamplerState samplerState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, null, samplerState, null, rasterizerState, effect, matrix); }
-        public static void Setup(SpriteSortMode sortMode, SamplerState samplerState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Batch.Begin(sortMode, null, samplerState, null, rasterizerState, effect, matrix); }
-        public static void Setup(BlendState blendState, SamplerState samplerState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, samplerState, null, rasterizerState, effect, matrix); }
-        public static void Setup(SpriteSortMode sortMode, BlendState blendState, SamplerState samplerState, Effect effect, RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, samplerState, null, rasterizerState, effect, matrix); }
-        public static void Setup(DepthStencilState depthStencilState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, null, null, depthStencilState, rasterizerState, effect, matrix); }
-        public static void Setup(SpriteSortMode sortMode, DepthStencilState depthStencilState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Batch.Begin(sortMode, null, null, depthStencilState, rasterizerState, effect, matrix); }
-        public static void Setup(BlendState blendState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, null, depthStencilState, rasterizerState, effect, matrix); }
-        public static void Setup(SpriteSortMode sortMode, BlendState blendState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, null, depthStencilState, rasterizerState, effect, matrix); }
-        public static void Setup(SamplerState samplerState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, null, samplerState, depthStencilState, rasterizerState, effect, matrix); }
-        public static void Setup(SpriteSortMode sortMode, SamplerState samplerState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Batch.Begin(sortMode, null, samplerState, depthStencilState, rasterizerState, effect, matrix); }
-        public static void Setup(BlendState blendState, SamplerState samplerState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, samplerState, depthStencilState, rasterizerState, effect, matrix); }
-        public static void Setup(SpriteSortMode sortMode, BlendState blendState, SamplerState samplerState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, samplerState, depthStencilState, rasterizerState, effect, matrix); }
-        public static void Cease() { Batch.End(); }
+        public static bool Begun => Batch.Begun;
+        public static void Begin(Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, matrix); }
+        public static void Begin(SpriteSortMode sortMode, Matrix? matrix = null) { Batch.Begin(sortMode, null, null, null, null, null, matrix); }
+        public static void Begin(BlendState blendState, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, null, null, null, null, matrix); }
+        public static void Begin(SpriteSortMode sortMode, BlendState blendState, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, null, null, null, null, matrix); }
+        public static void Begin(SamplerState samplerState, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, null, samplerState, null, null, null, matrix); }
+        public static void Begin(SpriteSortMode sortMode, SamplerState samplerState, Matrix? matrix = null) { Batch.Begin(sortMode, null, samplerState, null, null, null, matrix); }
+        public static void Begin(BlendState blendState, SamplerState samplerState, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, samplerState, null, null, null, matrix); }
+        public static void Begin(SpriteSortMode sortMode, BlendState blendState, SamplerState samplerState, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, samplerState, null, null, null, matrix); }
+        public static void Begin(DepthStencilState depthStencilState, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, null, null, depthStencilState, null, null, matrix); }
+        public static void Begin(SpriteSortMode sortMode, DepthStencilState depthStencilState, Matrix? matrix = null) { Batch.Begin(sortMode, null, null, depthStencilState, null, null, matrix); }
+        public static void Begin(BlendState blendState, DepthStencilState depthStencilState, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, null, depthStencilState, null, null, matrix); }
+        public static void Begin(SpriteSortMode sortMode, BlendState blendState, DepthStencilState depthStencilState, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, null, depthStencilState, null, null, matrix); }
+        public static void Begin(SamplerState samplerState, DepthStencilState depthStencilState, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, null, samplerState, depthStencilState, null, null, matrix); }
+        public static void Begin(SpriteSortMode sortMode, SamplerState samplerState, DepthStencilState depthStencilState, Matrix? matrix = null) { Batch.Begin(sortMode, null, samplerState, depthStencilState, null, null, matrix); }
+        public static void Begin(BlendState blendState, SamplerState samplerState, DepthStencilState depthStencilState, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, samplerState, depthStencilState, null, null, matrix); }
+        public static void Begin(SpriteSortMode sortMode, BlendState blendState, SamplerState samplerState, DepthStencilState depthStencilState, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, samplerState, depthStencilState, null, null, matrix); }
+        public static void Begin(RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, null, null, null, rasterizerState, null, matrix); }
+        public static void Begin(SpriteSortMode sortMode, RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(sortMode, null, null, null, rasterizerState, null, matrix); }
+        public static void Begin(BlendState blendState, RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, null, null, rasterizerState, null, matrix); }
+        public static void Begin(SpriteSortMode sortMode, BlendState blendState, RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, null, null, rasterizerState, null, matrix); }
+        public static void Begin(SamplerState samplerState, RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, null, samplerState, null, rasterizerState, null, matrix); }
+        public static void Begin(SpriteSortMode sortMode, SamplerState samplerState, RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(sortMode, null, samplerState, null, rasterizerState, null, matrix); }
+        public static void Begin(BlendState blendState, SamplerState samplerState, RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, samplerState, null, rasterizerState, null, matrix); }
+        public static void Begin(SpriteSortMode sortMode, BlendState blendState, SamplerState samplerState, RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, samplerState, null, rasterizerState, null, matrix); }
+        public static void Begin(DepthStencilState depthStencilState, RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, null, null, depthStencilState, rasterizerState, null, matrix); }
+        public static void Begin(SpriteSortMode sortMode, DepthStencilState depthStencilState, RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(sortMode, null, null, depthStencilState, rasterizerState, null, matrix); }
+        public static void Begin(BlendState blendState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, null, depthStencilState, rasterizerState, null, matrix); }
+        public static void Begin(SpriteSortMode sortMode, BlendState blendState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, null, depthStencilState, rasterizerState, null, matrix); }
+        public static void Begin(SamplerState samplerState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, null, samplerState, depthStencilState, rasterizerState, null, matrix); }
+        public static void Begin(SpriteSortMode sortMode, SamplerState samplerState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(sortMode, null, samplerState, depthStencilState, rasterizerState, null, matrix); }
+        public static void Begin(BlendState blendState, SamplerState samplerState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, samplerState, depthStencilState, rasterizerState, null, matrix); }
+        public static void Begin(SpriteSortMode sortMode, BlendState blendState, SamplerState samplerState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, samplerState, depthStencilState, rasterizerState, null, matrix); }
+        public static void Begin(Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, null, null, null, null, effect, matrix); }
+        public static void Begin(SpriteSortMode sortMode, Effect effect, Matrix? matrix = null) { Batch.Begin(sortMode, null, null, null, null, effect, matrix); }
+        public static void Begin(BlendState blendState, Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, null, null, null, effect, matrix); }
+        public static void Begin(SpriteSortMode sortMode, BlendState blendState, Effect effect, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, null, null, null, effect, matrix); }
+        public static void Begin(SamplerState samplerState, Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, null, samplerState, null, null, effect, matrix); }
+        public static void Begin(SpriteSortMode sortMode, SamplerState samplerState, Effect effect, Matrix? matrix = null) { Batch.Begin(sortMode, null, samplerState, null, null, effect, matrix); }
+        public static void Begin(BlendState blendState, SamplerState samplerState, Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, samplerState, null, null, effect, matrix); }
+        public static void Begin(SpriteSortMode sortMode, BlendState blendState, SamplerState samplerState, Effect effect, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, samplerState, null, null, effect, matrix); }
+        public static void Begin(DepthStencilState depthStencilState, Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, null, null, depthStencilState, null, effect, matrix); }
+        public static void Begin(SpriteSortMode sortMode, DepthStencilState depthStencilState, Effect effect, Matrix? matrix = null) { Batch.Begin(sortMode, null, null, depthStencilState, null, effect, matrix); }
+        public static void Begin(BlendState blendState, DepthStencilState depthStencilState, Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, null, depthStencilState, null, effect, matrix); }
+        public static void Begin(SpriteSortMode sortMode, BlendState blendState, DepthStencilState depthStencilState, Effect effect, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, null, depthStencilState, null, effect, matrix); }
+        public static void Begin(SamplerState samplerState, DepthStencilState depthStencilState, Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, null, samplerState, depthStencilState, null, effect, matrix); }
+        public static void Begin(SpriteSortMode sortMode, SamplerState samplerState, DepthStencilState depthStencilState, Effect effect, Matrix? matrix = null) { Batch.Begin(sortMode, null, samplerState, depthStencilState, null, effect, matrix); }
+        public static void Begin(BlendState blendState, SamplerState samplerState, DepthStencilState depthStencilState, Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, samplerState, depthStencilState, null, effect, matrix); }
+        public static void Begin(SpriteSortMode sortMode, BlendState blendState, SamplerState samplerState, DepthStencilState depthStencilState, Effect effect, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, samplerState, depthStencilState, null, effect, matrix); }
+        public static void Begin(RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, null, null, null, rasterizerState, effect, matrix); }
+        public static void Begin(SpriteSortMode sortMode, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Batch.Begin(sortMode, null, null, null, rasterizerState, effect, matrix); }
+        public static void Begin(BlendState blendState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, null, null, rasterizerState, effect, matrix); }
+        public static void Begin(SpriteSortMode sortMode, BlendState blendState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, null, null, rasterizerState, effect, matrix); }
+        public static void Begin(SamplerState samplerState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, null, samplerState, null, rasterizerState, effect, matrix); }
+        public static void Begin(SpriteSortMode sortMode, SamplerState samplerState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Batch.Begin(sortMode, null, samplerState, null, rasterizerState, effect, matrix); }
+        public static void Begin(BlendState blendState, SamplerState samplerState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, samplerState, null, rasterizerState, effect, matrix); }
+        public static void Begin(SpriteSortMode sortMode, BlendState blendState, SamplerState samplerState, Effect effect, RasterizerState rasterizerState, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, samplerState, null, rasterizerState, effect, matrix); }
+        public static void Begin(DepthStencilState depthStencilState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, null, null, depthStencilState, rasterizerState, effect, matrix); }
+        public static void Begin(SpriteSortMode sortMode, DepthStencilState depthStencilState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Batch.Begin(sortMode, null, null, depthStencilState, rasterizerState, effect, matrix); }
+        public static void Begin(BlendState blendState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, null, depthStencilState, rasterizerState, effect, matrix); }
+        public static void Begin(SpriteSortMode sortMode, BlendState blendState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, null, depthStencilState, rasterizerState, effect, matrix); }
+        public static void Begin(SamplerState samplerState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, null, samplerState, depthStencilState, rasterizerState, effect, matrix); }
+        public static void Begin(SpriteSortMode sortMode, SamplerState samplerState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Batch.Begin(sortMode, null, samplerState, depthStencilState, rasterizerState, effect, matrix); }
+        public static void Begin(BlendState blendState, SamplerState samplerState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, samplerState, depthStencilState, rasterizerState, effect, matrix); }
+        public static void Begin(SpriteSortMode sortMode, BlendState blendState, SamplerState samplerState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, samplerState, depthStencilState, rasterizerState, effect, matrix); }
+        public static void End() { Batch.End(); }
         
         public static void Draw(Texture2D texture, Vector2 position) { Batch.Draw(texture, position, null, Color.White, 0, Origin.None, Vector2.One, SpriteEffects.None, 0); }
         public static void Draw(Texture2D texture, Vector2 position, SpriteEffects effect, float layer) { Batch.Draw(texture, position, null, Color.White, 0, Origin.None, Vector2.One, effect, layer); }

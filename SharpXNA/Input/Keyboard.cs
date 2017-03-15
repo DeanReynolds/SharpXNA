@@ -3,62 +3,65 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Collections;
 using SharpXNA.Plugins;
 
 namespace SharpXNA.Input
 {
     public static class Keyboard
     {
-        private static Microsoft.Xna.Framework.Input.Keys[] LastKs, LastKsConstrains;
-        private static double KsTimer, KsConstraint;
-        public static KeyboardState KeyState, LastKeyState;
+        internal static Microsoft.Xna.Framework.Input.Keys[] _lastKs, _lastKsConstraint;
+        internal static double _ksTimer, _ksConstraint;
+        internal static KeyboardState _state, _lastState;
+
+        internal static OrderedDictionary _keyStates;
+
+        static Keyboard() { _keyStates = new OrderedDictionary(System.Enum.GetValues(typeof(Keys)).Length); }
 
         public static void Update(GameTime time)
         {
-            LastKeyState = KeyState;
-            KeyState = Microsoft.Xna.Framework.Input.Keyboard.GetState();
-            var Ks = KeyState.GetPressedKeys();
-            foreach (var Key in Ks)
-                if (Key != Microsoft.Xna.Framework.Input.Keys.None)
+            _lastState = _state;
+            _state = Microsoft.Xna.Framework.Input.Keyboard.GetState();
+            var keysPressed = _state.GetPressedKeys();
+            foreach (var key in keysPressed)
+                if (key != Microsoft.Xna.Framework.Input.Keys.None)
                 {
-                    if ((LastKs != null) && LastKs.Contains(Key))
+                    if ((_lastKs != null) && _lastKs.Contains(key))
                     {
-                        if (((time.TotalGameTime.TotalMilliseconds - KsTimer) > KsConstraint) && (InputRecieved != null))
+                        if (((time.TotalGameTime.TotalMilliseconds - _ksTimer) > _ksConstraint) && (InputRecieved != null))
                         {
-                            InputRecieved((Keys)Key);
-                            KsTimer = time.TotalGameTime.TotalMilliseconds;
-                            if (LastKsConstrains == null)
+                            InputRecieved((Keys)key);
+                            _ksTimer = time.TotalGameTime.TotalMilliseconds;
+                            if (_lastKsConstraint == null)
                             {
-                                KsConstraint = 50;
-                                LastKsConstrains = Ks;
+                                _ksConstraint = 50;
+                                _lastKsConstraint = keysPressed;
                             }
                         }
                     }
                     else if (InputRecieved != null)
                     {
-                        InputRecieved((Keys)Key);
-                        KsTimer = time.TotalGameTime.TotalMilliseconds;
+                        InputRecieved((Keys)key);
+                        _ksTimer = time.TotalGameTime.TotalMilliseconds;
                     }
-                    if ((LastKsConstrains != null) && !LastKsConstrains.Contains(Key))
+                    if ((_lastKsConstraint != null) && !_lastKsConstraint.Contains(key))
                     {
-                        KsConstraint = 425;
-                        LastKsConstrains = null;
+                        _ksConstraint = 425;
+                        _lastKsConstraint = null;
                     }
                 }
-            if (Ks.Length == 0)
+            if (keysPressed.Length == 0)
             {
-                KsConstraint = 425;
-                LastKsConstrains = null;
+                _ksConstraint = 425;
+                _lastKsConstraint = null;
             }
-            LastKs = Ks;
-            foreach (Keys key in KeyStatesH.Keys)
+            _lastKs = keysPressed;
+            foreach (var key in _keyStates.Keys)
             {
-                if (((KeyStateH)KeyStatesH[key]).Timer > 0) ((KeyStateH)KeyStatesH[key]).Timer -= time.ElapsedGameTime.TotalSeconds;
+                if (((KeyStateH)_keyStates[key]).Timer > 0) ((KeyStateH)_keyStates[key]).Timer -= time.ElapsedGameTime.TotalSeconds;
                 else
                 {
-                    ((KeyStateH)KeyStatesH[key]).Timer += ((KeyStateH)KeyStatesH[key]).ResetTime;
-                    ((KeyStateH)KeyStatesH[key]).ResetTime = System.Math.Max(.025, (((KeyStateH)KeyStatesH[key]).ResetTime / 2d));
+                    ((KeyStateH)_keyStates[key]).Timer += ((KeyStateH)_keyStates[key]).ResetTime;
+                    ((KeyStateH)_keyStates[key]).ResetTime = System.Math.Max(.025, (((KeyStateH)_keyStates[key]).ResetTime / 2d));
                 }
             }
         }
@@ -66,28 +69,27 @@ namespace SharpXNA.Input
         public delegate void InputRecievedEvent(Keys Key);
         public static event InputRecievedEvent InputRecieved;
 
-        public static OrderedDictionary KeyStatesH = new OrderedDictionary(System.Enum.GetValues(typeof(Keys)).Length);
         public static Keys[] GetPressedKeys()
         {
-            var origPressedKeys = KeyState.GetPressedKeys();
+            var origPressedKeys = _state.GetPressedKeys();
             var pressedKeys = new List<Keys>(origPressedKeys.Length);
-            for (var i = 0; i < KeyStatesH.Count; i++) if (!origPressedKeys.Contains((Microsoft.Xna.Framework.Input.Keys)KeyStatesH.KeyFromIndex(i))) { KeyStatesH.RemoveAt(i); i--; continue; }
+            for (var i = 0; i < _keyStates.Count; i++) if (!origPressedKeys.Contains((Microsoft.Xna.Framework.Input.Keys)_keyStates.KeyFromIndex(i))) { _keyStates.RemoveAt(i); i--; continue; }
             for (var i = 0; i < origPressedKeys.Length; i++)
             {
                 var key = (Keys)origPressedKeys[i];
-                if (KeyStatesH.Contains(key)) { if (((KeyStateH)KeyStatesH[key]).Timer <= 0) pressedKeys.Add(key); }
-                else { KeyStatesH.Add(key, new KeyStateH(.6)); pressedKeys.Add(key); }
+                if (_keyStates.Contains(key)) { if (((KeyStateH)_keyStates[key]).Timer <= 0) pressedKeys.Add(key); }
+                else { _keyStates.Add(key, new KeyStateH(.6)); pressedKeys.Add(key); }
             }
             return pressedKeys.ToArray();
         }
         public class KeyStateH { public double Timer, ResetTime; public KeyStateH(double resetTime) { Timer = 0; ResetTime = resetTime; } }
 
-        public static bool Pressed(Keys key) { return (KeyState.IsKeyDown((Microsoft.Xna.Framework.Input.Keys)key) && ((LastKeyState == null) || LastKeyState.IsKeyUp((Microsoft.Xna.Framework.Input.Keys)key))); }
-        public static bool Released(Keys key) { return (KeyState.IsKeyUp((Microsoft.Xna.Framework.Input.Keys)key) && ((LastKeyState != null) && LastKeyState.IsKeyDown((Microsoft.Xna.Framework.Input.Keys)key))); }
-        public static bool Holding(Keys key) { return KeyState.IsKeyDown((Microsoft.Xna.Framework.Input.Keys)key); }
-        public static bool Pressed(Microsoft.Xna.Framework.Input.Keys key) { return (KeyState.IsKeyDown(key) && ((LastKeyState == null) || LastKeyState.IsKeyUp(key))); }
-        public static bool Released(Microsoft.Xna.Framework.Input.Keys key) { return (KeyState.IsKeyUp(key) && ((LastKeyState != null) && LastKeyState.IsKeyDown(key))); }
-        public static bool Holding(Microsoft.Xna.Framework.Input.Keys key) { return KeyState.IsKeyDown(key); }
+        public static bool Pressed(Keys key) { return (_state.IsKeyDown((Microsoft.Xna.Framework.Input.Keys)key) && ((_lastState == null) || _lastState.IsKeyUp((Microsoft.Xna.Framework.Input.Keys)key))); }
+        public static bool Released(Keys key) { return (_state.IsKeyUp((Microsoft.Xna.Framework.Input.Keys)key) && ((_lastState != null) && _lastState.IsKeyDown((Microsoft.Xna.Framework.Input.Keys)key))); }
+        public static bool Holding(Keys key) { return _state.IsKeyDown((Microsoft.Xna.Framework.Input.Keys)key); }
+        public static bool Pressed(Microsoft.Xna.Framework.Input.Keys key) { return (_state.IsKeyDown(key) && ((_lastState == null) || _lastState.IsKeyUp(key))); }
+        public static bool Released(Microsoft.Xna.Framework.Input.Keys key) { return (_state.IsKeyUp(key) && ((_lastState != null) && _lastState.IsKeyDown(key))); }
+        public static bool Holding(Microsoft.Xna.Framework.Input.Keys key) { return _state.IsKeyDown(key); }
         public static bool PressedShift() { return (Pressed(Keys.LeftShift) || Pressed(Keys.RightShift)); }
         public static bool ReleasedShift() { return (Released(Keys.LeftShift) || Released(Keys.RightShift)); }
         public static bool HoldingShift() { return (Holding(Keys.LeftShift) || Holding(Keys.RightShift)); }

@@ -15,8 +15,7 @@ namespace SharpXNA
 
         static Sounds() { Channels = new SoundEffectInstance[256]; _kill = new bool[256]; }
         public Sounds() { _assets = new Dictionary<string, SoundEffect>(); }
-        /// <param name="rootDirectory">This controls the global Sounds root directory (used for all Sounds classes).</param>
-        public Sounds(string rootDirectory) { RootDirectory = rootDirectory; _assets = new Dictionary<string, SoundEffect>(); }
+        public Sounds(string rootDirectory) { _assets = new Dictionary<string, SoundEffect>(); RootDirectory = rootDirectory; }
 
         public SoundEffect this[string path] => _assets[path];
         public SoundEffectInstance this[byte channel] { get { return Channels[channel]; }set { Channels[channel] = value; } }
@@ -24,17 +23,17 @@ namespace SharpXNA
         public void Add(SoundEffect sound, string path) { _assets.Add(path, sound); }
         public SoundEffect Load(string path)
         {
-            using (var fs = new FileStream((@".\" + Globe.ContentManager.RootDirectory + "\\" + RootDirectory + "\\" + path), FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (var fs = new FileStream((@".\" + Engine._contentManager.RootDirectory + "\\" + RootDirectory + "\\" + path), FileMode.Open, FileAccess.Read, FileShare.Read))
                 _assets.Add(path, SoundEffect.FromStream(fs));
             return _assets[path];
         }
         public void LoadAll(string path = null)
         {
-            if (path == null) path = (Path.GetDirectoryName(Globe.Assembly.Location) + "\\" + Globe.ContentManager.RootDirectory + "\\" + RootDirectory);
-            else if (path.StartsWith(".")) path = (Path.GetDirectoryName(Globe.Assembly.Location) + "\\" + Globe.ContentManager.RootDirectory + "\\" + RootDirectory + "\\" + path.Substring(1));
-            var mainPath = (Path.GetDirectoryName(Globe.Assembly.Location) + "\\" + (!string.IsNullOrEmpty(Globe.ContentManager.RootDirectory) ? (Globe.ContentManager.RootDirectory + "\\") : null) + RootDirectory);
+            if (path == null) path = (Path.GetDirectoryName(Engine.Assembly.Location) + "\\" + (!string.IsNullOrEmpty(Engine._contentManager.RootDirectory) ? (Engine._contentManager.RootDirectory + "\\") : null) + RootDirectory);
+            else if (path.StartsWith(".")) path = (Path.GetDirectoryName(Engine.Assembly.Location) + "\\" + (!string.IsNullOrEmpty(Engine._contentManager.RootDirectory) ? (Engine._contentManager.RootDirectory + "\\") : null) + RootDirectory + "\\" + path.Substring(1));
+            var mainPath = (Path.GetDirectoryName(Engine.Assembly.Location) + "\\" + (!string.IsNullOrEmpty(Engine._contentManager.RootDirectory) ? (Engine._contentManager.RootDirectory + "\\") : null) + RootDirectory);
             if (!Directory.Exists(path)) return;
-            var files = Globe.DirSearch(path, ".wav");
+            var files = Engine.DirSearch(path, ".wav");
             foreach (var file in files)
             {
                 var directoryName = Path.GetDirectoryName(file);
@@ -43,16 +42,15 @@ namespace SharpXNA
                 using (var fs = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read)) Add(SoundEffect.FromStream(fs), name);
             }
         }
-        public void Dispose(string path) { _assets[path].Dispose(); _assets.Remove(path); }
-
         public void Dispose() { foreach (var t in _assets.Values) t.Dispose(); _assets.Clear(); }
+        public void Dispose(string path) { _assets[path].Dispose(); _assets.Remove(path); }
         
         public static void CompileOggs(string path = null)
         {
-            if (path == null) path = Path.GetDirectoryName(Globe.Assembly.Location);
-            else if (path.StartsWith(".")) path = (Path.GetDirectoryName(Globe.Assembly.Location) + path.Substring(1));
+            if (path == null) path = Path.GetDirectoryName(Engine.Assembly.Location);
+            else if (path.StartsWith(".")) path = (Path.GetDirectoryName(Engine.Assembly.Location) + path.Substring(1));
             if (!Directory.Exists(path)) return;
-            var files = Globe.DirSearch(path, ".ogg");
+            var files = Engine.DirSearch(path, ".ogg");
             foreach (var file in files)
             {
                 var directoryName = Path.GetDirectoryName(file);
@@ -73,6 +71,7 @@ namespace SharpXNA
         public static byte? Play(SoundEffect sound, bool loop, bool kill = false) { return Play(sound, loop, 1, kill); }
         public static byte? Play(SoundEffect sound, bool loop, float volume, bool kill = false)
         {
+            if (volume <= 0) return null;
             for (var i = 0; i < Channels.Length; i++)
             {
                 if ((Channels[i] != null) && (!_kill[i] || (Channels[i].State != SoundState.Stopped))) continue;
