@@ -87,7 +87,8 @@ namespace SharpXNA.Plugins
         public static INI ReadString(string text, Flags? flags = null) { return ReadString(text, "temp.ini", false, flags); }
         public static INI ReadString(string text, string filePath, bool fromFile, Flags? flags = null)
         {
-            if (fromFile && !File.Exists(filePath)) return new INI(filePath, flags);
+            if (fromFile && !File.Exists(filePath))
+                return new INI(filePath, flags);
             var ini = new INI(filePath, flags);
             var lines = text.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None);
             char? delimiter = null;

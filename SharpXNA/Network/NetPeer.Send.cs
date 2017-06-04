@@ -128,7 +128,7 @@ namespace Lidgren.Network
 			if (len <= mtu)
 			{
 				Interlocked.Add(ref msg.m_recyclingCount, recipients.Count);
-				foreach (NetConnection conn in recipients)
+				foreach (var conn in recipients)
 				{
 					if (conn == null)
 					{
@@ -137,7 +137,6 @@ namespace Lidgren.Network
 					}
                     if (conn.m_isThrottled)
                     {
-                        //Console.WriteLine("enqueing throttled msg..");
                         Interlocked.Decrement(ref msg.m_recyclingCount);
                         conn.m_throttledMessages.Add(new NetConnection.ThrottledMessage(msg, method, sequenceChannel));
                         continue;

@@ -1,6 +1,7 @@
 ﻿using System.Windows.Forms;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SharpXNA.Plugins;
 
 namespace SharpXNA
 {
@@ -71,7 +72,10 @@ namespace SharpXNA
         }
         public static void Expand(bool hideControlBar)
         {
-            if (hideControlBar) Engine.Form.FormBorderStyle = FormBorderStyle.None;
+            if (Engine.Form == null)
+                return;
+            if (hideControlBar)
+                Engine.Form.FormBorderStyle = FormBorderStyle.None;
             var screen = System.Windows.Forms.Screen.FromPoint(Cursor.Position);
             Engine.Form.Location = screen.WorkingArea.Location;
             Engine.Form.Size = screen.WorkingArea.Size;
@@ -287,6 +291,39 @@ namespace SharpXNA
         public static void Draw(Texture2D texture, Vector2 position, Rectangle? source, Color tint, float angle, Origin origin, Vector2 scale, float layer) { Batch.Draw(texture, position, source, tint, angle, origin, scale, SpriteEffects.None, layer); }
         public static void Draw(Texture2D texture, Vector2 position, Rectangle? source, Color tint, float angle, Origin origin, Vector2 scale, SpriteEffects effect, float layer) { Batch.Draw(texture, position, source, tint, angle, origin, scale, effect, layer); }
 
+        public static void Draw(Sprite sprite, Vector2 position) { Batch.Draw(sprite, position, Color.White, 0, Vector2.One, SpriteEffects.None, 0); }
+        public static void Draw(Sprite sprite, Vector2 position, SpriteEffects effect, float layer) { Batch.Draw(sprite, position, Color.White, 0, Vector2.One, effect, layer); }
+        public static void Draw(Sprite sprite, Vector2 position, Color tint) { Batch.Draw(sprite, position, tint, 0, Vector2.One, SpriteEffects.None, 0); }
+        public static void Draw(Sprite sprite, Vector2 position, Color tint, SpriteEffects effect, float layer) { Batch.Draw(sprite, position, tint, 0, Vector2.One, effect, layer); }
+        public static void Draw(Sprite sprite, Rectangle bounds) { Batch.Draw(sprite, bounds, Color.White, 0, SpriteEffects.None, 0); }
+        public static void Draw(Sprite sprite, Rectangle bounds, SpriteEffects effect, float layer) { Batch.Draw(sprite, bounds, Color.White, 0, effect, layer); }
+        public static void Draw(Sprite sprite, Vector2 position, Vector2 scale) { Batch.Draw(sprite, position, Color.White, 0, scale, SpriteEffects.None, 0); }
+        public static void Draw(Sprite sprite, Vector2 position, Vector2 scale, float layer) { Batch.Draw(sprite, position, Color.White, 0, scale, SpriteEffects.None, layer); }
+        public static void Draw(Sprite sprite, Vector2 position, Vector2 scale, SpriteEffects effect, float layer) { Batch.Draw(sprite, position, Color.White, 0, scale, effect, layer); }
+        public static void Draw(Sprite sprite, Rectangle bounds, Color tint) { Batch.Draw(sprite, bounds, tint, 0, SpriteEffects.None, 0); }
+        public static void Draw(Sprite sprite, Rectangle bounds, Color tint, SpriteEffects effect, float layer) { Batch.Draw(sprite, bounds, tint, 0, effect, layer); }
+        public static void Draw(Sprite sprite, Vector2 position, Color tint, Vector2 scale) { Batch.Draw(sprite, position, tint, 0, scale, SpriteEffects.None, 0); }
+        public static void Draw(Sprite sprite, Vector2 position, Color tint, Vector2 scale, float layer) { Batch.Draw(sprite, position, tint, 0, scale, SpriteEffects.None, layer); }
+        public static void Draw(Sprite sprite, Vector2 position, Color tint, Vector2 scale, SpriteEffects effect, float layer) { Batch.Draw(sprite, position, tint, 0, scale, effect, layer); }
+        public static void Draw(Sprite sprite, Vector2 position, float angle) { Batch.Draw(sprite, position, Color.White, angle, Vector2.One, SpriteEffects.None, 0); }
+        public static void Draw(Sprite sprite, Vector2 position, float angle, float layer) { Batch.Draw(sprite, position, Color.White, angle, Vector2.One, SpriteEffects.None, layer); }
+        public static void Draw(Sprite sprite, Vector2 position, float angle, SpriteEffects effect, float layer) { Batch.Draw(sprite, position, Color.White, angle, Vector2.One, effect, layer); }
+        public static void Draw(Sprite sprite, Vector2 position, Color tint, float angle) { Batch.Draw(sprite, position, tint, angle, Vector2.One, SpriteEffects.None, 0); }
+        public static void Draw(Sprite sprite, Vector2 position, Color tint, float angle, float layer) { Batch.Draw(sprite, position, tint, angle, Vector2.One, SpriteEffects.None, layer); }
+        public static void Draw(Sprite sprite, Vector2 position, Color tint, float angle, SpriteEffects effect, float layer) { Batch.Draw(sprite, position, tint, angle, Vector2.One, effect, layer); }
+        public static void Draw(Sprite sprite, Rectangle bounds, float angle) { Batch.Draw(sprite, bounds, Color.White, angle, SpriteEffects.None, 0); }
+        public static void Draw(Sprite sprite, Rectangle bounds, float angle, float layer) { Batch.Draw(sprite, bounds, Color.White, angle, SpriteEffects.None, layer); }
+        public static void Draw(Sprite sprite, Rectangle bounds, float angle, SpriteEffects effect, float layer) { Batch.Draw(sprite, bounds, Color.White, angle, effect, layer); }
+        public static void Draw(Sprite sprite, Vector2 position, float angle, Vector2 scale) { Batch.Draw(sprite, position, Color.White, angle, scale, SpriteEffects.None, 0); }
+        public static void Draw(Sprite sprite, Vector2 position, float angle, Vector2 scale, float layer) { Draw(sprite, position, Color.White, angle, scale, SpriteEffects.None, layer); }
+        public static void Draw(Sprite sprite, Vector2 position, float angle, Vector2 scale, SpriteEffects effect, float layer) { Batch.Draw(sprite, position, Color.White, angle, scale, effect, layer); }
+        public static void Draw(Sprite sprite, Rectangle bounds, Color tint, float angle) { Batch.Draw(sprite, bounds, tint, angle, SpriteEffects.None, 0); }
+        public static void Draw(Sprite sprite, Rectangle bounds, Color tint, float angle, float layer) { Batch.Draw(sprite, bounds, tint, angle, SpriteEffects.None, layer); }
+        public static void Draw(Sprite sprite, Rectangle bounds, Color tint, float angle, SpriteEffects effect, float layer) { Batch.Draw(sprite, bounds, tint, angle, effect, layer); }
+        public static void Draw(Sprite sprite, Vector2 position, Color tint, float angle, Vector2 scale) { Batch.Draw(sprite, position, tint, angle, scale, SpriteEffects.None, 0); }
+        public static void Draw(Sprite sprite, Vector2 position, Color tint, float angle, Vector2 scale, float layer) { Batch.Draw(sprite, position, tint, angle, scale, SpriteEffects.None, layer); }
+        public static void Draw(Sprite sprite, Vector2 position, Color tint, float angle, Vector2 scale, SpriteEffects effect, float layer) { Batch.Draw(sprite, position, tint, angle, scale, effect, layer); }
+
         public static void DrawString(string str, SpriteFont font, Vector2 position, Color fore) { Batch.DrawString(str, font, position, fore, null, 0, Origin.None, Vector2.One, SpriteEffects.None, 0); }
         public static void DrawString(string str, SpriteFont font, Vector2 position, Color fore, SpriteEffects effect, float layer) { Batch.DrawString(str, font, position, fore, null, 0, Origin.None, Vector2.One, effect, layer); }
         public static void DrawString(string str, SpriteFont font, Vector2 position, Color fore, float angle) { Batch.DrawString(str, font, position, fore, null, angle, Origin.None, Vector2.One, SpriteEffects.None, 0); }
@@ -341,17 +378,13 @@ namespace SharpXNA
         public static void DrawRectangle(Rectangle bounds, Color fill, Color stroke, float thickness) { Batch.DrawRectangle(bounds, fill, stroke, thickness, 0); }
         public static void DrawRectangle(Rectangle bounds, Color fill, Color stroke, float thickness, float layer) { Batch.DrawRectangle(bounds, fill, stroke, thickness, layer); }
 
-        public static void DrawLine(Vector2 start, Vector2 end) { Batch.DrawLine(start, end, Color.White, 1, SpriteEffects.None, 0); }
-        public static void DrawLine(Vector2 start, Vector2 end, float thickness) { Batch.DrawLine(start, end, Color.White, thickness, SpriteEffects.None, 0); }
-        public static void DrawLine(Vector2 start, Vector2 end, float thickness, float layer) { Batch.DrawLine(start, end, Color.White, thickness, SpriteEffects.None, layer); }
-        public static void DrawLine(Vector2 start, Vector2 end, SpriteEffects effect) { Batch.DrawLine(start, end, Color.White, 1, effect, 0); }
-        public static void DrawLine(Vector2 start, Vector2 end, SpriteEffects effect, float layer) { Batch.DrawLine(start, end, Color.White, 1, effect, layer); }
-        public static void DrawLine(Vector2 start, Vector2 end, Color color) { Batch.DrawLine(start, end, color, 1, SpriteEffects.None, 0); }
-        public static void DrawLine(Vector2 start, Vector2 end, Color color, SpriteEffects effect) { Batch.DrawLine(start, end, color, 1, effect, 0); }
-        public static void DrawLine(Vector2 start, Vector2 end, Color color, SpriteEffects effect, float layer) { Batch.DrawLine(start, end, color, 1, effect, layer); }
-        public static void DrawLine(Vector2 start, Vector2 end, Color color, float thickness) { Batch.DrawLine(start, end, color, thickness, SpriteEffects.None, 0); }
-        public static void DrawLine(Vector2 start, Vector2 end, Color color, float thickness, float layer) { Batch.DrawLine(start, end, color, thickness, SpriteEffects.None, layer); }
-        public static void DrawLine(Vector2 start, Vector2 end, Color color, float thickness, SpriteEffects effect) { Batch.DrawLine(start, end, color, thickness, effect, 0); }
-        public static void DrawLine(Vector2 start, Vector2 end, Color color, float thickness, SpriteEffects effect, float layer) { Batch.DrawLine(start, end, color, thickness, effect, layer); }
+        #region Draw Line
+        public static void DrawLine(Vector2 start, Vector2 end) { Batch.DrawLine(start, end); }
+        public static void DrawLine(Vector2 start, Vector2 end, float thickness) { Batch.DrawLine(start, end, thickness); }
+        public static void DrawLine(Vector2 start, Vector2 end, float thickness, float layer) { Batch.DrawLine(start, end, thickness, layer); }
+        public static void DrawLine(Vector2 start, Vector2 end, Color color) { Batch.DrawLine(start, end, color); }
+        public static void DrawLine(Vector2 start, Vector2 end, Color color, float thickness) { Batch.DrawLine(start, end, color, thickness); }
+        public static void DrawLine(Vector2 start, Vector2 end, Color color, float thickness, float layer) { Batch.DrawLine(start, end, color, thickness, layer); }
+        #endregion
     }
 }

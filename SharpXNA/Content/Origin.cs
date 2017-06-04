@@ -19,15 +19,28 @@ namespace SharpXNA
 
         public void Apply(Rectangle bounds)
         {
-            if (!Scaled) return;
+            if (!Scaled)
+                return;
             Value = new Vector2((bounds.Width * Value.X), (bounds.Height * Value.Y));
             Scaled = false;
         }
         public void Apply(Texture2D texture, Rectangle? source = null)
         {
-            if (!Scaled) return;
+            if (!Scaled)
+                return;
             Value = source.HasValue ? new Vector2((source.Value.Width * Value.X), (source.Value.Height * Value.Y)) : new Vector2((texture.Width * Value.X), (texture.Height * Value.Y));
             Scaled = false;
+        }
+
+        public float X
+        {
+            get { return Value.X; }
+            set { Value.X = value; }
+        }
+        public float Y
+        {
+            get { return Value.Y; }
+            set { Value.Y = value; }
         }
 
         public Origin Clone() { return new Origin(Value.X, Value.Y, Scaled); }

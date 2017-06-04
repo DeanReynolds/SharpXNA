@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SharpXNA.Plugins;
 
 namespace SharpXNA
 {
@@ -221,7 +222,65 @@ namespace SharpXNA
         public void Draw(Texture2D texture, Vector2 position, Color tint, float angle, Origin origin, Vector2 scale, SpriteEffects effect, float layer) { Draw(texture, position, null, tint, angle, origin, scale, effect, layer); }
         public void Draw(Texture2D texture, Vector2 position, Rectangle? source, Color tint, float angle, Origin origin, Vector2 scale) { Draw(texture, position, source, tint, angle, origin, scale, SpriteEffects.None, 0); }
         public void Draw(Texture2D texture, Vector2 position, Rectangle? source, Color tint, float angle, Origin origin, Vector2 scale, float layer) { Draw(texture, position, source, tint, angle, origin, scale, SpriteEffects.None, layer); }
-        public void Draw(Texture2D texture, Vector2 position, Rectangle? source, Color tint, float angle, Origin origin, Vector2 scale, SpriteEffects effect, float layer) { origin.Apply(texture, source); SpriteBatch.Draw(texture, position, source, tint, angle, origin.Value, scale, effect, layer); }
+        public void Draw(Texture2D texture, Vector2 position, Rectangle? source, Color tint, float angle, Origin origin, Vector2 scale, SpriteEffects effect, float layer)
+        {
+            origin.Apply(texture, source);
+            SpriteBatch.Draw(texture, position, source, tint, angle, origin.Value, scale, effect, layer);
+        }
+
+        public void Draw(Sprite sprite, Vector2 position) { Draw(sprite, position, Color.White, 0, Vector2.One, SpriteEffects.None, 0); }
+        public void Draw(Sprite sprite, Vector2 position, SpriteEffects effect, float layer) { Draw(sprite, position, Color.White, 0, Vector2.One, effect, layer); }
+        public void Draw(Sprite sprite, Vector2 position, Color tint) { Draw(sprite, position, tint, 0, Vector2.One, SpriteEffects.None, 0); }
+        public void Draw(Sprite sprite, Vector2 position, Color tint, SpriteEffects effect, float layer) { Draw(sprite, position, tint, 0, Vector2.One, effect, layer); }
+        public void Draw(Sprite sprite, Rectangle bounds) { Draw(sprite, bounds, Color.White, 0, SpriteEffects.None, 0); }
+        public void Draw(Sprite sprite, Rectangle bounds, SpriteEffects effect, float layer) { Draw(sprite, bounds, Color.White, 0, effect, layer); }
+        public void Draw(Sprite sprite, Vector2 position, Vector2 scale) { Draw(sprite, position, Color.White, 0, scale, SpriteEffects.None, 0); }
+        public void Draw(Sprite sprite, Vector2 position, Vector2 scale, float layer) { Draw(sprite, position, Color.White, 0, scale, SpriteEffects.None, layer); }
+        public void Draw(Sprite sprite, Vector2 position, Vector2 scale, SpriteEffects effect, float layer) { Draw(sprite, position, Color.White, 0, scale, effect, layer); }
+        public void Draw(Sprite sprite, Rectangle bounds, Color tint) { Draw(sprite, bounds, tint, 0, SpriteEffects.None, 0); }
+        public void Draw(Sprite sprite, Rectangle bounds, Color tint, SpriteEffects effect, float layer) { Draw(sprite, bounds, tint, 0, effect, layer); }
+        public void Draw(Sprite sprite, Vector2 position, Color tint, Vector2 scale) { Draw(sprite, position, tint, 0, scale, SpriteEffects.None, 0); }
+        public void Draw(Sprite sprite, Vector2 position, Color tint, Vector2 scale, float layer) { Draw(sprite, position, tint, 0, scale, SpriteEffects.None, layer); }
+        public void Draw(Sprite sprite, Vector2 position, Color tint, Vector2 scale, SpriteEffects effect, float layer) { Draw(sprite, position, tint, 0, scale, effect, layer); }
+        public void Draw(Sprite sprite, Vector2 position, float angle) { Draw(sprite, position, Color.White, angle, Vector2.One, SpriteEffects.None, 0); }
+        public void Draw(Sprite sprite, Vector2 position, float angle, float layer) { Draw(sprite, position, Color.White, angle, Vector2.One, SpriteEffects.None, layer); }
+        public void Draw(Sprite sprite, Vector2 position, float angle, SpriteEffects effect, float layer) { Draw(sprite, position, Color.White, angle, Vector2.One, effect, layer); }
+        public void Draw(Sprite sprite, Vector2 position, Color tint, float angle) { Draw(sprite, position, tint, angle, Vector2.One, SpriteEffects.None, 0); }
+        public void Draw(Sprite sprite, Vector2 position, Color tint, float angle, float layer) { Draw(sprite, position, tint, angle, Vector2.One, SpriteEffects.None, layer); }
+        public void Draw(Sprite sprite, Vector2 position, Color tint, float angle, SpriteEffects effect, float layer) { Draw(sprite, position, tint, angle, Vector2.One, effect, layer); }
+        public void Draw(Sprite sprite, Rectangle bounds, float angle) { Draw(sprite, bounds, Color.White, angle, SpriteEffects.None, 0); }
+        public void Draw(Sprite sprite, Rectangle bounds, float angle, float layer) { Draw(sprite, bounds, Color.White, angle, SpriteEffects.None, layer); }
+        public void Draw(Sprite sprite, Rectangle bounds, float angle, SpriteEffects effect, float layer) { Draw(sprite, bounds, Color.White, angle, effect, layer); }
+        public void Draw(Sprite sprite, Vector2 position, float angle, Vector2 scale) { Draw(sprite, position, Color.White, angle, scale, SpriteEffects.None, 0); }
+        public void Draw(Sprite sprite, Vector2 position, float angle, Vector2 scale, float layer) { Draw(sprite, position, Color.White, angle, scale, SpriteEffects.None, layer); }
+        public void Draw(Sprite sprite, Vector2 position, float angle, Vector2 scale, SpriteEffects effect, float layer) { Draw(sprite, position, Color.White, angle, scale, effect, layer); }
+        public void Draw(Sprite sprite, Rectangle bounds, Color tint, float angle) { Draw(sprite, bounds, tint, angle, SpriteEffects.None, 0); }
+        public void Draw(Sprite sprite, Rectangle bounds, Color tint, float angle, float layer) { Draw(sprite, bounds, tint, angle, SpriteEffects.None, layer); }
+        public void Draw(Sprite sprite, Rectangle bounds, Color tint, float angle, SpriteEffects effect, float layer) { Draw(sprite, bounds, tint, angle, effect, layer); }
+        public void Draw(Sprite sprite, Vector2 position, Color tint, float angle, Vector2 scale) { Draw(sprite, position, tint, angle, scale, SpriteEffects.None, 0); }
+        public void Draw(Sprite sprite, Vector2 position, Color tint, float angle, Vector2 scale, float layer) { Draw(sprite, position, tint, angle, scale, SpriteEffects.None, layer); }
+        public void Draw(Sprite sprite, Vector2 position, Color tint, float angle, Vector2 scale, SpriteEffects effect, float layer)
+        {
+            var origin = sprite.Origin.Value;
+            if (sprite.IsRotated)
+            {
+                const float clockwiseNinetyDegreeRotation = (float)(System.Math.PI / 2);
+                angle -= clockwiseNinetyDegreeRotation;
+                scale = new Vector2(scale.Y, scale.X);
+                if (effect.HasFlag(SpriteEffects.FlipHorizontally))
+                {
+                    if (!effect.HasFlag(SpriteEffects.FlipVertically))
+                        effect = SpriteEffects.FlipVertically;
+                }
+                else if (effect.HasFlag(SpriteEffects.FlipVertically))
+                    effect = SpriteEffects.FlipHorizontally;
+            }
+            if (effect == SpriteEffects.FlipHorizontally)
+                origin.X = (sprite.Source.Width - origin.X);
+            else if (effect == SpriteEffects.FlipVertically)
+                origin.Y = (sprite.Source.Height - origin.Y);
+            SpriteBatch.Draw(sprite.Sheet.Texture, position, sprite.Source, tint, angle, sprite.Origin.Value, scale, effect, layer);
+        }
 
         public void DrawString(string str, SpriteFont font, Vector2 position, Color fore) { DrawString(str, font, position, fore, null, 0, Origin.None, Vector2.One, SpriteEffects.None, 0); }
         public void DrawString(string str, SpriteFont font, Vector2 position, Color fore, SpriteEffects effect, float layer) { DrawString(str, font, position, fore, null, 0, Origin.None, Vector2.One, effect, layer); }
@@ -295,17 +354,31 @@ namespace SharpXNA
             Draw(WhitePixel, new Vector2(bounds.X, bounds.Y), stroke, 0, new Origin(0, .5f, true), new Vector2(bounds.Width, thickness), layer);
         }
 
-        public void DrawLine(Vector2 start, Vector2 end) { DrawLine(start, end, Color.White, 1, SpriteEffects.None, 0); }
-        public void DrawLine(Vector2 start, Vector2 end, float thickness) { DrawLine(start, end, Color.White, thickness, SpriteEffects.None, 0); }
-        public void DrawLine(Vector2 start, Vector2 end, float thickness, float layer) { DrawLine(start, end, Color.White, thickness, SpriteEffects.None, layer); }
-        public void DrawLine(Vector2 start, Vector2 end, SpriteEffects effect) { DrawLine(start, end, Color.White, 1, effect, 0); }
-        public void DrawLine(Vector2 start, Vector2 end, SpriteEffects effect, float layer) { DrawLine(start, end, Color.White, 1, effect, layer); }
-        public void DrawLine(Vector2 start, Vector2 end, Color color) { DrawLine(start, end, color, 1, SpriteEffects.None, 0); }
-        public void DrawLine(Vector2 start, Vector2 end, Color color, SpriteEffects effect) { DrawLine(start, end, color, 1, effect, 0); }
-        public void DrawLine(Vector2 start, Vector2 end, Color color, SpriteEffects effect, float layer) { DrawLine(start, end, color, 1, effect, layer); }
-        public void DrawLine(Vector2 start, Vector2 end, Color color, float thickness) { DrawLine(start, end, color, thickness, SpriteEffects.None, 0); }
-        public void DrawLine(Vector2 start, Vector2 end, Color color, float thickness, float layer) { DrawLine(start, end, color, thickness, SpriteEffects.None, layer); }
-        public void DrawLine(Vector2 start, Vector2 end, Color color, float thickness, SpriteEffects effect) { DrawLine(start, end, color, thickness, effect, 0); }
-        public void DrawLine(Vector2 start, Vector2 end, Color color, float thickness, SpriteEffects effect, float layer) { Draw(WhitePixel, start, null, color, Engine.Angle(start, end), new Origin(0, .5f), new Vector2(MathHelper.Max(1, Vector2.Distance(start, end)), thickness), effect, layer); }
+        #region Draw Line
+        public void DrawLine(Vector2 start, Vector2 end)
+        {
+            SpriteBatch.Draw(WhitePixel, start, null, Color.White, Mathf.Angle(start, end), new Vector2(0, .5f), new Vector2(MathHelper.Max(1, Vector2.Distance(start, end)), 1), 0, 0);
+        }
+        public void DrawLine(Vector2 start, Vector2 end, float thickness)
+        {
+            SpriteBatch.Draw(WhitePixel, start, null, Color.White, Mathf.Angle(start, end), new Vector2(0, .5f), new Vector2(MathHelper.Max(1, Vector2.Distance(start, end)), thickness), 0, 0);
+        }
+        public void DrawLine(Vector2 start, Vector2 end, float thickness, float layer)
+        {
+            SpriteBatch.Draw(WhitePixel, start, null, Color.White, Mathf.Angle(start, end), new Vector2(0, .5f), new Vector2(MathHelper.Max(1, Vector2.Distance(start, end)), thickness), 0, layer);
+        }
+        public void DrawLine(Vector2 start, Vector2 end, Color color)
+        {
+            SpriteBatch.Draw(WhitePixel, start, null, color, Mathf.Angle(start, end), new Vector2(0, .5f), new Vector2(MathHelper.Max(1, Vector2.Distance(start, end)), 1), 0, 0);
+        }
+        public void DrawLine(Vector2 start, Vector2 end, Color color, float thickness)
+        {
+            SpriteBatch.Draw(WhitePixel, start, null, color, Mathf.Angle(start, end), new Vector2(0, .5f), new Vector2(MathHelper.Max(1, Vector2.Distance(start, end)), thickness), 0, 0);
+        }
+        public void DrawLine(Vector2 start, Vector2 end, Color color, float thickness, float layer)
+        {
+            SpriteBatch.Draw(WhitePixel, start, null, color, Mathf.Angle(start, end), new Vector2(0, .5f), new Vector2(MathHelper.Max(1, Vector2.Distance(start, end)), thickness), 0, layer);
+        }
+        #endregion
     }
 }

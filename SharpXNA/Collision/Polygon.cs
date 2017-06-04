@@ -21,10 +21,10 @@ namespace SharpXNA.Collision
             {
                 foreach (var t in Lines)
                 {
-                    t.Start = Engine.Rotate(t.Start, -angle, position);
-                    t.End = Engine.Rotate(t.End, -angle, position);
-                    t.Start = Engine.Rotate(t.Start, value, position);
-                    t.End = Engine.Rotate(t.End, value, position);
+                    t.Start = Mathf.Rotate(t.Start, -angle, position);
+                    t.End = Mathf.Rotate(t.End, -angle, position);
+                    t.Start = Mathf.Rotate(t.Start, value, position);
+                    t.End = Mathf.Rotate(t.End, value, position);
                 }
                 angle = value;
             }
@@ -33,20 +33,36 @@ namespace SharpXNA.Collision
         public Polygon(params Line[] lines) { Lines = lines; FixedWidth = Width; FixedHeight = Height; }
         public Polygon(List<Line> lines) { Lines = lines.ToArray(); FixedWidth = Width; FixedHeight = Height; }
 
-        public void Draw() { Draw(Color.White, 1, SpriteEffects.None, 0); }
-        public void Draw(SpriteEffects effect) { Draw(Color.White, 1, effect, 0); }
-        public void Draw(SpriteEffects effect, float layer) { Draw(Color.White, 1, effect, layer); }
-        public void Draw(float thickness) { Draw(Color.White, thickness, SpriteEffects.None, 0); }
-        public void Draw(float thickness, float layer) { Draw(Color.White, thickness, SpriteEffects.None, layer); }
-        public void Draw(float thickness, SpriteEffects effect) { Draw(Color.White, thickness, effect, 0); }
-        public void Draw(float thickness, SpriteEffects effect, float layer) { Draw(Color.White, thickness, effect, layer); }
-        public void Draw(Color color) { Draw(color, 1, SpriteEffects.None, 0); }
-        public void Draw(Color color, SpriteEffects effect) { Draw(color, 1, effect, 0); }
-        public void Draw(Color color, SpriteEffects effect, float layer) { Draw(color, 1, effect, layer); }
-        public void Draw(Color color, float thickness) { Draw(color, thickness, SpriteEffects.None, 0); }
-        public void Draw(Color color, float thickness, float layer) { Draw(color, thickness, SpriteEffects.None, layer); }
-        public void Draw(Color color, float thickness, SpriteEffects effect) { Draw(color, thickness, effect, 0); }
-        public void Draw(Color color, float thickness, SpriteEffects effect, float layer) { foreach (var line in Lines) line.Draw(color, thickness, effect, layer); }
+        public void Draw()
+        {
+            foreach (var line in Lines)
+                line.Draw();
+        }
+        public void Draw(float thickness)
+        {
+            foreach (var line in Lines)
+                line.Draw(thickness);
+        }
+        public void Draw(float thickness, float layer)
+        {
+            foreach (var line in Lines)
+                line.Draw(thickness, layer);
+        }
+        public void Draw(Color color)
+        {
+            foreach (var line in Lines)
+                line.Draw(color);
+        }
+        public void Draw(Color color, float thickness)
+        {
+            foreach (var line in Lines)
+                line.Draw(color, thickness);
+        }
+        public void Draw(Color color, float thickness, float layer)
+        {
+            foreach (var line in Lines)
+                line.Draw(color, thickness, layer);
+        }
 
         public bool Intersects(Line line) { foreach (var t in Lines) if (t.Intersects(line)) return true; return false; }
         public bool Intersects(Line line, ref Vector2 intersection) { var intersects = false; foreach (var t in Lines) if (t.Intersects(line, ref intersection)) intersects = true; return intersects; }
@@ -65,7 +81,7 @@ namespace SharpXNA.Collision
         public Polygon Clone()
         {
             var lines = new Line[Lines.Length];
-            for (var i = 0; i < Lines.Length; i++) lines[i] = new Line((Engine.Rotate(Lines[i].Start, -angle, position) - position), (Engine.Rotate(Lines[i].End, -angle, position) - position));
+            for (var i = 0; i < Lines.Length; i++) lines[i] = new Line((Mathf.Rotate(Lines[i].Start, -angle, position) - position), (Mathf.Rotate(Lines[i].End, -angle, position) - position));
             return new Polygon(lines);
         }
 
@@ -77,7 +93,7 @@ namespace SharpXNA.Collision
         public static Polygon CreateRectangle(Vector2 size, Vector2 origin)
         {
             float x = (size.X / 2), y = (size.Y / 2);
-            const float offset = .001f;
+            const float offset = .0001f;
             return new Polygon(new[]
             {
                 new Line((new Vector2(-x, -y) - origin), (new Vector2((x - offset), -y) - origin)),
@@ -90,7 +106,7 @@ namespace SharpXNA.Collision
         public static Polygon CreateRectangleWithCross(Vector2 size, Vector2 origin)
         {
             float x = (size.X / 2), y = (size.Y / 2);
-            const float offset = .001f;
+            const float offset = .0001f;
             return new Polygon(new[]
             {
                 new Line((new Vector2(-x, -y) - origin), (new Vector2((x - offset), -y) - origin)),

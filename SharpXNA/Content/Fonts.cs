@@ -19,9 +19,9 @@ namespace SharpXNA
         public SpriteFont Load(string path) { _assets.Add(path, Engine._contentManager.Load<SpriteFont>(RootDirectory + "\\" + path)); return _assets[path]; }
         public void LoadAll(string path = null)
         {
-            if (path == null) path = (Path.GetDirectoryName(Engine.Assembly.Location) + "\\" + (!string.IsNullOrEmpty(Engine._contentManager.RootDirectory) ? (Engine._contentManager.RootDirectory + "\\") : null) + RootDirectory);
-            else if (path.StartsWith(".")) path = (Path.GetDirectoryName(Engine.Assembly.Location) + "\\" + (!string.IsNullOrEmpty(Engine._contentManager.RootDirectory) ? (Engine._contentManager.RootDirectory + "\\") : null) + RootDirectory + "\\" + path.Substring(1));
-            var mainPath = (Path.GetDirectoryName(Engine.Assembly.Location) + "\\" + (!string.IsNullOrEmpty(Engine._contentManager.RootDirectory) ? (Engine._contentManager.RootDirectory + "\\") : null) + RootDirectory);
+            if (path == null) path = (Path.GetDirectoryName(Engine.Assembly.Location) + "\\" + (!string.IsNullOrEmpty(Engine._contentManager?.RootDirectory) ? (Engine._contentManager.RootDirectory + "\\") : null) + RootDirectory);
+            else if (path.StartsWith(".")) path = (Path.GetDirectoryName(Engine.Assembly.Location) + "\\" + (!string.IsNullOrEmpty(Engine._contentManager?.RootDirectory) ? (Engine._contentManager.RootDirectory + "\\") : null) + RootDirectory + "\\" + path.Substring(1));
+            var mainPath = (Path.GetDirectoryName(Engine.Assembly.Location) + "\\" + (!string.IsNullOrEmpty(Engine._contentManager?.RootDirectory) ? (Engine._contentManager.RootDirectory + "\\") : null) + RootDirectory);
             if (!Directory.Exists(path)) return;
             var files = Engine.DirSearch(path, ".xnb");
             foreach (var file in files)

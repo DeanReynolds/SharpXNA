@@ -66,6 +66,7 @@
     <Compile Include="Input\Keyboard.cs" />
     <Compile Include="Input\Mouse.cs" />
     <Compile Include="Input\XboxPad.cs" />
+    <Compile Include="Mathf.cs" />
     <Compile Include="Network\Encryption\NetAESEncryption.cs" />
     <Compile Include="Network\Encryption\NetBlockEncryptionBase.cs" />
     <Compile Include="Network\Encryption\NetCryptoProviderBase.cs" />
@@ -144,7 +145,10 @@
     <Compile Include="Plugins\D2DMenu.cs" />
     <Compile Include="Plugins\INI.cs" />
     <Compile Include="Plugins\Pathfinder.cs" />
+    <Compile Include="Plugins\PriorityQueue.cs" />
+    <Compile Include="Plugins\SpatialHash.cs" />
     <Compile Include="Plugins\String.cs" />
+    <Compile Include="Plugins\TexturePacker.cs" />
     <Compile Include="Profiler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Screen.cs" />

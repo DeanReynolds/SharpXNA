@@ -82,13 +82,15 @@ namespace Lidgren.Network
             get { return m_isThrottled; }
             set
             {
+                if (m_isThrottled == value)
+                    return;
                 m_isThrottled = value;
-                if (m_isThrottled) m_throttledMessages = new List<ThrottledMessage>();
+                if (m_isThrottled)
+                    m_throttledMessages = new List<ThrottledMessage>();
                 else
                 {
                     foreach (var msg in m_throttledMessages)
                     {
-                        //Console.WriteLine("sending a throttled msg..");
                         Interlocked.Add(ref msg.Msg.m_recyclingCount, 1);
                         NetSendResult res = EnqueueMessage(msg.Msg, msg.Method, msg.SequenceChannel);
                         if (res == NetSendResult.Dropped)

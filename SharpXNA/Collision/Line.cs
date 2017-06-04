@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace SharpXNA.Collision
 {
@@ -12,20 +11,12 @@ namespace SharpXNA.Collision
         public Line(float startX, float startY, Vector2 end) : this(new Vector2(startX, startY), end) { }
         public Line(float startX, float startY, float endX, float endY) : this(new Vector2(startX, startY), new Vector2(endX, endY)) { }
 
-        public void Draw() { Screen.DrawLine(Start, End, Color.White, 1, SpriteEffects.None, 0); }
-        public void Draw(SpriteEffects effect) { Screen.DrawLine(Start, End, Color.White, 1, effect, 0); }
-        public void Draw(SpriteEffects effect, float layer) { Screen.DrawLine(Start, End, Color.White, 1, effect, layer); }
-        public void Draw(float thickness) { Screen.DrawLine(Start, End, Color.White, thickness, SpriteEffects.None, 0); }
-        public void Draw(float thickness, float layer) { Screen.DrawLine(Start, End, Color.White, thickness, SpriteEffects.None, layer); }
-        public void Draw(float thickness, SpriteEffects effect) { Screen.DrawLine(Start, End, Color.White, thickness, effect, 0); }
-        public void Draw(float thickness, SpriteEffects effect, float layer) { Screen.DrawLine(Start, End, Color.White, thickness, effect, layer); }
-        public void Draw(Color color) { Screen.DrawLine(Start, End, color, 1, SpriteEffects.None, 0); }
-        public void Draw(Color color, SpriteEffects effect) { Screen.DrawLine(Start, End, color, 1, effect, 0); }
-        public void Draw(Color color, SpriteEffects effect, float layer) { Screen.DrawLine(Start, End, color, 1, effect, layer); }
-        public void Draw(Color color, float thickness) { Screen.DrawLine(Start, End, color, thickness, SpriteEffects.None, 0); }
-        public void Draw(Color color, float thickness, float layer) { Screen.DrawLine(Start, End, color, thickness, SpriteEffects.None, layer); }
-        public void Draw(Color color, float thickness, SpriteEffects effect) { Screen.DrawLine(Start, End, color, thickness, effect, 0); }
-        public void Draw(Color color, float thickness, SpriteEffects effect, float layer) { Screen.DrawLine(Start, End, color, thickness, effect, layer); }
+        public void Draw() { Screen.DrawLine(Start, End); }
+        public void Draw(float thickness) { Screen.DrawLine(Start, End, thickness); }
+        public void Draw(float thickness, float layer) { Screen.DrawLine(Start, End, thickness, layer); }
+        public void Draw(Color color) { Screen.DrawLine(Start, End, color); }
+        public void Draw(Color color, float thickness) { Screen.DrawLine(Start, End, color, thickness); }
+        public void Draw(Color color, float thickness, float layer) { Screen.DrawLine(Start, End, color, thickness, layer); }
 
         public bool Intersects(Line line)
         {

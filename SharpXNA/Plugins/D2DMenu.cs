@@ -338,8 +338,30 @@ namespace SharpXNA.Plugins
                 internal int Index = -1;
                 public OptionCollection Options;
 
-                public void AddOption(string name) { if (!Options.Contains(name)) Options.Add(name, new Option(name)); if (Index == -1) Index = 0; }
-                public void AddOption(string name, Color color) { if (!Options.Contains(name)) Options.Add(name, new Option(name, color)); if (Index == -1) Index = 0; }
+                public void AddOption(string name)
+                {
+                    if (!Options.Contains(name))
+                        Options.Add(name, new Option(name));
+                    if (Index == -1)
+                        Index = 0;
+                }
+                public void AddOption(string name, Color color)
+                {
+                    if (!Options.Contains(name))
+                        Options.Add(name, new Option(name, color));
+                    if (Index == -1)
+                        Index = 0;
+                }
+
+                public void SelectOption(string name)
+                {
+                    for (var i = 0; i < Options._options.Count; i++)
+                        if (((Option)Options._options[i]).Name == name)
+                        {
+                            Index = i;
+                            break;
+                        }
+                }
 
                 public void RemoveOption(string name) { if (Options.Contains(name)) Options.Remove(name); while (Index > Options.Count) Index--; }
                 public void RemoveOptionAt(int index) { if (Options.Count > index) Options.RemoveAt(index); while (Index > Options.Count) Index--; }
@@ -364,7 +386,7 @@ namespace SharpXNA.Plugins
 
                 public class OptionCollection
                 {
-                    private readonly OrderedDictionary _options;
+                    internal readonly OrderedDictionary _options;
 
                     public OptionCollection() { _options = new OrderedDictionary(); }
                     public OptionCollection(int capacity) { _options = new OrderedDictionary(capacity); }
