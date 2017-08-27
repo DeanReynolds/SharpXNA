@@ -11,13 +11,48 @@ namespace SharpXNA
         public static Batch Batch => _batch;
 
         public static Rectangle BackBufferBounds { get { try { return new Rectangle(0, 0, BackBufferWidth, BackBufferHeight); } catch { return Rectangle.Empty; } } }
-        public static int BackBufferWidth { get { return Engine.GraphicsDevice.PresentationParameters.BackBufferWidth; } set { Engine.GraphicsDeviceManager.PreferredBackBufferWidth = value; Engine.GraphicsDeviceManager.ApplyChanges(); } }
-        public static int BackBufferHeight { get { return Engine.GraphicsDevice.PresentationParameters.BackBufferHeight; } set { Engine.GraphicsDeviceManager.PreferredBackBufferHeight = value; Engine.GraphicsDeviceManager.ApplyChanges(); } }
+        public static int BackBufferWidth
+        {
+            get { return Engine.GraphicsDeviceManager.PreferredBackBufferWidth; }
+            set { Engine.GraphicsDeviceManager.PreferredBackBufferWidth = value; Engine.GraphicsDeviceManager.ApplyChanges(); }
+        }
+        public static int BackBufferHeight
+        {
+            get { return Engine.GraphicsDeviceManager.PreferredBackBufferHeight; }
+            set { Engine.GraphicsDeviceManager.PreferredBackBufferHeight = value; Engine.GraphicsDeviceManager.ApplyChanges(); }
+        }
         public static bool Fullscreen { get { return Engine.GraphicsDeviceManager.IsFullScreen; } set { Engine.GraphicsDeviceManager.IsFullScreen = value; Engine.GraphicsDeviceManager.ApplyChanges(); } }
         public static bool VSync { get { return Engine.GraphicsDeviceManager.SynchronizeWithVerticalRetrace; } set { Engine.GraphicsDeviceManager.SynchronizeWithVerticalRetrace = value; Engine.GraphicsDeviceManager.ApplyChanges(); } }
         
-        public static void Set(int width, int height, bool vsync) { Engine.GraphicsDeviceManager.PreferredBackBufferWidth = width; Engine.GraphicsDeviceManager.PreferredBackBufferHeight = height; Engine.GraphicsDeviceManager.SynchronizeWithVerticalRetrace = vsync; Engine.GraphicsDeviceManager.ApplyChanges(); }
-        public static void Set(int width, int height, bool fullscreen, bool vsync) { Engine.GraphicsDeviceManager.PreferredBackBufferWidth = width; Engine.GraphicsDeviceManager.PreferredBackBufferHeight = height; Engine.GraphicsDeviceManager.IsFullScreen = fullscreen; Engine.GraphicsDeviceManager.SynchronizeWithVerticalRetrace = vsync; Engine.GraphicsDeviceManager.ApplyChanges(); }
+        public static void Set(int width, int height, bool fullscreen, bool vsync = false)
+        {
+            Engine.GraphicsDeviceManager.PreferredBackBufferWidth = width;
+            Engine.GraphicsDeviceManager.PreferredBackBufferHeight = height;
+            if (!fullscreen)
+            {
+                if ((width <= GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width)
+                    && (height <= GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height))
+                {
+                    Engine.GraphicsDeviceManager.PreferredBackBufferWidth = width;
+                    Engine.GraphicsDeviceManager.PreferredBackBufferHeight = height;
+                    Engine.GraphicsDeviceManager.IsFullScreen = fullscreen;
+                    Engine.GraphicsDeviceManager.ApplyChanges();
+                }
+            }
+            else
+            {
+                foreach (var mode in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes)
+                    if ((mode.Width == width) && (mode.Height == height))
+                    {
+                        Engine.GraphicsDeviceManager.PreferredBackBufferWidth = width;
+                        Engine.GraphicsDeviceManager.PreferredBackBufferHeight = height;
+                        Engine.GraphicsDeviceManager.IsFullScreen = fullscreen;
+                        Engine.GraphicsDeviceManager.ApplyChanges();
+                    }
+            }
+            Engine.GraphicsDeviceManager.SynchronizeWithVerticalRetrace = vsync;
+            Engine.GraphicsDeviceManager.ApplyChanges();
+        }
 
         public static Rectangle ViewportBounds { get { try { return new Rectangle(0, 0, Engine.Viewport.Width, Engine.Viewport.Height); } catch { return Rectangle.Empty; } } }
         public static int ViewportWidth { get { try { return Engine.Viewport.Width; } catch { return 0; } } }
@@ -32,7 +67,8 @@ namespace SharpXNA
 
         public static void SetupVirtualResolution(int width, int height)
         {
-            VirtualWidth = width; VirtualHeight = height;
+            VirtualWidth = width;
+            VirtualHeight = height;
             var targetAspectRatio = (width / (float)height);
             var width2 = BackBufferWidth;
             var height2 = (int)(width2 / targetAspectRatio + .5f);
@@ -46,13 +82,17 @@ namespace SharpXNA
                 X = ((BackBufferWidth / 2) - (width2 / 2)),
                 Y = ((BackBufferHeight / 2) - (height2 / 2)),
                 Width = width2,
-                Height = height2
+                Height = height2,
+                MinDepth = 0,
+                MaxDepth = 1
             };
         }
         public static void SetupVirtualResolution(int width, int height, out float zoom)
         {
-            VirtualWidth = width; VirtualHeight = height;
-            float xZoom = (BackBufferWidth / (float)width), yZoom = (BackBufferHeight / (float)height);
+            VirtualWidth = width;
+            VirtualHeight = height;
+            float xZoom = (BackBufferWidth / (float)width),
+                yZoom = (BackBufferHeight / (float)height);
             var targetAspectRatio = (width / (float)height);
             var width2 = BackBufferWidth;
             var height2 = (int)(width2 / targetAspectRatio + .5f);
@@ -66,7 +106,9 @@ namespace SharpXNA
                 X = ((BackBufferWidth / 2) - (width2 / 2)),
                 Y = ((BackBufferHeight / 2) - (height2 / 2)),
                 Width = width2,
-                Height = height2
+                Height = height2,
+                MinDepth = 0,
+                MaxDepth = 1
             };
             zoom = MathHelper.Min(xZoom, yZoom);
         }

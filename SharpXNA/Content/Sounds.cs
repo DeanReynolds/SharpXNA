@@ -236,6 +236,16 @@ namespace SharpXNA
             {
                 get { return _instance.State; }
             }
+            public bool IsLooped
+            {
+                get { return _instance.IsLooped; }
+                set { _instance.IsLooped = value; }
+            }
+            public float Volume
+            {
+                get { return _instance.Volume; }
+                set { _instance.Volume = value; }
+            }
         }
     }
 }

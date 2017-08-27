@@ -2,6 +2,7 @@
 using System.IO;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
+using System;
 
 namespace SharpXNA
 {
@@ -144,8 +145,46 @@ namespace SharpXNA
     {
         public static Color? GetPixel(this Color[] colors, Texture2D texture, int x, int y)
         {
-            if ((x < 0) || (y < 0) || (x >= texture.Width) || (y >= texture.Height)) return null;
-            else { int index = (x + (y * texture.Width)); return colors[index]; }
+            if ((x < 0) || (y < 0) || (x >= texture.Width) || (y >= texture.Height))
+                return null;
+            return colors[x + (y * texture.Width)];
+        }
+
+        public static bool PerPixelCollision(this Texture2D textureA, Rectangle boundsA, Texture2D textureB, Rectangle boundsB)
+        {
+            var bitsA = new Color[textureA.Width * textureA.Height];
+            textureA.GetData(bitsA);
+            var bitsB = new Color[textureB.Width * textureB.Height];
+            textureB.GetData(bitsB);
+            return bitsA.PerPixelCollision(boundsA, bitsB, boundsB);
+        }
+        public static bool PerPixelCollision(this Color[] bitsA, Rectangle boundsA, Texture2D textureB, Rectangle boundsB)
+        {
+            var bitsB = new Color[textureB.Width * textureB.Height];
+            textureB.GetData(bitsB);
+            return bitsA.PerPixelCollision(boundsA, bitsB, boundsB);
+        }
+        public static bool PerPixelCollision(this Texture2D textureA, Rectangle boundsA, Color[] bitsB, Rectangle boundsB)
+        {
+            var bitsA = new Color[textureA.Width * textureA.Height];
+            textureA.GetData(bitsA);
+            return bitsA.PerPixelCollision(boundsA, bitsB, boundsB);
+        }
+        public static bool PerPixelCollision(this Color[] bitsA, Rectangle boundsA, Color[] bitsB, Rectangle boundsB)
+        {
+            int x1 = Math.Max(boundsA.X, boundsB.X),
+                x2 = Math.Min(boundsA.X + boundsA.Width, boundsB.X + boundsB.Width),
+                y1 = Math.Max(boundsA.Y, boundsB.Y),
+                y2 = Math.Min(boundsA.Y + boundsA.Height, boundsB.Y + boundsB.Height);
+            for (int y = y1; y < y2; ++y)
+                for (int x = x1; x < x2; ++x)
+                {
+                    Color a = bitsA[(x - boundsA.X) + (y - boundsA.Y) * boundsA.Width],
+                        b = bitsB[(x - boundsB.X) + (y - boundsB.Y) * boundsB.Width];
+                    if ((a.A != 0) && (b.A != 0))
+                        return true;
+                }
+            return false;
         }
     }
 }
