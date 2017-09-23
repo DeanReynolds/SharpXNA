@@ -1,11 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
+using SharpXNA.Collision;
 using System;
 
 namespace SharpXNA
 {
     public static class Mathf
     {
-        public const float Sqrt2 = 1.41421356237f, Pi = 3.14159274f, PiOver2 = 1.5707963f, PiOver4 = .7853981f, PiOver8 = .392699f, PiOver16 = .1963495f, PiOver32 = .0981747f, PiOver64 = .0490873f;
+        public const float Sqrt2 = 1.41421356237f, Pi = 3.1415926536f, PiOver2 = 1.5707963268f, PiOver4 = .7853981634f, PiOver8 = .3926990817f, PiOver16 = .19634954085f, PiOver32 = .098174770425f, PiOver64 = .049087385212f, PiOver128 = .024543692606f, PiOver256 = .012271846303f, PiOver512 = .0061359231515f, PiOver1024 = .0030679615758f;
 
         private static Random _random;
 
@@ -72,8 +73,11 @@ namespace SharpXNA
         public static float VolumeFromDistance(this Vector2 from, Vector2 to, float fade, float max) => MathHelper.Clamp(((fade - (Vector2.Distance(from, to) - max)) / fade), 0, 1);
         public static float AngleDifference(float a, float b)
         {
-            float aD = MathHelper.ToDegrees(a), bD = MathHelper.ToDegrees(b), difference = Math.Abs(aD - bD) % 360;
-            if (difference > 180) difference = 360 - difference;
+            float aD = MathHelper.ToDegrees(a),
+                bD = MathHelper.ToDegrees(b),
+                difference = (Math.Abs(aD - bD) % 360);
+            if (difference > 180)
+                difference = (360 - difference);
             return MathHelper.ToRadians(difference);
         }
 

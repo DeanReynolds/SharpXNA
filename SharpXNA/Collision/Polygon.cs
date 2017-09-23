@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace SharpXNA.Collision
 {
     public class Polygon
     {
+        internal const float _pxOffset = .000001f;
+
         public Line[] Lines;
         internal Vector2 position;
         public Vector2 Position { get { return position; } set { foreach (var t in Lines) { t.Subtract(position); t.Add(value); } position = value; } }
@@ -64,10 +65,67 @@ namespace SharpXNA.Collision
                 line.Draw(color, thickness, layer);
         }
 
-        public bool Intersects(Line line) { foreach (var t in Lines) if (t.Intersects(line)) return true; return false; }
-        public bool Intersects(Line line, ref Vector2 intersection) { var intersects = false; foreach (var t in Lines) if (t.Intersects(line, ref intersection)) intersects = true; return intersects; }
-        public bool Intersects(Polygon polygon) { foreach (var a in Lines) foreach (var t in polygon.Lines) if (a.Intersects(t)) return true; return false; }
-        public bool Intersects(Polygon polygon, ref Vector2 intersection) { foreach (var t in Lines) foreach (var b in polygon.Lines) if (t.Intersects(b, ref intersection)) return true; return false; }
+        public bool Intersects(Line line)
+        {
+            foreach (var t in Lines)
+                if (t.Intersects(line))
+                    return true;
+            return false;
+        }
+        public bool Intersects(Line line, ref Vector2 intersection)
+        {
+            var originalEnd = line.End;
+            var intersects = false;
+            foreach (var t in Lines)
+                if (t.Intersects(line, ref intersection))
+                {
+                    line.End = intersection;
+                    intersects = true;
+                }
+            line.End = originalEnd;
+            return intersects;
+        }
+        public bool Intersects(Polygon polygon)
+        {
+            foreach (var a in Lines)
+                foreach (var t in polygon.Lines)
+                    if (a.Intersects(t))
+                        return true;
+            return false;
+        }
+        public bool Intersects(Polygon polygon, ref Vector2 intersection)
+        {
+            foreach (var t in Lines)
+                foreach (var b in polygon.Lines)
+                    if (t.Intersects(b, ref intersection))
+                        return true;
+            return false;
+        }
+
+        public float PerpendicularAngle(Line line) { return PerpendicularAngle(line, position, angle); }
+        public float PerpendicularAngle(Line line, Vector2 position, float angle) { return line.PerpendicularAngle(Mathf.Angle(position, Mathf.Move(position, angle, -1))); }
+        public float PerpendicularAngle(Polygon polygon) { return PerpendicularAngle(polygon, position, angle); }
+        public float PerpendicularAngle(Polygon polygon, Vector2 position, float angle)
+        {
+            foreach (var line in polygon.Lines)
+                if (Intersects(line))
+                    return line.PerpendicularAngle(Mathf.Angle(position, Mathf.Move(position, angle, -1)));
+            return 0;
+        }
+        public float ReflectionAngle(float angle, float perpendicularAngle)
+        {
+            float reflectionAngle = perpendicularAngle,
+                angleDif = Mathf.AngleDifference(angle, MathHelper.WrapAngle(perpendicularAngle + Mathf.Pi));
+            float b;
+            if (Mathf.AngleDifference((b = (perpendicularAngle + angleDif)), MathHelper.WrapAngle(angle + Mathf.Pi)) <= Mathf.PiOver1024)
+                reflectionAngle -= angleDif;
+            else
+                reflectionAngle = b;
+            return reflectionAngle;
+        }
+        public float ReflectionAngle(Line line) { return ReflectionAngle(angle, PerpendicularAngle(line)); }
+        public float ReflectionAngle(Line line, Vector2 position, float angle) { return ReflectionAngle(angle, PerpendicularAngle(line, position, angle)); }
+        public float ReflectionAngle(Polygon polygon, Vector2 position, float angle) { return ReflectionAngle(angle, PerpendicularAngle(polygon, position, angle)); }
 
         public float MinX { get { var minX = float.MaxValue; foreach (var t in Lines) minX = MathHelper.Min(minX, MathHelper.Min(t.Start.X, t.End.X)); return minX; } }
         public float MinY { get { var minY = float.MaxValue; foreach (var t in Lines) minY = MathHelper.Min(minY, MathHelper.Min(t.Start.Y, t.End.Y)); return minY; } }
@@ -93,28 +151,26 @@ namespace SharpXNA.Collision
         public static Polygon CreateRectangle(Vector2 size, Vector2 origin)
         {
             float x = (size.X / 2), y = (size.Y / 2);
-            const float offset = .0001f;
             return new Polygon(new[]
             {
-                new Line((new Vector2(-x, -y) - origin), (new Vector2((x - offset), -y) - origin)),
-                new Line((new Vector2(x, -y) - origin), (new Vector2(x, (y - offset)) - origin)),
-                new Line((new Vector2(x, y) - origin), (new Vector2((-x + offset), y) - origin)),
-                new Line((new Vector2(-x, y) - origin), (new Vector2(-x, (-y + offset)) - origin))
+                new Line((new Vector2(-x, -y) - origin), (new Vector2((x - _pxOffset), -y) - origin)),
+                new Line((new Vector2(x, -y) - origin), (new Vector2(x, (y - _pxOffset)) - origin)),
+                new Line((new Vector2(x, y) - origin), (new Vector2((-x + _pxOffset), y) - origin)),
+                new Line((new Vector2(-x, y) - origin), (new Vector2(-x, (-y + _pxOffset)) - origin))
             });
         }
         public static Polygon CreateRectangleWithCross(Vector2 size) { return CreateRectangleWithCross(size, Vector2.Zero); }
         public static Polygon CreateRectangleWithCross(Vector2 size, Vector2 origin)
         {
             float x = (size.X / 2), y = (size.Y / 2);
-            const float offset = .0001f;
             return new Polygon(new[]
             {
-                new Line((new Vector2(-x, -y) - origin), (new Vector2((x - offset), -y) - origin)),
-                new Line((new Vector2(x, -y) - origin), (new Vector2(x, (y - offset)) - origin)),
-                new Line((new Vector2(x, y) - origin), (new Vector2((-x + offset), y) - origin)),
-                new Line((new Vector2(-x, y) - origin), (new Vector2(-x, (-y + offset)) - origin)),
-                new Line((new Vector2((-x + offset), (-y + offset)) - origin), (new Vector2((x - offset), (y - offset)) - origin)),
-                new Line((new Vector2((x - offset), (-y + offset)) - origin), (new Vector2((-x + offset), (y - offset)) - origin))
+                new Line((new Vector2(-x, -y) - origin), (new Vector2((x - _pxOffset), -y) - origin)),
+                new Line((new Vector2(x, -y) - origin), (new Vector2(x, (y - _pxOffset)) - origin)),
+                new Line((new Vector2(x, y) - origin), (new Vector2((-x + _pxOffset), y) - origin)),
+                new Line((new Vector2(-x, y) - origin), (new Vector2(-x, (-y + _pxOffset)) - origin)),
+                new Line((new Vector2((-x + _pxOffset), (-y + _pxOffset)) - origin), (new Vector2((x - _pxOffset), (y - _pxOffset)) - origin)),
+                new Line((new Vector2((x - _pxOffset), (-y + _pxOffset)) - origin), (new Vector2((-x + _pxOffset), (y - _pxOffset)) - origin))
             });
         }
 
@@ -139,7 +195,10 @@ namespace SharpXNA.Collision
                 var angle = MathHelper.ToRadians(((side + .5f) / sides) * 360);
                 var end = new Vector2((start.X + ((float)(Math.Cos(angle) * sideLengthX))), (start.Y + ((float)(Math.Sin(angle) * sideLengthY))));
                 lines.Add(new Line(start, end));
-                start = end;
+                if (side > 0)
+                    start = Mathf.Move(end, angle, _pxOffset);
+                else
+                    start = end;
             }
             return new Polygon(lines.ToArray());
         }

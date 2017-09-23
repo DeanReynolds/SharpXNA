@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using System;
 
 namespace SharpXNA.Collision
 {
@@ -56,5 +57,33 @@ namespace SharpXNA.Collision
         public void SubtractX(float value) { Start.X -= value; End.X -= value; }
         public void AddY(float value) { Start.Y += value; End.Y += value; }
         public void SubtractY(float value) { Start.Y -= value; End.Y -= value; }
+
+        /// <summary>
+        /// Retrieve the perpendicular angle to this line.
+        /// </summary>
+        /// <param name="angle">The angle you want the perpendicular angle to face.</param>
+        /// <returns>The perpendicular angle relative to the angle given.</returns>
+        public float PerpendicularAngle(float angle)
+        {
+            var d = (End - Start);
+            var a = Mathf.Angle(new Vector2(-d.Y, d.X), new Vector2(d.Y, -d.X));
+            return ((Mathf.AngleDifference(a, angle) <= Mathf.PiOver2) ? a : (a + Mathf.Pi));
+        }
+        public float ReflectionAngle(float perpendicularAngle)
+        {
+            var originalAngle = Mathf.Angle(Start, End);
+            float reflectionAngle = perpendicularAngle,
+                angleDif = Mathf.AngleDifference(originalAngle, MathHelper.WrapAngle(perpendicularAngle + Mathf.Pi));
+            float b;
+            if (Mathf.AngleDifference((b = (perpendicularAngle + angleDif)), MathHelper.WrapAngle(originalAngle + Mathf.Pi)) <= Mathf.PiOver1024)
+                reflectionAngle -= angleDif;
+            else
+                reflectionAngle = b;
+            return reflectionAngle;
+        }
+        public float ReflectionAngle(Line line) { return ReflectionAngle(line.PerpendicularAngle(Mathf.Angle(End, Start))); }
+        public float ReflectionAngle(Line line, Vector2 position, float angle) { return ReflectionAngle(line.PerpendicularAngle(Mathf.Angle(position, Mathf.Move(position, angle, -1)))); }
+        public float ReflectionAngle(Polygon polygon) { return polygon.ReflectionAngle(this); }
+        public float ReflectionAngle(Polygon polygon, Vector2 position, float angle) { return polygon.ReflectionAngle(this, position, angle); }
     }
 }
