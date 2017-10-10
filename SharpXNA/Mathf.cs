@@ -69,7 +69,7 @@ namespace SharpXNA
         public static Vector2 Move(ref Vector2 position, Vector2 other, float velocity) { return Move(ref position, Angle(position, other), velocity); }
         public static Vector2 Move(Vector2 position, float angle, float velocity) { return (position + new Vector2(((float)Math.Cos(angle) * velocity), ((float)Math.Sin(angle) * velocity))); }
         public static Vector2 Move(Vector2 position, Vector2 other, float velocity) { return Move(position, Angle(position, other), velocity); }
-
+        
         public static float VolumeFromDistance(this Vector2 from, Vector2 to, float fade, float max) => MathHelper.Clamp(((fade - (Vector2.Distance(from, to) - max)) / fade), 0, 1);
         public static float AngleDifference(float a, float b)
         {
@@ -158,6 +158,14 @@ namespace SharpXNA
             float r, g, b;
             HSVtoRGB(h, s, v, out r, out g, out b);
             return new Color((byte)r, (byte)g, (byte)b, color.A);
+        }
+
+        public static float Distance(float a, float b)
+        {
+            if (a > b)
+                return (a - b);
+            else
+                return (b - a);
         }
     }
 }

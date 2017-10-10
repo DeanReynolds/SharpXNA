@@ -10,7 +10,11 @@ namespace SharpXNA.Plugins
         private Hashtable _hash;
         private int _size;
 
-        public SpatialHash(int size) { _size = size; _hash = new Hashtable(); }
+        public SpatialHash(int size)
+        {
+            _hash = new Hashtable();
+            _size = size;
+        }
 
         public ICollection Cells => _hash.Keys;
         public int Count => _hash.Count;
@@ -18,7 +22,8 @@ namespace SharpXNA.Plugins
         public ArrayList Query(Vector2 position)
         {
             var key = new Point((int)Math.Round(position.X / _size), (int)Math.Round(position.Y / _size));
-            if (_hash.Contains(key)) return (ArrayList)_hash[key];
+            if (_hash.Contains(key))
+                return (ArrayList)_hash[key];
             return null;
         }
         public void Add(object obj, Vector2 position)
@@ -27,9 +32,11 @@ namespace SharpXNA.Plugins
                 if (_hash.Contains(key))
                 {
                     var cell = (ArrayList)_hash[key];
-                    if (!cell.Contains(obj)) cell.Add(obj);
+                    if (!cell.Contains(obj))
+                        cell.Add(obj);
                 }
-                else _hash.Add(key, new ArrayList() { obj });
+                else
+                    _hash.Add(key, new ArrayList() { obj });
         }
         public void Change(object obj, Vector2 oldPosition, Vector2 newPosition)
         {
@@ -40,14 +47,17 @@ namespace SharpXNA.Plugins
                     if (_hash.Contains(key))
                         ((ArrayList)_hash[key]).Remove(obj);
                 }
-                else newKeys.Remove(key);
+                else
+                    newKeys.Remove(key);
             foreach (var key in newKeys)
                 if (_hash.Contains(key))
                 {
                     var cell = (ArrayList)_hash[key];
-                    if (!cell.Contains(obj)) cell.Add(obj);
+                    if (!cell.Contains(obj))
+                        cell.Add(obj);
                 }
-                else _hash.Add(key, new ArrayList() { obj });
+                else
+                    _hash.Add(key, new ArrayList() { obj });
         }
         public void Remove(object obj, Vector2 position)
         {
@@ -55,6 +65,7 @@ namespace SharpXNA.Plugins
                 if (_hash.Contains(key))
                     ((ArrayList)_hash[key]).Remove(obj);
         }
+        public void Clear() { _hash.Clear(); }
 
         private HashSet<Point> Keys(Vector2 position)
         {

@@ -12,7 +12,7 @@ namespace SharpXNA
             set
             {
                 _position = value;
-                UpdatePositionMatrices();
+                PositionTranslation = Matrix.CreateTranslation(new Vector3(-_position, 0));
                 UpdateViewMatrices();
             }
         }
@@ -22,7 +22,7 @@ namespace SharpXNA
             set
             {
                 _angle = value;
-                _rotationZ = Matrix.CreateRotationZ(-_angle);
+                RotationMatrix = Matrix.CreateRotationZ(-_angle);
                 UpdateViewMatrices();
             }
         }
@@ -32,7 +32,7 @@ namespace SharpXNA
             set
             {
                 _zoom = value;
-                _scale = Matrix.CreateScale(new Vector3(_zoom, _zoom, 1));
+                ScaleMatrix = Matrix.CreateScale(new Vector3(_zoom, _zoom, 1));
                 UpdateViewMatrices();
             }
         }
@@ -53,7 +53,7 @@ namespace SharpXNA
             set
             {
                 _position.X = value;
-                UpdatePositionMatrices();
+                PositionTranslation = Matrix.CreateTranslation(new Vector3(-_position, 0));
                 UpdateViewMatrices();
             }
         }
@@ -63,25 +63,40 @@ namespace SharpXNA
             set
             {
                 _position.Y = value;
-                UpdatePositionMatrices();
+                PositionTranslation = Matrix.CreateTranslation(new Vector3(-_position, 0));
                 UpdateViewMatrices();
             }
         }
 
         private Vector2 _position;
         private float _angle, _zoom;
-        internal Matrix _linearPositionTranslation, _pointPositionTranslation, _rotationZ, _scale, _screenTranslation, _linearMatrix, _pointMatrix, _invert;
 
-        public void UpdatePositionMatrices()
+        public Matrix PositionTranslation
         {
-            _linearPositionTranslation = Matrix.CreateTranslation(new Vector3(-_position, 0));
-            _pointPositionTranslation = Matrix.CreateTranslation(new Vector3(-new Vector2((int)_position.X, (int)_position.Y), 0));
+            get;
+            private set;
         }
+        public Matrix RotationMatrix
+        {
+            get;
+            private set;
+        }
+        public Matrix ScaleMatrix
+        {
+            get;
+            private set;
+        }
+        public Matrix ViewMatrix
+        {
+            get;
+            private set;
+        }
+        internal Matrix _screenTranslation, _invert;
+
         public void UpdateViewMatrices()
         {
-            _linearMatrix = CreateCameraMatrix(_linearPositionTranslation, _rotationZ, _scale, ScreenTranslation);
-            _pointMatrix = CreateCameraMatrix(_pointPositionTranslation, _rotationZ, _scale, ScreenTranslation);
-            _invert = Matrix.Invert(_linearMatrix);
+            ViewMatrix = CreateCameraMatrix(PositionTranslation, RotationMatrix, ScaleMatrix, ScreenTranslation);
+            _invert = Matrix.Invert(ViewMatrix);
         }
 
         public static Matrix CreateScreenTranslation(float width, float height) { return Matrix.CreateTranslation((width / 2), (height / 2), 0); }
@@ -91,11 +106,11 @@ namespace SharpXNA
         public Camera(float angle = 0, float zoom = 1)
         {
             _position = Vector2.Zero;
-            UpdatePositionMatrices();
+            PositionTranslation = Matrix.CreateTranslation(new Vector3(-_position, 0));
             _angle = angle;
-            _rotationZ = Matrix.CreateRotationZ(-angle);
+            RotationMatrix = Matrix.CreateRotationZ(-angle);
             _zoom = zoom;
-            _scale = Matrix.CreateScale(new Vector3(zoom, zoom, 1));
+            ScaleMatrix = Matrix.CreateScale(new Vector3(zoom, zoom, 1));
             _screenTranslation = CreateScreenTranslation(Screen.ViewportWidth, Screen.ViewportHeight);
             Projection = CreateProjection(Screen.ViewportWidth, Screen.ViewportHeight);
             UpdateViewMatrices();
@@ -103,18 +118,15 @@ namespace SharpXNA
         public Camera(Vector2 position, float angle = 0, float zoom = 1)
         {
             _position = position;
-            UpdatePositionMatrices();
+            PositionTranslation = Matrix.CreateTranslation(new Vector3(-_position, 0));
             _angle = angle;
-            _rotationZ = Matrix.CreateRotationZ(-angle);
+            RotationMatrix = Matrix.CreateRotationZ(-angle);
             _zoom = zoom;
-            _scale = Matrix.CreateScale(new Vector3(zoom, zoom, 1));
+            ScaleMatrix = Matrix.CreateScale(new Vector3(zoom, zoom, 1));
             _screenTranslation = CreateScreenTranslation(Screen.ViewportWidth, Screen.ViewportHeight);
             Projection = CreateProjection(Screen.ViewportWidth, Screen.ViewportHeight);
             UpdateViewMatrices();
         }
-
-        public enum Samplers { Linear, Point }
-        public Matrix View(Samplers sampler = Samplers.Linear) { return ((sampler == Samplers.Linear) ? _linearMatrix : _pointMatrix); }
 
         public void UpdateMousePosition()
         {

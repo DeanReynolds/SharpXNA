@@ -32,6 +32,7 @@ namespace SharpXNA
                 Add(Engine._contentManager.Load<Effect>(RootDirectory + "\\" + name), name);
             }
         }
+        public bool Contains(string path) => _assets.ContainsKey(path);
         public void Dispose() { foreach (var t in _assets.Values) t.Dispose(); _assets.Clear(); }
         public void Dispose(string path) { _assets[path].Dispose(); _assets.Remove(path); }
     }

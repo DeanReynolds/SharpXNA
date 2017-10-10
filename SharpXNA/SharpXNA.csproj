@@ -57,6 +57,7 @@
     <Compile Include="Camera.cs" />
     <Compile Include="Collision\Line.cs" />
     <Compile Include="Collision\Polygon.cs" />
+    <Compile Include="Collision\RotatedRectangle.cs" />
     <Compile Include="Content\Fonts.cs" />
     <Compile Include="Content\Origin.cs" />
     <Compile Include="Content\Sounds.cs" />

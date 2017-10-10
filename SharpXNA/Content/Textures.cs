@@ -128,6 +128,7 @@ namespace SharpXNA
                 catch { }
             }
         }
+        public bool Contains(string path) => _assets.ContainsKey(path);
         public void Dispose()
         {
             foreach (var t in _assets.Values)
