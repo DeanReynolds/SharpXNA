@@ -160,12 +160,6 @@ namespace SharpXNA
             return new Color((byte)r, (byte)g, (byte)b, color.A);
         }
 
-        public static float Distance(float a, float b)
-        {
-            if (a > b)
-                return (a - b);
-            else
-                return (b - a);
-        }
+        public static float Distance(float a, float b) => ((a > b) ? (a - b) : (b - a));
     }
 }

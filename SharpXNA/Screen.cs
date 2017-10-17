@@ -23,7 +23,7 @@ namespace SharpXNA
         }
         public static bool Fullscreen { get { return Engine.GraphicsDeviceManager.IsFullScreen; } set { Engine.GraphicsDeviceManager.IsFullScreen = value; Engine.GraphicsDeviceManager.ApplyChanges(); } }
         public static bool VSync { get { return Engine.GraphicsDeviceManager.SynchronizeWithVerticalRetrace; } set { Engine.GraphicsDeviceManager.SynchronizeWithVerticalRetrace = value; Engine.GraphicsDeviceManager.ApplyChanges(); } }
-        
+
         public static void Set(int width, int height, bool fullscreen, bool vsync = false)
         {
             Engine.GraphicsDeviceManager.PreferredBackBufferWidth = width;
@@ -112,15 +112,13 @@ namespace SharpXNA
             };
             zoom = MathHelper.Min(xZoom, yZoom);
         }
-        public static void Expand(bool hideControlBar)
+        public static void Expand(bool borderless = true, bool changeScreen = true)
         {
-            if (Engine.Form == null)
-                return;
-            if (hideControlBar)
-                Engine.Form.FormBorderStyle = FormBorderStyle.None;
-            var screen = System.Windows.Forms.Screen.FromPoint(Cursor.Position);
-            Engine.Form.Location = screen.WorkingArea.Location;
-            Engine.Form.Size = screen.WorkingArea.Size;
+            var screen = (changeScreen ? System.Windows.Forms.Screen.FromPoint(Cursor.Position) : System.Windows.Forms.Screen.FromPoint(Engine.Form.Location));
+            try { Engine.Window.IsBorderless = borderless; }
+            catch { }
+            Engine.Form.Location = screen.Bounds.Location;
+            Engine.Form.Size = screen.Bounds.Size;
         }
         public static void Center()
         {
@@ -195,7 +193,7 @@ namespace SharpXNA
         public static void Begin(BlendState blendState, SamplerState samplerState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Batch.Begin(SpriteSortMode.Deferred, blendState, samplerState, depthStencilState, rasterizerState, effect, matrix); }
         public static void Begin(SpriteSortMode sortMode, BlendState blendState, SamplerState samplerState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Batch.Begin(sortMode, blendState, samplerState, depthStencilState, rasterizerState, effect, matrix); }
         public static void End() { Batch.End(); }
-        
+
         public static void Draw(Texture2D texture, Vector2 position) { Batch.Draw(texture, position, null, Color.White, 0, Origin.None, Vector2.One, SpriteEffects.None, 0); }
         public static void Draw(Texture2D texture, Vector2 position, SpriteEffects effect, float layer) { Batch.Draw(texture, position, null, Color.White, 0, Origin.None, Vector2.One, effect, layer); }
         public static void Draw(Texture2D texture, Vector2 position, Rectangle? source) { Batch.Draw(texture, position, source, Color.White, 0, Origin.None, Vector2.One, SpriteEffects.None, 0); }

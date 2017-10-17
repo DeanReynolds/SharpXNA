@@ -24,9 +24,7 @@ namespace SharpXNA.Plugins
         }
         public Lighting(Effect combineEffect)
         {
-            ColorMap = new RenderTarget2D(Engine.GraphicsDevice, Screen.ViewportWidth, Screen.ViewportHeight, false, SurfaceFormat.Color, DepthFormat.Depth16, 0, RenderTargetUsage.DiscardContents);
-            LightMap = new RenderTarget2D(Engine.GraphicsDevice, Screen.ViewportWidth, Screen.ViewportHeight, false, SurfaceFormat.Color, DepthFormat.Depth16, 0, RenderTargetUsage.DiscardContents);
-            BlurMap = new RenderTarget2D(Engine.GraphicsDevice, Screen.ViewportWidth, Screen.ViewportHeight, false, SurfaceFormat.Color, DepthFormat.None, 0, RenderTargetUsage.DiscardContents);
+            ChangeResolution();
             CombineEffect = combineEffect;
             Lights = new List<PointLight>();
         }
@@ -39,6 +37,12 @@ namespace SharpXNA.Plugins
             Engine.GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, vertices, 0, 4, indices, 0, 2);
         }
 
+        public void ChangeResolution()
+        {
+            ColorMap = new RenderTarget2D(Engine.GraphicsDevice, Screen.ViewportWidth, Screen.ViewportHeight, false, SurfaceFormat.Color, DepthFormat.Depth16, 0, RenderTargetUsage.DiscardContents);
+            LightMap = new RenderTarget2D(Engine.GraphicsDevice, Screen.ViewportWidth, Screen.ViewportHeight, false, SurfaceFormat.Color, DepthFormat.Depth16, 0, RenderTargetUsage.DiscardContents);
+            BlurMap = new RenderTarget2D(Engine.GraphicsDevice, Screen.ViewportWidth, Screen.ViewportHeight, false, SurfaceFormat.Color, DepthFormat.None, 0, RenderTargetUsage.DiscardContents);
+        }
         public void Blur(float strength, Effect blurEffect, RenderTarget2D target)
         {
             blurEffect.Parameters["renderTargetSize"].SetValue(new Vector2(target.Width, target.Height));
@@ -199,6 +203,12 @@ namespace SharpXNA.Plugins
         {
             foreach (var obstacle in obstacles)
                 AddOccluders(obstacle.Lines);
+        }
+        public void RemoveOccluder(Line line)
+        {
+            _occluders.RemoveWhere(x => (x == line));
+            ClearOccluders(false);
+            AddOccluders(_occluders);
         }
         public void ClearOccluders(bool clearStored = true)
         {

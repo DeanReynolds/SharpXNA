@@ -85,5 +85,15 @@ namespace SharpXNA.Collision
         public float ReflectionAngle(Line line, Vector2 position, float angle) { return ReflectionAngle(line.PerpendicularAngle(Mathf.Angle(position, Mathf.Move(position, angle, -1)))); }
         public float ReflectionAngle(Polygon polygon) { return polygon.ReflectionAngle(this); }
         public float ReflectionAngle(Polygon polygon, Vector2 position, float angle) { return polygon.ReflectionAngle(this, position, angle); }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(obj, null))
+                return ReferenceEquals(this, null);
+            var other = (Line)obj;
+            return !((Start != other.Start) || (End != other.End));
+        }
+        public static bool operator !=(Line line, Line other) { return !(line == other); }
+        public static bool operator ==(Line line, Line other) { return (ReferenceEquals(line, other) || (!ReferenceEquals(line, null) && line.Equals(other))); }
     }
 }

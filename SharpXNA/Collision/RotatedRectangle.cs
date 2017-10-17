@@ -1,106 +1,150 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace SharpXNA.Collision
 {
     public class RotatedRectangle
     {
-        public Rectangle CollisionRectangle;
-        public float Rotation;
-        public Vector2 Origin;
+        Rectangle _rectangle;
+        float _angle;
+
+        public float Angle
+        {
+            get { return _angle; }
+            set
+            {
+                _angle = value;
+                UpdateCorners();
+            }
+        }
+        public Vector2 Origin { get; private set; }
+
+        public int X
+        {
+            get { return _rectangle.X; }
+            set
+            {
+                _rectangle.X = value;
+                UpdateCorners();
+            }
+        }
+        public int Y
+        {
+            get { return _rectangle.Y; }
+            set
+            {
+                _rectangle.Y = value;
+                UpdateCorners();
+            }
+        }
+        public int Width
+        {
+            get { return _rectangle.Width; }
+            set
+            {
+                _rectangle.Width = value;
+                UpdateCorners();
+            }
+        }
+        public int Height
+        {
+            get { return _rectangle.Height; }
+            set
+            {
+                _rectangle.Height = value;
+                UpdateCorners();
+            }
+        }
+
+        public Vector2 TopLeft { get; private set; }
+        public Vector2 TopRight { get; private set; }
+        public Vector2 BottomLeft { get; private set; }
+        public Vector2 BottomRight { get; private set; }
+
+        public int Left { get; private set; }
+        public int Right { get; private set; }
+        public int Top { get; private set; }
+        public int Bottom { get; private set; }
 
         public RotatedRectangle(Rectangle rectangle, float angle)
         {
             int widthOver2 = (rectangle.Width / 2), heightOver2 = (rectangle.Height / 2);
-            CollisionRectangle = new Rectangle((rectangle.X - widthOver2), (rectangle.Y - heightOver2), rectangle.Width, rectangle.Height);
-            Rotation = angle;
+            _rectangle = new Rectangle((rectangle.X - widthOver2), (rectangle.Y - heightOver2), rectangle.Width, rectangle.Height);
+            Angle = angle;
             Origin = new Vector2(widthOver2, heightOver2);
+            UpdateCorners();
         }
 
-        public void ChangePosition(int theXPositionAdjustment, int theYPositionAdjustment)
+        public bool Intersects(Rectangle rectangle) => Intersects(new RotatedRectangle(rectangle, 0));
+        public bool Intersects(RotatedRectangle rectangle)
         {
-            CollisionRectangle.X += theXPositionAdjustment;
-            CollisionRectangle.Y += theYPositionAdjustment;
-        }
-
-        public bool Intersects(Rectangle theRectangle) => Intersects(new RotatedRectangle(theRectangle, 0.0f));
-        public bool Intersects(RotatedRectangle theRectangle)
-        {
-            var aRectangleAxis = new List<Vector2>()
+            var rAxis = new Vector2[4]
             {
-                (UpperRightCorner() - UpperLeftCorner()),
-                (UpperRightCorner() - LowerRightCorner()),
-                (theRectangle.UpperLeftCorner() - theRectangle.LowerLeftCorner()),
-                (theRectangle.UpperLeftCorner() - theRectangle.UpperRightCorner())
+                (TopRight - TopLeft),
+                (TopRight - BottomRight),
+                (rectangle.TopLeft - rectangle.BottomLeft),
+                (rectangle.TopLeft - rectangle.TopRight)
             };
-            foreach (var aAxis in aRectangleAxis)
-                if (!IsAxisCollision(theRectangle, aAxis))
+            foreach (var axis in rAxis)
+                if (!IsAxisCollision(rectangle, axis))
                     return false;
             return true;
         }
 
-        private bool IsAxisCollision(RotatedRectangle theRectangle, Vector2 aAxis)
+        bool IsAxisCollision(RotatedRectangle rectangle, Vector2 axis)
         {
-            var aRectangleAScalars = new List<int>()
-            {
-                GenerateScalar(theRectangle.UpperLeftCorner(), aAxis),
-                GenerateScalar(theRectangle.UpperRightCorner(), aAxis),
-                GenerateScalar(theRectangle.LowerLeftCorner(), aAxis),
-                GenerateScalar(theRectangle.LowerRightCorner(), aAxis)
-            };
-            var aRectangleBScalars = new List<int>()
-            {
-                GenerateScalar(UpperLeftCorner(), aAxis),
-                GenerateScalar(UpperRightCorner(), aAxis),
-                GenerateScalar(LowerLeftCorner(), aAxis),
-                GenerateScalar(LowerRightCorner(), aAxis)
-            };
-            int aRectangleAMinimum = aRectangleAScalars.Min(), aRectangleAMaximum = aRectangleAScalars.Max(), aRectangleBMinimum = aRectangleBScalars.Min(), aRectangleBMaximum = aRectangleBScalars.Max();
-            if (aRectangleBMinimum <= aRectangleAMaximum && aRectangleBMaximum >= aRectangleAMaximum)
+            var scalars = Scalars(axis);
+            var rectangleScalars = rectangle.Scalars(axis);
+            if ((scalars[0] <= rectangleScalars[1]) && (scalars[1] >= rectangleScalars[1]))
                 return true;
-            return aRectangleAMinimum <= aRectangleBMaximum && aRectangleAMaximum >= aRectangleBMaximum;
+            return ((rectangleScalars[0] <= scalars[1]) && (rectangleScalars[1] >= scalars[1]));
+        }
+        int Scalar(Vector2 corner, Vector2 axis)
+        {
+            var divisor = (((corner.X * axis.X) + (corner.Y * axis.Y)) / ((axis.X * axis.X) + (axis.Y * axis.Y)));
+            var projectedCorner = new Vector2(divisor * axis.X, divisor * axis.Y);
+            return (int)((axis.X * projectedCorner.X) + (axis.Y * projectedCorner.Y));
+        }
+        int[] Scalars(Vector2 axis)
+        {
+            int[] array;
+            return new int[2]
+            {
+                ((array = new int[4]
+                {
+                    Scalar(TopLeft, axis),
+                    Scalar(TopRight, axis),
+                    Scalar(BottomLeft, axis),
+                    Scalar(BottomRight, axis)
+                }).Min()),
+                array.Max()
+            };
         }
 
-        private int GenerateScalar(Vector2 theRectangleCorner, Vector2 theAxis)
+        Vector2 Rotate(Vector2 position, float angle, Vector2 origin) => (Vector2.Transform((position - origin), Matrix.CreateRotationZ(angle)) + origin);
+        void UpdateCorners()
         {
-            float aNumerator = (theRectangleCorner.X * theAxis.X) + (theRectangleCorner.Y * theAxis.Y);
-            float aDenominator = (theAxis.X * theAxis.X) + (theAxis.Y * theAxis.Y);
-            float aDivisionResult = aNumerator / aDenominator;
-            Vector2 aCornerProjected = new Vector2(aDivisionResult * theAxis.X, aDivisionResult * theAxis.Y);
-            return (int)((theAxis.X * aCornerProjected.X) + (theAxis.Y * aCornerProjected.Y));
+            Vector2 topLeft = new Vector2(_rectangle.Left, _rectangle.Top),
+                topRight = new Vector2(_rectangle.Right, _rectangle.Top),
+                bottomLeft = new Vector2(_rectangle.Left, _rectangle.Bottom),
+                bottomRight = new Vector2(_rectangle.Right, _rectangle.Bottom);
+            var corners = new Vector2[4]
+            {
+                TopLeft = Rotate(topLeft, Angle, (topLeft + Origin)),
+                TopRight = Rotate(topRight, Angle, (topRight + new Vector2(-Origin.X, Origin.Y))),
+                BottomLeft = Rotate(bottomLeft, Angle, (bottomLeft + new Vector2(Origin.X, -Origin.Y))),
+                BottomRight = Rotate(bottomRight, Angle, (bottomRight + new Vector2(-Origin.X, -Origin.Y)))
+            };
+            Left = Top = int.MaxValue;
+            Right = Bottom = int.MinValue;
+            foreach (var c in corners)
+            {
+                Left = Math.Min(Left, (int)c.X);
+                Right = Math.Max(Right, (int)c.X);
+                Top = Math.Min(Top, (int)c.Y);
+                Bottom = Math.Max(Bottom, (int)c.Y);
+            }
         }
-
-        private Vector2 RotatePoint(Vector2 thePoint, Vector2 theOrigin, float theRotation)
-        {
-            return new Vector2((float)(theOrigin.X + (thePoint.X - theOrigin.X) * Math.Cos(theRotation) - (thePoint.Y - theOrigin.Y) * Math.Sin(theRotation)), (float)(theOrigin.Y + (thePoint.Y - theOrigin.Y) * Math.Cos(theRotation) + (thePoint.X - theOrigin.X) * Math.Sin(theRotation)));
-        }
-
-        public Vector2 UpperLeftCorner()
-        {
-            Vector2 aUpperLeft = new Vector2(CollisionRectangle.Left, CollisionRectangle.Top);
-            return RotatePoint(aUpperLeft, aUpperLeft + Origin, Rotation);
-        }
-        public Vector2 UpperRightCorner()
-        {
-            Vector2 aUpperRight = new Vector2(CollisionRectangle.Right, CollisionRectangle.Top);
-            return RotatePoint(aUpperRight, aUpperRight + new Vector2(-Origin.X, Origin.Y), Rotation);
-        }
-        public Vector2 LowerLeftCorner()
-        {
-            Vector2 aLowerLeft = new Vector2(CollisionRectangle.Left, CollisionRectangle.Bottom);
-            return RotatePoint(aLowerLeft, aLowerLeft + new Vector2(Origin.X, -Origin.Y), Rotation);
-        }
-        public Vector2 LowerRightCorner()
-        {
-            Vector2 aLowerRight = new Vector2(CollisionRectangle.Right, CollisionRectangle.Bottom);
-            return RotatePoint(aLowerRight, aLowerRight + new Vector2(-Origin.X, -Origin.Y), Rotation);
-        }
-
-        public int X => CollisionRectangle.X;
-        public int Y => CollisionRectangle.Y;
-        public int Width => CollisionRectangle.Width;
-        public int Height => CollisionRectangle.Height;
     }
 }
