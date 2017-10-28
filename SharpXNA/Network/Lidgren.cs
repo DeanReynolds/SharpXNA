@@ -3,6 +3,8 @@ using Lidgren.Network;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Linq;
 
 namespace SharpXNA
 {
@@ -13,33 +15,39 @@ namespace SharpXNA
         public static bool IsNullOrServer => ((Peer == null) || (Peer is NetServer));
         public static bool IsServer => (Peer is NetServer);
         public static bool IsClient => (Peer is NetClient);
+        public static NetUPnP UPnP => Peer.UPnP;
 
         public static NetPeerStatus State => Peer?.Status ?? NetPeerStatus.NotRunning;
         public static void StartHosting(NetPeerConfiguration config)
         {
             Peer = new NetServer(config);
             Peer.Start();
+            try
+            {
+                if (Peer.UPnP != null)
+                    Peer.UPnP.ForwardPort(config.Port, $"{((AssemblyTitleAttribute)Attribute.GetCustomAttribute(Assembly.GetExecutingAssembly(), typeof(AssemblyTitleAttribute), false))?.Title ?? "Game"} {((AssemblyVersionAttribute)Attribute.GetCustomAttribute(Assembly.GetExecutingAssembly(), typeof(AssemblyVersionAttribute), false))?.Version ?? "1.0.0.0"}");
+            }
+            catch { }
         }
         public static void StartHosting(int port, int maxConnections)
         {
             var config = DefaultConfiguration;
             config.Port = port;
             config.MaximumConnections = maxConnections;
-            Peer = new NetServer(config);
-            Peer.Start();
+            StartHosting(config);
         }
 
-        public static void Connect(string ip, int port, NetPeerConfiguration config, Packet packet)
+        public static void Connect(string ip, int port, NetPeerConfiguration config, params object[] data)
         {
             Peer = new NetClient(config);
             Peer.Start();
-            Peer.Connect(ip, port, packet.Construct());
+            Peer.Connect(ip, port, new Packet(data)._message);
         }
-        public static void Connect(string ip, int port, Packet packet)
+        public static void Connect(string ip, int port, params object[] data)
         {
             Peer = new NetClient(DefaultConfiguration);
             Peer.Start();
-            Peer.Connect(ip, port, packet.Construct());
+            Peer.Connect(ip, port, new Packet(data)._message);
         }
 
         public static NetPeerConfiguration DefaultConfiguration
@@ -59,6 +67,7 @@ namespace SharpXNA
                 config.DisableMessageType(NetIncomingMessageType.UnconnectedData);
                 config.DisableMessageType(NetIncomingMessageType.VerboseDebugMessage);
                 config.DisableMessageType(NetIncomingMessageType.WarningMessage);
+                config.EnableUPnP = true;
                 return config;
             }
         }
@@ -89,7 +98,7 @@ namespace SharpXNA
 
         public delegate void MessageRecieved(NetIncomingMessage message);
         public static event MessageRecieved OnData, OnConnectionApproval, OnStatusChanged, OnLatencyUpdated, OnDiscoveryRequest, OnDiscoveryResponse, OnNatIntroSuccess, OnReceipt, OnUnconnectedData, OnVerboseDebugmessage, OnWarning, OnError, OnErrormessage, OnDebugmessage;
-        
+
         public static void Flush()
         {
             Peer?.FlushSendQueue();
@@ -209,77 +218,47 @@ namespace SharpXNA
 
         public class Packet
         {
-            public object Identifier;
+            internal NetOutgoingMessage _message;
 
-            public object[] Data;
-            internal List<object> _extraData;
-
-            public Packet(object identifier, params object[] data)
-            {
-                Identifier = identifier;
-                Data = data;
-            }
-
-            public int Length => (Data.Length + (_extraData?.Count ?? 0));
-
-            public NetOutgoingMessage Construct()
-            {
-                var message = Peer.CreateMessage();
-                if (Identifier != null)
-                    message.Write(Identifier);
-                if ((Data != null) && (Data.Length > 0))
-                    foreach (var o in Data)
-                        message.Write(o);
-                if (_extraData != null)
-                    foreach (var o in _extraData)
-                        message.Write(o);
-                return message;
-            }
-            public Packet Clone()
-            {
-                return Clone(Identifier);
-            }
-            public Packet Clone(object identifier)
-            {
-                var packet = new Packet(identifier) { Data = new object[Data.Length] };
-                for (var i = 0; i < Data.Length; i++)
-                    packet.Data[i] = Data[i];
-                if (_extraData == null)
-                    return packet;
-                packet._extraData = new List<object>(_extraData.Count);
-                for (var i = 0; i < _extraData.Count; i++)
-                    packet._extraData.Add(_extraData[i]);
-                return packet;
-            }
+            public Packet(params object[] data) { Set(data); }
 
             public void Add(params object[] data)
             {
-                if (_extraData == null)
-                    _extraData = new List<object>(data.Length);
-                _extraData.AddRange(data);
+                foreach (var d in data)
+                    _message.Write(d);
             }
             public void Set(params object[] data)
             {
-                Data = data;
-                _extraData = null;
+                _message = Peer.CreateMessage();
+                foreach (var d in data)
+                    _message.Write(d);
             }
+
+            public int LengthBytes => _message.LengthBytes;
+            public int LengthBits => _message.LengthBits;
+
+            public void WriteRangedSingle(float value, float min, float max, int numberOfBits) => _message.WriteRangedSingle(value, min, max, numberOfBits);
+            public int WriteRangedInteger(int min, int max, int value) => _message.WriteRangedInteger(min, max, value);
 
             public void Send(NetDeliveryMethod deliveryMethod = NetDeliveryMethod.ReliableOrdered, int channel = 0)
             {
                 if (IsServer)
-                    ((NetServer)Peer).SendMessage(Construct(), Peer.Connections, deliveryMethod, channel);
+                    ((NetServer)Peer).SendMessage(_message, Peer.Connections, deliveryMethod, channel);
                 else if (IsClient)
-                    ((NetClient)Peer).SendMessage(Construct(), deliveryMethod, channel);
+                    ((NetClient)Peer).SendMessage(_message, deliveryMethod, channel);
             }
             public void Send(NetConnection except, NetDeliveryMethod deliveryMethod = NetDeliveryMethod.ReliableOrdered, int channel = 0)
             {
-                if (IsServer && (Peer.ConnectionsCount > 0))
-                    ((NetServer)Peer).SendToAll(Construct(), except, deliveryMethod, channel);
+                if (IsServer)
+                    ((NetServer)Peer).SendToAll(_message, except, deliveryMethod, channel);
             }
             public void SendTo(NetConnection recipient, NetDeliveryMethod deliveryMethod = NetDeliveryMethod.ReliableOrdered, int channel = 0)
             {
                 if (IsServer)
-                    ((NetServer)Peer).SendMessage(Construct(), recipient, deliveryMethod, channel);
+                    if (recipient == null)
+                        ((NetServer)Peer).SendMessage(_message, Peer.Connections, deliveryMethod, channel);
+                    else
+                        ((NetServer)Peer).SendMessage(_message, recipient, deliveryMethod, channel);
             }
         }
     }

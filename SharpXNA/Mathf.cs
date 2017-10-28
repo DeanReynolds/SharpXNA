@@ -43,11 +43,18 @@ namespace SharpXNA
         }
 
         public static float Angle(Vector2 source, Vector2 destination) => (float)Math.Atan2((destination.Y - source.Y), (destination.X - source.X));
+        //public static int Wrap(int value, int max, int min = 0)
+        //{
+        //    int width = (max - min),
+        //        offset = (value - min);
+        //    return ((offset - ((offset / width) * width)) + min);
+        //}
         public static double Wrap(float value, float max, float min = 0)
         {
             value -= min;
             max -= min;
-            if (max == 0) return min;
+            if (max == 0)
+                return min;
             value = value % max;
             value += min;
             while (value < min)

@@ -257,6 +257,19 @@ namespace Lidgren.Network
 			SendConnectResponse(NetTime.Now, false);
 		}
 
+		public void Approve(SharpXNA.Network.Packet localHail)
+		{
+			if (m_status != NetConnectionStatus.RespondedAwaitingApproval)
+			{
+				m_peer.LogWarning("Approve() called in wrong status; expected RespondedAwaitingApproval; got " + m_status);
+				return;
+			}
+
+			m_localHailMessage = localHail._message;
+			m_handshakeAttempts = 0;
+			SendConnectResponse(NetTime.Now, false);
+		}
+
 		/// <summary>
 		/// Denies this connection; disconnecting it
 		/// </summary>

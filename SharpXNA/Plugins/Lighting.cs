@@ -8,7 +8,7 @@ namespace SharpXNA.Plugins
 {
     public class Lighting
     {
-        internal const float _pxOffset = .001f;
+        public const float PxOffset = .001f;
         internal static VertexPositionTexture[] vertices;
         internal static short[] indices;
 
@@ -157,12 +157,12 @@ namespace SharpXNA.Plugins
                 Vector2 iS4i = Vector2.Zero, iS5i = Vector2.Zero;
                 if (iS4b = _segments[4].Line.Intersects(line, ref iS4i))
                 {
-                    Mathf.Move(ref iS4i, Angle, -Lighting._pxOffset);
+                    Mathf.Move(ref iS4i, Angle, -Lighting.PxOffset);
                     _segments[4].Line.End = iS4i;
                 }
                 if (iS5b = _segments[5].Line.Intersects(line, ref iS5i))
                 {
-                    Mathf.Move(ref iS5i, Angle, -Lighting._pxOffset);
+                    Mathf.Move(ref iS5i, Angle, -Lighting.PxOffset);
                     _segments[5].Line.End = iS5i;
                 }
                 if (!(((Mathf.AngleDifference(Mathf.Angle(Position, line.Start), Angle) <= fov) || (Mathf.AngleDifference(Mathf.Angle(Position, line.End), Angle) <= fov)) ||
@@ -223,8 +223,8 @@ namespace SharpXNA.Plugins
             if (_fov != 0)
             {
                 var fov = (_fov / 2);
-                Line start = new Line(Mathf.Move(Position, Angle, -Lighting._pxOffset), Mathf.Move(Position, _lowFOV, Radius)),
-                    end = new Line(Mathf.Move(Position, Angle, -Lighting._pxOffset), Mathf.Move(Position, _highFOV, Radius));
+                Line start = new Line(Mathf.Move(Position, Angle, -Lighting.PxOffset), Mathf.Move(Position, _lowFOV, Radius)),
+                    end = new Line(Mathf.Move(Position, Angle, -Lighting.PxOffset), Mathf.Move(Position, _highFOV, Radius));
                 AddOccluderNoFOVCheck(start);
                 AddOccluderNoFOVCheck(end);
             }
