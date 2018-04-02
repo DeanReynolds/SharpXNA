@@ -24,6 +24,8 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Runtime.InteropServices;
+using SharpXNA.Collision;
+using Microsoft.Xna.Framework;
 
 namespace Lidgren.Network
 {
@@ -699,5 +701,166 @@ namespace Lidgren.Network
 				m_bitLength -= excessBits;
 			}
 		}
-	}
+
+        public void Write(Point point)
+        {
+            Write(point.X);
+            Write(point.Y);
+        }
+
+        public void Write(Vector2 vector2)
+        {
+            Write(vector2.X);
+            Write(vector2.Y);
+        }
+
+        public void Write(Vector3 vector3)
+        {
+            Write(vector3.X);
+            Write(vector3.Y);
+            Write(vector3.Z);
+        }
+
+        public void Write(Vector4 vector4)
+        {
+            Write(vector4.X);
+            Write(vector4.Y);
+            Write(vector4.Z);
+            Write(vector4.W);
+        }
+
+        public void Write(Line line)
+        {
+            Write(line.Start);
+            Write(line.End);
+        }
+
+        public void Write(Rectangle rectangle)
+        {
+            Write(rectangle.X);
+            Write(rectangle.Y);
+            Write(rectangle.Width);
+            Write(rectangle.Height);
+        }
+
+        public void Write(BoundingSphere boundingSphere)
+        {
+            Write(boundingSphere.Center);
+            Write(boundingSphere.Radius);
+        }
+
+        public void Write(Quaternion quaternion, int bits)
+        {
+            if (quaternion.X > 1.0f)
+                quaternion.X = 1.0f;
+            if (quaternion.Y > 1.0f)
+                quaternion.Y = 1.0f;
+            if (quaternion.Z > 1.0f)
+                quaternion.Z = 1.0f;
+            if (quaternion.W > 1.0f)
+                quaternion.W = 1.0f;
+            if (quaternion.X < -1.0f)
+                quaternion.X = -1.0f;
+            if (quaternion.Y < -1.0f)
+                quaternion.Y = -1.0f;
+            if (quaternion.Z < -1.0f)
+                quaternion.Z = -1.0f;
+            if (quaternion.W < -1.0f)
+                quaternion.W = -1.0f;
+            WriteSignedSingle(quaternion.X, bits);
+            WriteSignedSingle(quaternion.Y, bits);
+            WriteSignedSingle(quaternion.Z, bits);
+            WriteSignedSingle(quaternion.W, bits);
+        }
+
+        public void Write(Matrix matrix)
+        {
+            var quaternion = Quaternion.CreateFromRotationMatrix(matrix);
+            Write(quaternion, 24);
+            Write(matrix.M41);
+            Write(matrix.M42);
+            Write(matrix.M43);
+        }
+
+        public void Write(Polygon polygon)
+        {
+            Write((byte)polygon.Lines.Length);
+            Write(polygon.position);
+            WriteRangedInteger(-180, 180, (int)Math.Round(MathHelper.ToDegrees(polygon.angle)));
+            foreach (var t in polygon.Lines)
+                Write(t);
+        }
+
+        //public void WriteRangedAngle(float angle, int bits)
+        //{
+        //    NetException.Assert(value >= min && value <= max, "Value not within min/max range!");
+
+        //    uint range = (uint)(max - min);
+        //    int numBits = NetUtility.BitsToHoldUInt(range);
+
+        //    uint rvalue = (uint)(value - min);
+        //    Write(rvalue, numBits);
+
+        //    return numBits;
+        //}
+
+        public void Write(object variable)
+        {
+            var c = variable as Array;
+            if (c != null)
+                for (var i = 0; i < c.Length; i++)
+                {
+                    if (variable is bool[]) Write((variable as bool[])[i]);
+                    else if (variable is sbyte[]) Write((variable as sbyte[])[i]);
+                    else if (variable is byte[]) Write((variable as byte[])[i]);
+                    else if (variable is char[]) Write((variable as char[])[i]);
+                    else if (variable is short[]) Write((variable as short[])[i]);
+                    else if (variable is ushort[]) Write((variable as ushort[])[i]);
+                    else if (variable is float[]) Write((variable as float[])[i]);
+                    else if (variable is int[]) Write((variable as int[])[i]);
+                    else if (variable is uint[]) Write((variable as uint[])[i]);
+                    else if (variable is Vector2[]) Write((variable as Vector2[])[i]);
+                    else if (variable is Point[]) Write((variable as Point[])[i]);
+                    else if (variable is double[]) Write((variable as double[])[i]);
+                    else if (variable is long[]) Write((variable as long[])[i]);
+                    else if (variable is ulong[]) Write((variable as ulong[])[i]);
+                    else if (variable is Vector3[]) Write((variable as Vector3[])[i]);
+                    else if (variable is Vector4[]) Write((variable as Vector4[])[i]);
+                    else if (variable is Line[]) Write((variable as Line[])[i]);
+                    else if (variable is Rectangle[]) Write((variable as Rectangle[])[i]);
+                    else if (variable is Quaternion[]) Write((variable as Quaternion[])[i]);
+                    else if (variable is BoundingSphere[]) Write((variable as BoundingSphere[])[i]);
+                    else if (variable is Matrix[]) Write((variable as Matrix[])[i]);
+                    else if (variable is string[]) Write((variable as string[])[i]);
+                    else if (variable is Polygon[]) Write((variable as Polygon[])[i]);
+                    else Write((variable as object[])[i]);
+                }
+            else if (variable is List<object>)
+                for (var i = 0; i < ((List<object>)variable).Count; i++)
+                    Write(((List<object>)variable)[i]);
+            else if (variable is bool) Write((bool)variable);
+            else if (variable is sbyte) Write((sbyte)variable);
+            else if (variable is byte) Write((byte)variable);
+            else if (variable is char) Write((char)variable);
+            else if (variable is short) Write((short)variable);
+            else if (variable is ushort) Write((ushort)variable);
+            else if (variable is float) Write((float)variable);
+            else if (variable is int) Write((int)variable);
+            else if (variable is uint) Write((uint)variable);
+            else if (variable is Vector2) Write((Vector2)variable);
+            else if (variable is Point) Write((Point)variable);
+            else if (variable is double) Write((double)variable);
+            else if (variable is long) Write((long)variable);
+            else if (variable is ulong) Write((ulong)variable);
+            else if (variable is Vector3) Write((Vector3)variable);
+            else if (variable is Vector4) Write((Vector4)variable);
+            else if (variable is Line) Write((Line)variable);
+            else if (variable is Rectangle) Write((Rectangle)variable);
+            else if (variable is Quaternion) Write((Quaternion)variable, 24);
+            else if (variable is BoundingSphere) Write((BoundingSphere)variable);
+            else if (variable is Matrix) Write((Matrix)variable);
+            else if (variable is string) Write((string)variable);
+            else if (variable is Polygon) Write((Polygon)variable);
+        }
+    }
 }

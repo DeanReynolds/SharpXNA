@@ -6,16 +6,18 @@ namespace SharpXNA.Plugins
 {
     public class Pathfinder
     {
-        internal Node[,] Nodes;
         internal PriorityQueue<Node> Open;
         internal HashSet<Node> Closed;
         internal Dictionary<Point, Dictionary<Point, Path>> Memory;
 
+        public Node[,] Nodes { get; internal set; }
         public int Width => Nodes.GetLength(0);
         public int Height => Nodes.GetLength(1);
         public bool MemorizePaths;
 
-        public Pathfinder(int width, int height)
+        readonly Func<int, int, HashSet<Node>> Neighbours;
+
+        public Pathfinder(int width, int height, bool fourDirectional = false)
         {
             Nodes = new Node[width, height];
             for (int x = 0; x < width; x++)
@@ -24,13 +26,17 @@ namespace SharpXNA.Plugins
             Open = new PriorityQueue<Node>();
             Closed = new HashSet<Node>();
             Memory = new Dictionary<Point, Dictionary<Point, Path>>();
+            if (fourDirectional)
+                Neighbours = Neighbours4Dir;
+            else
+                Neighbours = Neighbours8Dir;
         }
         public Node this[int x, int y] { get { return Nodes[x, y]; } }
 
-        public Path Find(Point source, Point goal) { return Find(source.X, source.Y, goal.X, goal.Y); }
+        public Path Find(Point source, Point goal) => Find(source.X, source.Y, goal.X, goal.Y);
         public Path Find(int sourceX, int sourceY, int goalX, int goalY)
         {
-            if ((sourceX == goalX) && (sourceY == goalY))
+            if ((sourceX == goalX) && (sourceY == goalY) || !Nodes[sourceX, sourceY].Walkable || !Nodes[goalX, goalY].Walkable)
                 return null;
             if (MemorizePaths)
             {
@@ -64,7 +70,7 @@ namespace SharpXNA.Plugins
                         Open.Enqueue(n, n.F);
                         continue;
                     }
-                    else if (g >= n.G)
+                    if (g >= n.G)
                         continue;
                     n.Parent = current;
                     n.G = g;
@@ -73,28 +79,54 @@ namespace SharpXNA.Plugins
             }
             return null;
         }
-
-        internal HashSet<Node> Neighbours(int x, int y)
+        HashSet<Node> Neighbours4Dir(int x, int y)
+        {
+            var neighbours = new HashSet<Node>();
+            if (((y - 1) >= 0) && !Closed.Contains(Nodes[x, (y - 1)]) && Nodes[x, (y - 1)].Walkable)
+                neighbours.Add(Nodes[x, (y - 1)]);
+            if (((y + 1) < Height) && !Closed.Contains(Nodes[x, (y + 1)]) && Nodes[x, (y + 1)].Walkable)
+                neighbours.Add(Nodes[x, (y + 1)]);
+            if (((x - 1) >= 0) && !Closed.Contains(Nodes[(x - 1), y]) && Nodes[(x - 1), y].Walkable)
+                neighbours.Add(Nodes[(x - 1), y]);
+            if (((x + 1) < Width) && !Closed.Contains(Nodes[(x + 1), y]) && Nodes[(x + 1), y].Walkable)
+                neighbours.Add(Nodes[(x + 1), y]);
+            return neighbours;
+        }
+        HashSet<Node> Neighbours8Dir(int x, int y)
         {
             var neighbours = new HashSet<Node>();
             if (((y - 1) >= 0) && Nodes[x, (y - 1)].Walkable)
             {
-                if (!Closed.Contains(Nodes[x, (y - 1)])) neighbours.Add(Nodes[x, (y - 1)]);
-                if (((x - 1) >= 0) && !Closed.Contains(Nodes[(x - 1), (y - 1)]) && Nodes[(x - 1), (y - 1)].Walkable &&
-                    Nodes[(x - 1), y].Walkable && Nodes[x, (y - 1)].Walkable)
+                if (!Closed.Contains(Nodes[x, (y - 1)]))
+                    neighbours.Add(Nodes[x, (y - 1)]);
+                if (((x - 1) >= 0) &&
+                    !Closed.Contains(Nodes[(x - 1), (y - 1)]) &&
+                    Nodes[(x - 1), (y - 1)].Walkable &&
+                    Nodes[(x - 1), y].Walkable &&
+                    Nodes[x, (y - 1)].Walkable)
                     neighbours.Add(Nodes[(x - 1), (y - 1)]);
-                if (((x + 1) < Width) && !Closed.Contains(Nodes[(x + 1), (y - 1)]) && Nodes[(x + 1), (y - 1)].Walkable &&
-                    Nodes[x, (y - 1)].Walkable && Nodes[(x + 1), y].Walkable)
+                if (((x + 1) < Width) &&
+                    !Closed.Contains(Nodes[(x + 1), (y - 1)]) &&
+                    Nodes[(x + 1), (y - 1)].Walkable &&
+                    Nodes[x, (y - 1)].Walkable &&
+                    Nodes[(x + 1), y].Walkable)
                     neighbours.Add(Nodes[(x + 1), (y - 1)]);
             }
             if (((y + 1) < Height) && Nodes[x, (y + 1)].Walkable)
             {
-                if (!Closed.Contains(Nodes[x, (y + 1)])) neighbours.Add(Nodes[x, (y + 1)]);
-                if (((x - 1) >= 0) && !Closed.Contains(Nodes[(x - 1), (y + 1)]) && Nodes[(x - 1), (y + 1)].Walkable &&
-                    Nodes[(x - 1), y].Walkable && Nodes[x, (y + 1)].Walkable)
+                if (!Closed.Contains(Nodes[x, (y + 1)]))
+                    neighbours.Add(Nodes[x, (y + 1)]);
+                if (((x - 1) >= 0) &&
+                    !Closed.Contains(Nodes[(x - 1), (y + 1)]) &&
+                    Nodes[(x - 1), (y + 1)].Walkable &&
+                    Nodes[(x - 1), y].Walkable &&
+                    Nodes[x, (y + 1)].Walkable)
                     neighbours.Add(Nodes[(x - 1), (y + 1)]);
-                if (((x + 1) < Width) && !Closed.Contains(Nodes[(x + 1), (y + 1)]) && Nodes[(x + 1), (y + 1)].Walkable &&
-                    Nodes[x, (y + 1)].Walkable && Nodes[(x + 1), y].Walkable)
+                if (((x + 1) < Width) &&
+                    !Closed.Contains(Nodes[(x + 1), (y + 1)]) &&
+                    Nodes[(x + 1), (y + 1)].Walkable &&
+                    Nodes[x, (y + 1)].Walkable &&
+                    Nodes[(x + 1), y].Walkable)
                     neighbours.Add(Nodes[(x + 1), (y + 1)]);
             }
             if (((x - 1) >= 0) && !Closed.Contains(Nodes[(x - 1), y]) && Nodes[(x - 1), y].Walkable)
@@ -103,14 +135,14 @@ namespace SharpXNA.Plugins
                 neighbours.Add(Nodes[(x + 1), y]);
             return neighbours;
         }
-        internal float Cost(int sourceX, int sourceY, int goalX, int goalY)
+        float Cost(int sourceX, int sourceY, int goalX, int goalY)
         {
             if ((sourceX == goalX) || (sourceY == goalY))
                 return Nodes[sourceX, sourceY].Cost;
             else
                 return (Nodes[sourceX, sourceY].Cost * Mathf.Sqrt2);
         }
-        protected Path Build(Node source, Node goal)
+        Path Build(Node source, Node goal)
         {
             var path = new Path(2);
             var goalP = new Point(goal.X, goal.Y);
@@ -151,7 +183,7 @@ namespace SharpXNA.Plugins
 
         public class Path : List<Point>
         {
-            public Path() : base() { }
+            public Path() { }
             public Path(int capacity) : base(capacity) { }
 
             internal Path Clone()

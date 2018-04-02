@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using System;
 
 namespace SharpXNA.Collision
 {
@@ -21,26 +20,36 @@ namespace SharpXNA.Collision
 
         public bool Intersects(Line line)
         {
+            if (line == null)
+                return false;
             Vector2 a = (End - Start), b = (line.End - line.Start);
             var cP = a.X * b.Y - a.Y * b.X;
-            if (cP == 0) return false;
+            if (cP == 0)
+                return false;
             var c = (line.Start - Start);
             var t = (c.X * b.Y - c.Y * b.X) / cP;
-            if (t < 0 || t > 1) return false;
+            if (t < 0 || t > 1)
+                return false;
             var u = (c.X * a.Y - c.Y * a.X) / cP;
-            if (u < 0 || u > 1) return false;
+            if (u < 0 || u > 1)
+                return false;
             return true;
         }
         public bool Intersects(Line line, ref Vector2 intersection)
         {
+            if (line == null)
+                return false;
             Vector2 a = (End - Start), b = (line.End - line.Start);
             var cP = a.X * b.Y - a.Y * b.X;
-            if (cP == 0) return false;
+            if (cP == 0)
+                return false;
             var c = (line.Start - Start);
             var t = (c.X * b.Y - c.Y * b.X) / cP;
-            if (t < 0 || t > 1) return false;
+            if (t < 0 || t > 1)
+                return false;
             var u = (c.X * a.Y - c.Y * a.X) / cP;
-            if (u < 0 || u > 1) return false;
+            if (u < 0 || u > 1)
+                return false;
             intersection = (Start + t * a);
             return true;
         }

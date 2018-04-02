@@ -6,18 +6,22 @@ namespace SharpXNA
 {
     public class Batch
     {
-        internal readonly SpriteBatch SpriteBatch;
-        internal SpriteSortMode SortMode;
-        public GraphicsDevice GraphicsDevice => SpriteBatch.GraphicsDevice;
-
         internal static Texture2D WhitePixel;
 
-        public bool Begun;
+        internal readonly SpriteBatch SpriteBatch;
+        public GraphicsDevice GraphicsDevice => SpriteBatch.GraphicsDevice;
+        
+        public bool Begun { get; private set; }
+        SpriteSortMode _sortMode;
+
+        static Batch()
+        {
+            WhitePixel = new Texture2D(Engine._graphicsDevice, 1, 1);
+            WhitePixel.SetData(new[] { Color.White });
+        }
 
         public Batch(GraphicsDevice graphicsDevice)
         {
-            WhitePixel = new Texture2D(graphicsDevice, 1, 1);
-            WhitePixel.SetData(new[] { Color.White });
             SpriteBatch = new SpriteBatch(graphicsDevice);
         }
         
@@ -84,7 +88,7 @@ namespace SharpXNA
         public void Begin(SamplerState samplerState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Begin(SpriteSortMode.Deferred, null, samplerState, depthStencilState, rasterizerState, effect, matrix); }
         public void Begin(SpriteSortMode sortMode, SamplerState samplerState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Begin(sortMode, null, samplerState, depthStencilState, rasterizerState, effect, matrix); }
         public void Begin(BlendState blendState, SamplerState samplerState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { Begin(SpriteSortMode.Deferred, blendState, samplerState, depthStencilState, rasterizerState, effect, matrix); }
-        public void Begin(SpriteSortMode sortMode, BlendState blendState, SamplerState samplerState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { SortMode = sortMode; Begun = true; SpriteBatch.Begin(sortMode, blendState, samplerState, depthStencilState, rasterizerState, effect, matrix); }
+        public void Begin(SpriteSortMode sortMode, BlendState blendState, SamplerState samplerState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Effect effect, Matrix? matrix = null) { _sortMode = sortMode; Begun = true; SpriteBatch.Begin(sortMode, blendState, samplerState, depthStencilState, rasterizerState, effect, matrix); }
         public void End() { Begun = false; SpriteBatch.End(); }
         
         public void Draw(Texture2D texture, Vector2 position) { Draw(texture, position, null, Color.White, 0, Origin.None, Vector2.One, SpriteEffects.None, 0); }
@@ -330,7 +334,7 @@ namespace SharpXNA
         public void DrawString(string str, SpriteFont font, Vector2 position, Color fore, Color? back, float angle, Origin origin, Vector2 scale, SpriteEffects effect, float layer)
         {
             if (origin.Scaled) { var size = font.MeasureString(str); origin.Value = new Vector2((size.X * origin.Value.X), (size.Y * origin.Value.Y)); origin.Scaled = false; }
-            if (back.HasValue) SpriteBatch.DrawString(font, str, (position + Vector2.One), back.Value, angle, origin.Value, scale, effect, (layer + ((SortMode == SpriteSortMode.BackToFront) ? .000001f : (SortMode == SpriteSortMode.FrontToBack) ? -.000001f : 0)));
+            if (back.HasValue) SpriteBatch.DrawString(font, str, (position + Vector2.One), back.Value, angle, origin.Value, scale, effect, (layer + ((_sortMode == SpriteSortMode.BackToFront) ? .000001f : (_sortMode == SpriteSortMode.FrontToBack) ? -.000001f : 0)));
             SpriteBatch.DrawString(font, str, position, fore, angle, origin.Value, scale, effect, layer);
         }
 
@@ -355,30 +359,21 @@ namespace SharpXNA
         }
 
         #region Draw Line
-        public void DrawLine(Vector2 start, Vector2 end)
-        {
-            SpriteBatch.Draw(WhitePixel, start, null, Color.White, Mathf.Angle(start, end), new Vector2(0, .5f), new Vector2(MathHelper.Max(1, Vector2.Distance(start, end)), 1), 0, 0);
-        }
-        public void DrawLine(Vector2 start, Vector2 end, float thickness)
-        {
-            SpriteBatch.Draw(WhitePixel, start, null, Color.White, Mathf.Angle(start, end), new Vector2(0, .5f), new Vector2(MathHelper.Max(1, Vector2.Distance(start, end)), thickness), 0, 0);
-        }
-        public void DrawLine(Vector2 start, Vector2 end, float thickness, float layer)
-        {
-            SpriteBatch.Draw(WhitePixel, start, null, Color.White, Mathf.Angle(start, end), new Vector2(0, .5f), new Vector2(MathHelper.Max(1, Vector2.Distance(start, end)), thickness), 0, layer);
-        }
-        public void DrawLine(Vector2 start, Vector2 end, Color color)
-        {
-            SpriteBatch.Draw(WhitePixel, start, null, color, Mathf.Angle(start, end), new Vector2(0, .5f), new Vector2(MathHelper.Max(1, Vector2.Distance(start, end)), 1), 0, 0);
-        }
-        public void DrawLine(Vector2 start, Vector2 end, Color color, float thickness)
-        {
-            SpriteBatch.Draw(WhitePixel, start, null, color, Mathf.Angle(start, end), new Vector2(0, .5f), new Vector2(MathHelper.Max(1, Vector2.Distance(start, end)), thickness), 0, 0);
-        }
-        public void DrawLine(Vector2 start, Vector2 end, Color color, float thickness, float layer)
-        {
-            SpriteBatch.Draw(WhitePixel, start, null, color, Mathf.Angle(start, end), new Vector2(0, .5f), new Vector2(MathHelper.Max(1, Vector2.Distance(start, end)), thickness), 0, layer);
-        }
+        public void DrawLine(Vector2 start, Vector2 end) => SpriteBatch.Draw(WhitePixel, start, null, Color.White, Mathf.Angle(start, end), new Vector2(0, .5f), new Vector2(MathHelper.Max(1, Vector2.Distance(start, end)), 1), 0, 0);
+        public void DrawLine(Vector2 start, Vector2 end, float thickness) => SpriteBatch.Draw(WhitePixel, start, null, Color.White, Mathf.Angle(start, end), new Vector2(0, .5f), new Vector2(MathHelper.Max(1, Vector2.Distance(start, end)), thickness), 0, 0);
+        public void DrawLine(Vector2 start, Vector2 end, float thickness, float layer) => SpriteBatch.Draw(WhitePixel, start, null, Color.White, Mathf.Angle(start, end), new Vector2(0, .5f), new Vector2(MathHelper.Max(1, Vector2.Distance(start, end)), thickness), 0, layer);
+        public void DrawLine(Vector2 start, Vector2 end, Color color) => SpriteBatch.Draw(WhitePixel, start, null, color, Mathf.Angle(start, end), new Vector2(0, .5f), new Vector2(MathHelper.Max(1, Vector2.Distance(start, end)), 1), 0, 0);
+        public void DrawLine(Vector2 start, Vector2 end, Color color, float thickness) => SpriteBatch.Draw(WhitePixel, start, null, color, Mathf.Angle(start, end), new Vector2(0, .5f), new Vector2(MathHelper.Max(1, Vector2.Distance(start, end)), thickness), 0, 0);
+        public void DrawLine(Vector2 start, Vector2 end, Color color, float thickness, float layer) => SpriteBatch.Draw(WhitePixel, start, null, color, Mathf.Angle(start, end), new Vector2(0, .5f), new Vector2(MathHelper.Max(1, Vector2.Distance(start, end)), thickness), 0, layer);
+        #endregion
+
+        #region Draw Pixel
+        public void DrawPixel(Vector2 position) => SpriteBatch.Draw(WhitePixel, position, null, Color.White, 0, new Vector2(.5f), Vector2.One, 0, 0);
+        public void DrawPixel(Vector2 position, float layer) => SpriteBatch.Draw(WhitePixel, position, null, Color.White, 0, new Vector2(.5f), Vector2.One, 0, layer);
+        public void DrawPixel(Vector2 position, Color color) => SpriteBatch.Draw(WhitePixel, position, null, color, 0, new Vector2(.5f), Vector2.One, 0, 0);
+        public void DrawPixel(Vector2 position, Color color, float layer) => SpriteBatch.Draw(WhitePixel, position, null, color, 0, new Vector2(.5f), Vector2.One, 0, layer);
+        public void DrawPixel(Vector2 position, Color color, Vector2 scale) => SpriteBatch.Draw(WhitePixel, position, null, color, 0, new Vector2(.5f), scale, 0, 0);
+        public void DrawPixel(Vector2 position, Color color, Vector2 scale, float layer) => SpriteBatch.Draw(WhitePixel, position, null, color, 0, new Vector2(.5f), scale, 0, layer);
         #endregion
     }
 }

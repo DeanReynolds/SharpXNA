@@ -28,28 +28,7 @@ namespace SharpXNA
         {
             Engine.GraphicsDeviceManager.PreferredBackBufferWidth = width;
             Engine.GraphicsDeviceManager.PreferredBackBufferHeight = height;
-            if (!fullscreen)
-            {
-                if ((width <= GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width)
-                    && (height <= GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height))
-                {
-                    Engine.GraphicsDeviceManager.PreferredBackBufferWidth = width;
-                    Engine.GraphicsDeviceManager.PreferredBackBufferHeight = height;
-                    Engine.GraphicsDeviceManager.IsFullScreen = fullscreen;
-                    Engine.GraphicsDeviceManager.ApplyChanges();
-                }
-            }
-            else
-            {
-                foreach (var mode in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes)
-                    if ((mode.Width == width) && (mode.Height == height))
-                    {
-                        Engine.GraphicsDeviceManager.PreferredBackBufferWidth = width;
-                        Engine.GraphicsDeviceManager.PreferredBackBufferHeight = height;
-                        Engine.GraphicsDeviceManager.IsFullScreen = fullscreen;
-                        Engine.GraphicsDeviceManager.ApplyChanges();
-                    }
-            }
+            Engine.GraphicsDeviceManager.IsFullScreen = fullscreen;
             Engine.GraphicsDeviceManager.SynchronizeWithVerticalRetrace = vsync;
             Engine.GraphicsDeviceManager.ApplyChanges();
         }
@@ -77,14 +56,12 @@ namespace SharpXNA
                 height2 = BackBufferHeight;
                 width2 = (int)(height2 * targetAspectRatio + .5f);
             }
-            Engine.Viewport = new Viewport()
+            Engine._graphicsDevice.Viewport = new Viewport()
             {
                 X = ((BackBufferWidth / 2) - (width2 / 2)),
                 Y = ((BackBufferHeight / 2) - (height2 / 2)),
                 Width = width2,
-                Height = height2,
-                MinDepth = 0,
-                MaxDepth = 1
+                Height = height2
             };
         }
         public static void SetupVirtualResolution(int width, int height, out float zoom)
@@ -101,14 +78,12 @@ namespace SharpXNA
                 height2 = BackBufferHeight;
                 width2 = (int)(height2 * targetAspectRatio + .5f);
             }
-            Engine.Viewport = new Viewport()
+            Engine._graphicsDevice.Viewport = new Viewport()
             {
                 X = ((BackBufferWidth / 2) - (width2 / 2)),
                 Y = ((BackBufferHeight / 2) - (height2 / 2)),
                 Width = width2,
-                Height = height2,
-                MinDepth = 0,
-                MaxDepth = 1
+                Height = height2
             };
             zoom = MathHelper.Min(xZoom, yZoom);
         }
@@ -419,12 +394,21 @@ namespace SharpXNA
         public static void DrawRectangle(Rectangle bounds, Color fill, Color stroke, float thickness, float layer) { Batch.DrawRectangle(bounds, fill, stroke, thickness, layer); }
 
         #region Draw Line
-        public static void DrawLine(Vector2 start, Vector2 end) { Batch.DrawLine(start, end); }
-        public static void DrawLine(Vector2 start, Vector2 end, float thickness) { Batch.DrawLine(start, end, thickness); }
-        public static void DrawLine(Vector2 start, Vector2 end, float thickness, float layer) { Batch.DrawLine(start, end, thickness, layer); }
-        public static void DrawLine(Vector2 start, Vector2 end, Color color) { Batch.DrawLine(start, end, color); }
-        public static void DrawLine(Vector2 start, Vector2 end, Color color, float thickness) { Batch.DrawLine(start, end, color, thickness); }
-        public static void DrawLine(Vector2 start, Vector2 end, Color color, float thickness, float layer) { Batch.DrawLine(start, end, color, thickness, layer); }
+        public static void DrawLine(Vector2 start, Vector2 end) => Batch.SpriteBatch.Draw(Batch.WhitePixel, start, null, Color.White, Mathf.Angle(start, end), new Vector2(0, .5f), new Vector2(MathHelper.Max(1, Vector2.Distance(start, end)), 1), 0, 0);
+        public static void DrawLine(Vector2 start, Vector2 end, float thickness) => Batch.SpriteBatch.Draw(Batch.WhitePixel, start, null, Color.White, Mathf.Angle(start, end), new Vector2(0, .5f), new Vector2(MathHelper.Max(1, Vector2.Distance(start, end)), thickness), 0, 0);
+        public static void DrawLine(Vector2 start, Vector2 end, float thickness, float layer) => Batch.SpriteBatch.Draw(Batch.WhitePixel, start, null, Color.White, Mathf.Angle(start, end), new Vector2(0, .5f), new Vector2(MathHelper.Max(1, Vector2.Distance(start, end)), thickness), 0, layer);
+        public static void DrawLine(Vector2 start, Vector2 end, Color color) => Batch.SpriteBatch.Draw(Batch.WhitePixel, start, null, color, Mathf.Angle(start, end), new Vector2(0, .5f), new Vector2(MathHelper.Max(1, Vector2.Distance(start, end)), 1), 0, 0);
+        public static void DrawLine(Vector2 start, Vector2 end, Color color, float thickness) => Batch.SpriteBatch.Draw(Batch.WhitePixel, start, null, color, Mathf.Angle(start, end), new Vector2(0, .5f), new Vector2(MathHelper.Max(1, Vector2.Distance(start, end)), thickness), 0, 0);
+        public static void DrawLine(Vector2 start, Vector2 end, Color color, float thickness, float layer) => Batch.SpriteBatch.Draw(Batch.WhitePixel, start, null, color, Mathf.Angle(start, end), new Vector2(0, .5f), new Vector2(MathHelper.Max(1, Vector2.Distance(start, end)), thickness), 0, layer);
+        #endregion
+
+        #region Draw Pixel
+        public static void DrawPixel(Vector2 position) => Batch.SpriteBatch.Draw(Batch.WhitePixel, position, null, Color.White, 0, new Vector2(.5f), Vector2.One, 0, 0);
+        public static void DrawPixel(Vector2 position, float layer) => Batch.SpriteBatch.Draw(Batch.WhitePixel, position, null, Color.White, 0, new Vector2(.5f), Vector2.One, 0, layer);
+        public static void DrawPixel(Vector2 position, Color color) => Batch.SpriteBatch.Draw(Batch.WhitePixel, position, null, color, 0, new Vector2(.5f), Vector2.One, 0, 0);
+        public static void DrawPixel(Vector2 position, Color color, float layer) => Batch.SpriteBatch.Draw(Batch.WhitePixel, position, null, color, 0, new Vector2(.5f), Vector2.One, 0, layer);
+        public static void DrawPixel(Vector2 position, Color color, Vector2 scale) => Batch.SpriteBatch.Draw(Batch.WhitePixel, position, null, color, 0, new Vector2(.5f), scale, 0, 0);
+        public static void DrawPixel(Vector2 position, Color color, Vector2 scale, float layer) => Batch.SpriteBatch.Draw(Batch.WhitePixel, position, null, color, 0, new Vector2(.5f), scale, 0, layer);
         #endregion
     }
 }

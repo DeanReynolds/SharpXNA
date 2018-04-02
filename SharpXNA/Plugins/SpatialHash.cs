@@ -19,11 +19,15 @@ namespace SharpXNA.Plugins
         public ICollection Cells => _hash.Keys;
         public int Count => _hash.Count;
 
-        public ArrayList Query(Vector2 position)
+        public ArrayList Query(Vector2 position, bool clone = false)
         {
             var key = new Point((int)Math.Round(position.X / _size), (int)Math.Round(position.Y / _size));
             if (_hash.Contains(key))
+            {
+                if (clone)
+                    return (ArrayList)((ArrayList)_hash[key]).Clone();
                 return (ArrayList)_hash[key];
+            }
             return null;
         }
         public void Add(object obj, Vector2 position)

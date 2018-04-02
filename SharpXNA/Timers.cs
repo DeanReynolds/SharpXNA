@@ -35,9 +35,12 @@ namespace SharpXNA
 
         public static bool Tick(string name)
         {
-            if (array.ContainsKey(name) && (array[name].Time >= array[name].Interval))
+            if (!array.ContainsKey(name))
+                return false;
+            var timer = array[name];
+            if (timer.Time >= timer.Interval)
             {
-                array[name].Time -= array[name].Interval;
+                timer.Time -= timer.Interval;
                 return true;
             }
             return false;

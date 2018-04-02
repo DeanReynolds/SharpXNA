@@ -43,22 +43,23 @@ namespace SharpXNA
         }
 
         public static float Angle(Vector2 source, Vector2 destination) => (float)Math.Atan2((destination.Y - source.Y), (destination.X - source.X));
-        //public static int Wrap(int value, int max, int min = 0)
-        //{
-        //    int width = (max - min),
-        //        offset = (value - min);
-        //    return ((offset - ((offset / width) * width)) + min);
-        //}
         public static double Wrap(float value, float max, float min = 0)
         {
             value -= min;
             max -= min;
-            if (max == 0)
-                return min;
             value = value % max;
             value += min;
             while (value < min)
                 value += max;
+            return value;
+        }
+
+        public static double Clamp(double value, double min, double max)
+        {
+            if (value < min)
+                return min;
+            if (value > max)
+                return max;
             return value;
         }
 
@@ -86,6 +87,18 @@ namespace SharpXNA
             if (difference > 180)
                 difference = (360 - difference);
             return MathHelper.ToRadians(difference);
+        }
+        public static float AngleDifference2(float a, float b)
+        {
+            float aD = MathHelper.ToDegrees(a),
+                bD = MathHelper.ToDegrees(b),
+                difference = (Math.Abs(aD - bD) % 360);
+            if (difference > 180)
+                difference = (360 - difference);
+            if (Math.Sin(a - b) > 0)
+                return MathHelper.ToRadians(difference);
+            else
+                return -MathHelper.ToRadians(difference);
         }
 
         public static T Pick<T>(params T[] values) => values[Random(values.Length - 1)];
@@ -168,5 +181,12 @@ namespace SharpXNA
         }
 
         public static float Distance(float a, float b) => ((a > b) ? (a - b) : (b - a));
+        public static double Distance(double a, double b) => ((a > b) ? (a - b) : (b - a));
+
+        public static int MaxValues(int bits) => (int)Math.Pow(2, bits);
+        public static int PackAngle(float angle, int bits) => (int)Math.Round((MathHelper.ToDegrees(MathHelper.WrapAngle(angle)) / 360) * MaxValues(bits));
+        public static float UnpackAngle(int packedAngle, int bits) => MathHelper.ToRadians((packedAngle / (float)MaxValues(bits)) * 360);
+        public static int PackVariableAngle(float angle, int size, int bits) => (int)Math.Round((MathHelper.ToDegrees(MathHelper.WrapAngle(angle)) / size) * MaxValues(bits));
+        public static float UnpackVariableAngle(int packedAngle, int size, int bits) => MathHelper.ToRadians((packedAngle / (float)MaxValues(bits)) * size);
     }
 }

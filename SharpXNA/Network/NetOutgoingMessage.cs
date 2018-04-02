@@ -138,5 +138,5 @@ namespace Lidgren.Network
 
 			return "[NetOutgoingMessage " + this.LengthBytes + " bytes]";
 		}
-	}
+    }
 }

@@ -18,6 +18,7 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 using System;
 using System.Net;
+using System.Threading;
 
 #if !__NOIPENDPOINT__
 using NetEndPoint = System.Net.IPEndPoint;
@@ -104,7 +105,10 @@ namespace Lidgren.Network
 				}
 			}
 
-			return base.Connect(remoteEndPoint, hailMessage);
+            SharpXNA.Network.Statistics.UploadedBytes += (uint)hailMessage.LengthBytes;
+            SharpXNA.Network.Statistics.uploadBytesPerSecLast += (uint)hailMessage.LengthBytes;
+
+            return base.Connect(remoteEndPoint, hailMessage);
 		}
 
 		/// <summary>
@@ -131,27 +135,14 @@ namespace Lidgren.Network
 				return;
 			}
 			serverConnection.Disconnect(byeMessage);
-		}
-
+            SharpXNA.Network.Statistics.UploadedBytes = 0;
+            SharpXNA.Network.Statistics.uploadBytesPerSecLast = 0;
+        }
+        
 		/// <summary>
 		/// Sends message to server
 		/// </summary>
-		public NetSendResult SendMessage(NetOutgoingMessage msg, NetDeliveryMethod method)
-		{
-			NetConnection serverConnection = ServerConnection;
-			if (serverConnection == null)
-			{
-				LogWarning("Cannot send message, no server connection!");
-				return NetSendResult.FailedNotConnected;
-			}
-
-			return serverConnection.SendMessage(msg, method, 0);
-		}
-
-		/// <summary>
-		/// Sends message to server
-		/// </summary>
-		public NetSendResult SendMessage(NetOutgoingMessage msg, NetDeliveryMethod method, int sequenceChannel)
+		public NetSendResult Send(NetOutgoingMessage msg, NetDeliveryMethod method = NetDeliveryMethod.ReliableOrdered, int sequenceChannel = 0)
 		{
 			NetConnection serverConnection = ServerConnection;
 			if (serverConnection == null)
@@ -160,9 +151,43 @@ namespace Lidgren.Network
 				Recycle(msg);
 				return NetSendResult.FailedNotConnected;
 			}
+            
+            if (msg == null)
+                throw new ArgumentNullException("msg");
+            if (sequenceChannel >= NetConstants.NetChannelsPerDeliveryMethod)
+                throw new ArgumentOutOfRangeException("sequenceChannel");
 
-			return serverConnection.SendMessage(msg, method, sequenceChannel);
-		}
+            NetException.Assert(
+                ((method != NetDeliveryMethod.Unreliable && method != NetDeliveryMethod.ReliableUnordered) ||
+                ((method == NetDeliveryMethod.Unreliable || method == NetDeliveryMethod.ReliableUnordered) && sequenceChannel == 0)),
+                "Delivery method " + method + " cannot use sequence channels other than 0!"
+            );
+
+            NetException.Assert(method != NetDeliveryMethod.Unknown, "Bad delivery method!");
+
+            if (msg.m_isSent)
+                throw new NetException("This message has already been sent! Use NetPeer.SendMessage() to send to multiple recipients efficiently");
+            msg.m_isSent = true;
+
+            SharpXNA.Network.Statistics.UploadedBytes += (uint)msg.LengthBytes;
+            SharpXNA.Network.Statistics.uploadBytesPerSecLast += (uint)msg.LengthBytes;
+
+            bool suppressFragmentation = (method == NetDeliveryMethod.Unreliable || method == NetDeliveryMethod.UnreliableSequenced) && m_configuration.UnreliableSizeBehaviour != NetUnreliableSizeBehaviour.NormalFragmentation;
+
+            int len = NetConstants.UnfragmentedMessageHeaderSize + msg.LengthBytes; // headers + length, faster than calling msg.GetEncodedSize
+            if (len <= serverConnection.m_currentMTU || suppressFragmentation)
+            {
+                Interlocked.Increment(ref msg.m_recyclingCount);
+                return serverConnection.EnqueueMessage(msg, method, sequenceChannel);
+            }
+            else
+            {
+                // message must be fragmented!
+                if (serverConnection.m_status != NetConnectionStatus.Connected)
+                    return NetSendResult.FailedNotConnected;
+                return SendFragmentedMessage(msg, new NetConnection[] { serverConnection }, method, sequenceChannel);
+            }
+        }
 
 		/// <summary>
 		/// Returns a string that represents this object

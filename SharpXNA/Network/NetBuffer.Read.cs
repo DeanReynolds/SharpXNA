@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Reflection;
 using System.Net;
+using Microsoft.Xna.Framework;
+using SharpXNA.Collision;
 
 #if !__NOIPENDPOINT__
 using NetEndPoint = System.Net.IPEndPoint;
@@ -690,5 +692,67 @@ namespace Lidgren.Network
 		{
 			m_readPosition += numberOfBits;
 		}
-	}
+
+        public Point ReadPoint()
+        {
+            return new Point(ReadInt32(), ReadInt32());
+        }
+
+        public Vector2 ReadVector2()
+        {
+            return new Vector2(ReadSingle(), ReadSingle());
+        }
+
+        public Vector3 ReadVector3()
+        {
+            return new Vector3(ReadVector2(), ReadSingle());
+        }
+
+        public Vector4 ReadVector4()
+        {
+            return new Vector4(ReadVector3(), ReadSingle());
+        }
+
+        public Line ReadLine()
+        {
+            return new Line(ReadVector2(), ReadVector2());
+        }
+
+        public Rectangle ReadRectangle()
+        {
+            return new Rectangle(ReadInt32(), ReadInt32(), ReadInt32(), ReadInt32());
+        }
+
+        public BoundingSphere ReadBoundingSphere()
+        {
+            return new BoundingSphere(ReadVector3(), ReadSingle());
+        }
+
+        public Quaternion ReadQuaternion(int bits)
+        {
+            return new Quaternion(ReadSignedSingle(bits), ReadSignedSingle(bits), ReadSignedSingle(bits), ReadSignedSingle(bits));
+        }
+
+        public Matrix ReadMatrix()
+        {
+            var quaternion = ReadQuaternion(24);
+            var matrix = Matrix.CreateFromQuaternion(quaternion);
+            matrix.M41 = ReadSingle();
+            matrix.M42 = ReadSingle();
+            matrix.M43 = ReadSingle();
+            return matrix;
+        }
+
+        public Polygon ReadPolygon()
+        {
+            var polygon = new Polygon(new Line[ReadByte()])
+            {
+                position = ReadVector2(),
+                angle = MathHelper.ToRadians(ReadRangedInteger(-180, 180))
+            };
+            for (var i = 0; i < polygon.Lines.Length; i++)
+                polygon.Lines[i] = ReadLine();
+            return polygon;
+        }
+    }
 }

@@ -375,17 +375,6 @@ namespace Lidgren.Network
 			Interlocked.Decrement(ref om.m_recyclingCount);
 		}
 
-		/// <summary>
-		/// Send a message to this remote connection
-		/// </summary>
-		/// <param name="msg">The message to send</param>
-		/// <param name="method">How to deliver the message</param>
-		/// <param name="sequenceChannel">Sequence channel within the delivery method</param>
-		public NetSendResult SendMessage(NetOutgoingMessage msg, NetDeliveryMethod method, int sequenceChannel)
-		{
-			return m_peer.SendMessage(msg, this, method, sequenceChannel);
-		}
-
 		// called by SendMessage() and NetPeer.SendMessage; ie. may be user thread
 		internal NetSendResult EnqueueMessage(NetOutgoingMessage msg, NetDeliveryMethod method, int sequenceChannel)
 		{

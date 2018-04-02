@@ -6,13 +6,50 @@ namespace SharpXNA.Collision
 {
     public class Polygon
     {
-        internal const float _pxOffset = .000001f;
+        public const float PxOffset = .000001f;
 
+        List<Line> _actualLines;
         public Line[] Lines;
         internal Vector2 position;
-        public Vector2 Position { get { return position; } set { foreach (var t in Lines) { t.Subtract(position); t.Add(value); } position = value; } }
-        public float X { get { return position.X; } set { foreach (var t in Lines) { t.SubtractX(position.X); t.AddX(value); } position.X = value; } }
-        public float Y { get { return position.Y; } set { foreach (var t in Lines) { t.SubtractY(position.Y); t.AddY(value); } position.Y = value; } }
+        public Vector2 Position
+        {
+            get { return position; }
+            set
+            {
+                foreach (var t in Lines)
+                {
+                    t.Subtract(position);
+                    t.Add(value);
+                }
+                position = value;
+            }
+        }
+        public float X
+        {
+            get { return position.X; }
+            set
+            {
+                foreach (var t in Lines)
+                {
+                    t.SubtractX(position.X);
+                    t.AddX(value);
+                }
+                position.X = value;
+            }
+        }
+        public float Y
+        {
+            get { return position.Y; }
+            set
+            {
+                foreach (var t in Lines)
+                {
+                    t.SubtractY(position.Y);
+                    t.AddY(value);
+                }
+                position.Y = value;
+            }
+        }
 
         internal float angle;
         public float Angle
@@ -37,38 +74,38 @@ namespace SharpXNA.Collision
         public void Draw()
         {
             foreach (var line in Lines)
-                line.Draw();
+                line?.Draw();
         }
         public void Draw(float thickness)
         {
             foreach (var line in Lines)
-                line.Draw(thickness);
+                line?.Draw(thickness);
         }
         public void Draw(float thickness, float layer)
         {
             foreach (var line in Lines)
-                line.Draw(thickness, layer);
+                line?.Draw(thickness, layer);
         }
         public void Draw(Color color)
         {
             foreach (var line in Lines)
-                line.Draw(color);
+                line?.Draw(color);
         }
         public void Draw(Color color, float thickness)
         {
             foreach (var line in Lines)
-                line.Draw(color, thickness);
+                line?.Draw(color, thickness);
         }
         public void Draw(Color color, float thickness, float layer)
         {
             foreach (var line in Lines)
-                line.Draw(color, thickness, layer);
+                line?.Draw(color, thickness, layer);
         }
 
         public bool Intersects(Line line)
         {
             foreach (var t in Lines)
-                if (t.Intersects(line))
+                if (t?.Intersects(line) ?? false)
                     return true;
             return false;
         }
@@ -77,7 +114,7 @@ namespace SharpXNA.Collision
             var originalEnd = line.End;
             var intersects = false;
             foreach (var t in Lines)
-                if (t.Intersects(line, ref intersection))
+                if (t?.Intersects(line, ref intersection) ?? false)
                 {
                     line.End = intersection;
                     intersects = true;
@@ -89,7 +126,7 @@ namespace SharpXNA.Collision
         {
             foreach (var a in Lines)
                 foreach (var t in polygon.Lines)
-                    if (a.Intersects(t))
+                    if (a?.Intersects(t) ?? false)
                         return true;
             return false;
         }
@@ -97,7 +134,7 @@ namespace SharpXNA.Collision
         {
             foreach (var t in Lines)
                 foreach (var b in polygon.Lines)
-                    if (t.Intersects(b, ref intersection))
+                    if (t?.Intersects(b, ref intersection) ?? false)
                         return true;
             return false;
         }
@@ -150,13 +187,15 @@ namespace SharpXNA.Collision
         public static Polygon CreateRectangle(Vector2 size) { return CreateRectangle(size, Vector2.Zero); }
         public static Polygon CreateRectangle(Vector2 size, Vector2 origin)
         {
+            size.X += 1;
+            size.Y += 1;
             float x = (size.X / 2), y = (size.Y / 2);
             return new Polygon(new[]
             {
-                new Line((new Vector2(-x, -y) - origin), (new Vector2((x - _pxOffset), -y) - origin)),
-                new Line((new Vector2(x, -y) - origin), (new Vector2(x, (y - _pxOffset)) - origin)),
-                new Line((new Vector2(x, y) - origin), (new Vector2((-x + _pxOffset), y) - origin)),
-                new Line((new Vector2(-x, y) - origin), (new Vector2(-x, (-y + _pxOffset)) - origin))
+                new Line((new Vector2(-x, -y) - origin), (new Vector2((x - PxOffset), -y) - origin)),
+                new Line((new Vector2(x, -y) - origin), (new Vector2(x, (y - PxOffset)) - origin)),
+                new Line((new Vector2(x, y) - origin), (new Vector2((-x + PxOffset), y) - origin)),
+                new Line((new Vector2(-x, y) - origin), (new Vector2(-x, (-y + PxOffset)) - origin))
             });
         }
         public static Polygon CreateRectangleWithCross(Vector2 size) { return CreateRectangleWithCross(size, Vector2.Zero); }
@@ -165,12 +204,12 @@ namespace SharpXNA.Collision
             float x = (size.X / 2), y = (size.Y / 2);
             return new Polygon(new[]
             {
-                new Line((new Vector2(-x, -y) - origin), (new Vector2((x - _pxOffset), -y) - origin)),
-                new Line((new Vector2(x, -y) - origin), (new Vector2(x, (y - _pxOffset)) - origin)),
-                new Line((new Vector2(x, y) - origin), (new Vector2((-x + _pxOffset), y) - origin)),
-                new Line((new Vector2(-x, y) - origin), (new Vector2(-x, (-y + _pxOffset)) - origin)),
-                new Line((new Vector2((-x + _pxOffset), (-y + _pxOffset)) - origin), (new Vector2((x - _pxOffset), (y - _pxOffset)) - origin)),
-                new Line((new Vector2((x - _pxOffset), (-y + _pxOffset)) - origin), (new Vector2((-x + _pxOffset), (y - _pxOffset)) - origin))
+                new Line((new Vector2(-x, -y) - origin), (new Vector2((x - PxOffset), -y) - origin)),
+                new Line((new Vector2(x, -y) - origin), (new Vector2(x, (y - PxOffset)) - origin)),
+                new Line((new Vector2(x, y) - origin), (new Vector2((-x + PxOffset), y) - origin)),
+                new Line((new Vector2(-x, y) - origin), (new Vector2(-x, (-y + PxOffset)) - origin)),
+                new Line((new Vector2((-x + PxOffset), (-y + PxOffset)) - origin), (new Vector2((x - PxOffset), (y - PxOffset)) - origin)),
+                new Line((new Vector2((x - PxOffset), (-y + PxOffset)) - origin), (new Vector2((-x + PxOffset), (y - PxOffset)) - origin))
             });
         }
 
@@ -196,7 +235,7 @@ namespace SharpXNA.Collision
                 var end = new Vector2((start.X + ((float)(Math.Cos(angle) * sideLengthX))), (start.Y + ((float)(Math.Sin(angle) * sideLengthY))));
                 lines.Add(new Line(start, end));
                 if (side > 0)
-                    start = Mathf.Move(end, angle, _pxOffset);
+                    start = Mathf.Move(end, angle, PxOffset);
                 else
                     start = end;
             }

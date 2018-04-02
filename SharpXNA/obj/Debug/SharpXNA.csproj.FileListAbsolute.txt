@@ -8,7 +8,6 @@ C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\bin\Debug\SharpDX.DXGI.dll
 C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\bin\Debug\SharpDX.Direct3D11.dll
 C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\bin\Debug\SharpDX.Direct2D1.dll
 C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\bin\Debug\SharpDX.XInput.dll
-C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\bin\Debug\SharpDX.Direct3D9.dll
 C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\bin\Debug\MonoGame.Framework.xml
 C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\bin\Debug\SharpDX.MediaFoundation.xml
 C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\bin\Debug\SharpDX.xml
@@ -17,7 +16,6 @@ C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\bin\Debug\SharpDX.DXGI.xml
 C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\bin\Debug\SharpDX.Direct3D11.xml
 C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\bin\Debug\SharpDX.Direct2D1.xml
 C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\bin\Debug\SharpDX.XInput.xml
-C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\bin\Debug\SharpDX.Direct3D9.xml
 C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\obj\Debug\SharpXNA.dll
 C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\obj\Debug\SharpXNA.pdb
 C:\Users\Dean\Documents\GitHub\SharpXNA\SharpXNA\obj\Debug\SharpXNA.csprojResolveAssemblyReference.cache

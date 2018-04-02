@@ -7,7 +7,7 @@ namespace Lidgren.Network
 	public partial class NetPeer
 	{
 		internal List<byte[]> m_storagePool;
-		private NetQueue<NetOutgoingMessage> m_outgoingMessagesPool;
+        internal NetQueue<NetOutgoingMessage> m_outgoingMessagesPool;
 		private NetQueue<NetIncomingMessage> m_incomingMessagesPool;
 
 		internal int m_storagePoolBytes;

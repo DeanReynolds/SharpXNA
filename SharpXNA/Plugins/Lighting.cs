@@ -29,6 +29,13 @@ namespace SharpXNA.Plugins
             Lights = new List<PointLight>();
         }
 
+        public PointLight Add(PointLight light)
+        {
+            Lights.Add(light);
+            return light;
+        }
+        public bool Remove(PointLight light) => Lights.Remove(light);
+
         public void Draw()
         {
             CombineEffect.Parameters["colorMap"].SetValue(ColorMap);
@@ -49,14 +56,16 @@ namespace SharpXNA.Plugins
             blurEffect.Parameters["blur"].SetValue(strength);
             Engine.GraphicsDevice.SetRenderTarget(BlurMap);
             Engine.GraphicsDevice.Clear(Color.Transparent);
-            blurEffect.Parameters["InputTexture"].SetValue(target);
-            blurEffect.Techniques[0].Passes[0].Apply();
-            Engine.GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, vertices, 0, 4, indices, 0, 2);
+            blurEffect.CurrentTechnique = blurEffect.Techniques[0];
+            Screen.Begin(blurEffect);
+            Screen.Draw(target, Vector2.Zero);
+            Screen.End();
             Engine.GraphicsDevice.SetRenderTarget(target);
             Engine.GraphicsDevice.Clear(Color.Transparent);
-            blurEffect.Parameters["InputTexture"].SetValue(BlurMap);
-            blurEffect.Techniques[0].Passes[1].Apply();
-            Engine.GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, vertices, 0, 4, indices, 0, 2);
+            blurEffect.CurrentTechnique = blurEffect.Techniques[1];
+            Screen.Begin(blurEffect);
+            Screen.Draw(BlurMap, Vector2.Zero);
+            Screen.End();
         }
     }
 
