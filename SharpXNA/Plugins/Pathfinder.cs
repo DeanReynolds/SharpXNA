@@ -38,7 +38,7 @@ namespace SharpXNA.Plugins
                 _thetAStarHeuristic = EuclideanCrossedHeuristic;
                 for (int x = 0; x < width; x++)
                     for (int y = 0; y < height; y++)
-                        Nodes[x, y]._neighbours = Neighbours4Dir(Nodes[x, y]);
+                        Nodes[x, y]._neighbours = Neighbors4Dir(Nodes[x, y]);
             }
             else
             {
@@ -47,7 +47,7 @@ namespace SharpXNA.Plugins
                 _thetAStarHeuristic = EuclideanCrossedHeuristic;
                 for (int x = 0; x < width; x++)
                     for (int y = 0; y < height; y++)
-                        Nodes[x, y]._neighbours = Neighbours8Dir(Nodes[x, y]);
+                        Nodes[x, y]._neighbours = Neighbors8Dir(Nodes[x, y]);
             }
             _fourDirectional = fourDirectional;
             _open = new Heap<Node>(width * height);
@@ -63,13 +63,10 @@ namespace SharpXNA.Plugins
                 return null;
             _source = Nodes[sourceX, sourceY];
             _goal = Nodes[goalX, goalY];
-            if (MemorizePaths)
-            {
-                if (_memory.ContainsKey(_source) && _memory[_source].ContainsKey(_goal))
-                    return _memory[_source][_goal].Clone();
-                if (_memory.ContainsKey(_goal) && _memory[_goal].ContainsKey(_source))
-                    return _memory[_goal][_source].ReverseClone(_goal);
-            }
+            if (_memory.ContainsKey(_source) && _memory[_source].ContainsKey(_goal))
+                return _memory[_source][_goal].Clone();
+            if (_memory.ContainsKey(_goal) && _memory[_goal].ContainsKey(_source))
+                return _memory[_goal][_source].ReverseClone(_goal);
             _open.Clear();
             _open.Enqueue(_source);
             _closed.Clear();
@@ -135,13 +132,10 @@ namespace SharpXNA.Plugins
                 return null;
             _source = Nodes[sourceX, sourceY];
             _goal = Nodes[goalX, goalY];
-            if (MemorizePaths)
-            {
-                if (_memory.ContainsKey(_source) && _memory[_source].ContainsKey(_goal))
-                    return _memory[_source][_goal].Clone();
-                if (_memory.ContainsKey(_goal) && _memory[_goal].ContainsKey(_source))
-                    return _memory[_goal][_source].ReverseClone(_goal);
-            }
+            if (_memory.ContainsKey(_source) && _memory[_source].ContainsKey(_goal))
+                return _memory[_source][_goal].Clone();
+            if (_memory.ContainsKey(_goal) && _memory[_goal].ContainsKey(_source))
+                return _memory[_goal][_source].ReverseClone(_goal);
             _open.Clear();
             _open.Enqueue(_source);
             _closed.Clear();
@@ -223,7 +217,7 @@ namespace SharpXNA.Plugins
             }
             else
             {
-                Node[] neighbors = Neighbours8DirJumpPointSearch(node);
+                Node[] neighbors = Neighbors8dirJumpPointSearch(node);
                 List<Node> successors = new List<Node>(neighbors.Length);
                 foreach (Node n in neighbors)
                 {
@@ -329,13 +323,10 @@ namespace SharpXNA.Plugins
                 return null;
             _source = Nodes[sourceX, sourceY];
             _goal = Nodes[goalX, goalY];
-            if (MemorizePaths)
-            {
-                if (_memory.ContainsKey(_source) && _memory[_source].ContainsKey(_goal))
-                    return _memory[_source][_goal].Clone();
-                if (_memory.ContainsKey(_goal) && _memory[_goal].ContainsKey(_source))
-                    return _memory[_goal][_source].ReverseClone(_goal);
-            }
+            if (_memory.ContainsKey(_source) && _memory[_source].ContainsKey(_goal))
+                return _memory[_source][_goal].Clone();
+            if (_memory.ContainsKey(_goal) && _memory[_goal].ContainsKey(_source))
+                return _memory[_goal][_source].ReverseClone(_goal);
             _source._parent = null;
             _open.Clear();
             _open.Enqueue(_source);
@@ -494,7 +485,7 @@ namespace SharpXNA.Plugins
         //    }
         //    return null;
         //}
-        Node[] Neighbours4Dir(Node node)
+        Node[] Neighbors4Dir(Node node)
         {
             List<Node> neighbours = new List<Node>(4);
             int xM1 = (node.X - 1),
@@ -511,7 +502,7 @@ namespace SharpXNA.Plugins
                 neighbours.Add(Nodes[xA1, node.Y]);
             return neighbours.ToArray();
         }
-        Node[] Neighbours8Dir(Node node)
+        Node[] Neighbors8Dir(Node node)
         {
             List<Node> neighbours = new List<Node>(8);
             int xM1 = (node.X - 1),
@@ -548,7 +539,7 @@ namespace SharpXNA.Plugins
                 neighbours.Add(Nodes[xA1, node.Y]);
             return neighbours.ToArray();
         }
-        Node[] Neighbours8DirJumpPointSearch(Node node)
+        Node[] Neighbors8dirJumpPointSearch(Node node)
         {
             HashSet<Node> neighbours = new HashSet<Node>();
             int xM1 = (node.X - 1),
@@ -917,108 +908,6 @@ namespace SharpXNA.Plugins
                     path.RemoveAt(0);
                 }
             }
-            //for (int i = 1; i < path.Count; i++)
-            //{
-            //    int xD = (path[i].X - path[i - 1].X);
-            //    if (Math.Abs(xD) > 1)
-            //        continue;
-            //    int yD = (path[i].Y - path[i - 1].Y);
-            //    if (Math.Abs(yD) > 1)
-            //        continue;
-            //    int dir = path.Direction(i),
-            //        dir1 = path.Direction(i - 1);
-            //    if (dir == dir1)
-            //        path.RemoveAt(i--);
-            //    else if (dir == 0)
-            //    {
-            //        if ((dir1 == 3) || (dir1 == 5))
-            //        {
-            //            path.Insert((i + 1), new Point(path[i].X, (path[i].Y - 1)));
-            //            path.RemoveAt(i);
-            //        }
-            //        else if ((dir1 == 1) || (dir1 == 7))
-            //        {
-            //            path.Insert((i + 1), new Point(path[i].X, (path[i].Y + 1)));
-            //            path.RemoveAt(i);
-            //        }
-            //    }
-            //    else if (dir == 1)
-            //    {
-            //        if (dir1 == 3)
-            //        {
-            //            path.Insert((i + 1), new Point(path[i].X, (path[i].Y - 1)));
-            //            path.RemoveAt(i);
-            //        }
-            //        else if (dir1 == 7)
-            //        {
-            //            path.Insert((i + 1), new Point((path[i].X + 1), path[i].Y));
-            //            path.RemoveAt(i);
-            //        }
-            //    }
-            //    else if (dir == 2)
-            //    {
-            //        if ((dir1 == 1) || (dir1 == 3))
-            //        {
-            //            path.Insert((i + 1), new Point((path[i].X - 1), path[i].Y));
-            //            path.RemoveAt(i);
-            //        }
-            //        else if ((dir1 == 5) || (dir1 == 7))
-            //        {
-            //            path.Insert((i + 1), new Point((path[i].X + 1), path[i].Y));
-            //            path.RemoveAt(i);
-            //        }
-            //    }
-            //    else if (dir == 3)
-            //    {
-            //        if (dir1 == 5)
-            //        {
-            //            path.Insert((i + 1), new Point((path[i].X + 1), path[i].Y));
-            //            path.RemoveAt(i);
-            //        }
-            //    }
-            //    else if (dir == 4)
-            //    {
-            //        if ((dir1 == 1) || (dir1 == 7))
-            //        {
-            //            path.Insert((i + 1), new Point(path[i].X, (path[i].Y + 1)));
-            //            path.RemoveAt(i);
-            //        }
-            //        else if ((dir1 == 3) || (dir1 == 5))
-            //        {
-            //            path.Insert((i + 1), new Point(path[i].X, (path[i].Y - 1)));
-            //            path.RemoveAt(i);
-            //        }
-            //    }
-            //    else if (dir == 5)
-            //    {
-            //        if (dir1 == 3)
-            //        {
-            //            path.Insert((i + 1), new Point((path[i].X - 1), path[i].Y));
-            //            path.RemoveAt(i);
-            //        }
-            //    }
-            //    else if (dir == 6)
-            //    {
-            //        if ((dir1 == 1) || (dir1 == 3))
-            //        {
-            //            path.Insert((i + 1), new Point((path[i].X - 1), path[i].Y));
-            //            path.RemoveAt(i);
-            //        }
-            //        else if ((dir1 == 5) || (dir1 == 7))
-            //        {
-            //            path.Insert((i + 1), new Point((path[i].X + 1), path[i].Y));
-            //            path.RemoveAt(i);
-            //        }
-            //    }
-            //    else if (dir == 7)
-            //    {
-            //        if (dir1 == 1)
-            //        {
-            //            path.Insert((i + 1), new Point((path[i].X - 1), path[i].Y));
-            //            path.RemoveAt(i);
-            //        }
-            //    }
-            //}
             if (!MemorizePaths)
                 return path;
             if (_memory.ContainsKey(_source))
@@ -1057,6 +946,7 @@ namespace SharpXNA.Plugins
             }
             return path;
         }
+        public void ClearMemorzedPaths() => _memory.Clear();
 
         public bool IsOpen(Node node) => _open.Contains(node);
         public bool IsOpen(int x, int y) => _open.Contains(Nodes[x, y]);
@@ -1072,14 +962,14 @@ namespace SharpXNA.Plugins
                     if ((j >= 0) && (j < Nodes.GetLength(0)))
                         for (int k = (y - 1); k <= y; k++)
                             if ((k >= 0) && (k < Nodes.GetLength(1)))
-                                Nodes[j, k]._neighbours = Neighbours4Dir(Nodes[j, k]);
+                                Nodes[j, k]._neighbours = Neighbors4Dir(Nodes[j, k]);
             }
             else
                 for (int j = (x - 1); j <= x; j++)
                     if ((j >= 0) && (j < Nodes.GetLength(0)))
                         for (int k = (y - 1); k <= y; k++)
                             if ((k >= 0) && (k < Nodes.GetLength(1)))
-                                Nodes[j, k]._neighbours = Neighbours8Dir(Nodes[j, k]);
+                                Nodes[j, k]._neighbours = Neighbors8Dir(Nodes[j, k]);
         }
         public void BlurCosts(int size)
         {
