@@ -213,12 +213,7 @@ namespace SharpXNA.Plugins
                         dY = (int)Mathf.Clamp((n.Y - node.Y), -1, 1);
                     Node jumpPoint = null;
                     if (dX != 0)
-                    {
-                        if (dY != 0)
-                            jumpPoint = JumpDiagonally(node.X, node.Y, dX, dY);
-                        else
-                            jumpPoint = JumpHorizontally(node.X, node.Y, dX);
-                    }
+                        jumpPoint = JumpHorizontally(node.X, node.Y, dX);
                     else
                         jumpPoint = JumpVertically(node.X, node.Y, dY);
                     if (jumpPoint != null)
