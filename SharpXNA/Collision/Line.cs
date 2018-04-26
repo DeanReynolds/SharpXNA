@@ -5,6 +5,7 @@ namespace SharpXNA.Collision
     public class Line
     {
         public Vector2 Start, End;
+        public bool Culled;
 
         public Line(Vector2 start, Vector2 end) { Start = start; End = end; }
         public Line(Vector2 start, float endX, float endY) : this(start, new Vector2(endX, endY)) { }

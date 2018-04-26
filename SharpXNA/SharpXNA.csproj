@@ -144,10 +144,13 @@
     <Compile Include="Network\Platform\PlatformWin32.cs" />
     <Compile Include="Network\Platform\PlatformWinRT.cs" />
     <Compile Include="Plugins\D2DMenu.cs" />
+    <Compile Include="Plugins\FastPriorityQueue.cs" />
+    <Compile Include="Plugins\Heap.cs" />
+    <Compile Include="Plugins\IFixedSizePriorityQueue.cs" />
     <Compile Include="Plugins\INI.cs" />
+    <Compile Include="Plugins\IPriorityQueue.cs" />
     <Compile Include="Plugins\Lighting.cs" />
     <Compile Include="Plugins\Pathfinder.cs" />
-    <Compile Include="Plugins\PriorityQueue.cs" />
     <Compile Include="Plugins\SpatialHash.cs" />
     <Compile Include="Plugins\String.cs" />
     <Compile Include="Plugins\TexturePacker.cs" />
