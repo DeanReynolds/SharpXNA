@@ -33,8 +33,8 @@ namespace SharpXNA.Plugins
                     Nodes[x, y] = new Node(x, y);
             if (fourDirectional)
             {
-                _aStarHeuritic = ManhattanHeuristic;
-                _jumpPointSearchHeuristic = ManhattanHeuristic;
+                _aStarHeuritic = ManhattanCrossedHeuristic;
+                _jumpPointSearchHeuristic = ManhattanCrossedHeuristic;
                 _thetAStarHeuristic = EuclideanCrossedHeuristic;
                 for (int x = 0; x < width; x++)
                     for (int y = 0; y < height; y++)
@@ -217,7 +217,7 @@ namespace SharpXNA.Plugins
             }
             else
             {
-                Node[] neighbors = Neighbors8dirJumpPointSearch(node);
+                Node[] neighbors = Neighbors8DirJumpPointSearch(node);
                 List<Node> successors = new List<Node>(neighbors.Length);
                 foreach (Node n in neighbors)
                 {
@@ -539,7 +539,7 @@ namespace SharpXNA.Plugins
                 neighbours.Add(Nodes[xA1, node.Y]);
             return neighbours.ToArray();
         }
-        Node[] Neighbors8dirJumpPointSearch(Node node)
+        Node[] Neighbors8DirJumpPointSearch(Node node)
         {
             HashSet<Node> neighbours = new HashSet<Node>();
             int xM1 = (node.X - 1),
@@ -601,6 +601,17 @@ namespace SharpXNA.Plugins
                 dY = Math.Abs(a.Y - b.Y);
             return (10 * (dX + dY));
         }
+        float ManhattanCrossedHeuristic(Node a, Node b)
+        {
+            int dX = Math.Abs(a.X - b.X),
+                dY = Math.Abs(a.Y - b.Y),
+                dX1 = (a.X - b.X),
+                dY1 = (a.Y - b.Y),
+                dX2 = (_source.X - b.X),
+                dY2 = (_source.Y - b.Y),
+                cross = Math.Abs((dX1 * dY2) - (dX2 * dY1));
+            return ((10 * (dX + dY)) + (cross * .001f));
+        }
         float OctileHeuristic(Node a, Node b)
         {
             int dX = Math.Abs(a.X - b.X),
@@ -646,12 +657,13 @@ namespace SharpXNA.Plugins
                     furthest = _goal;
                 while (true)
                 {
-                    if (!LineOfSight(current.X, current.Y, furthest.X, furthest.Y))
+                    List<Node> los = NodesAlongRay(current.X, current.Y, furthest.X, furthest.Y);
+                    if (los == null)
                     {
                         furthest = furthest._parent;
                         continue;
                     }
-                    foreach (Node n in NodesAlongRay(current.X, current.Y, furthest.X, furthest.Y))
+                    foreach (Node n in los)
                         if (current != n)
                         {
                             current = n;
@@ -826,7 +838,7 @@ namespace SharpXNA.Plugins
             }
             return true;
         }
-        IEnumerable<Node> NodesAlongRay(int x1, int y1, int x2, int y2)
+        List<Node> NodesAlongRay(int x1, int y1, int x2, int y2)
         {
             int xD = (x2 - x1),
                 yD = (y2 - y1);
@@ -842,6 +854,7 @@ namespace SharpXNA.Plugins
                 tDeltaY = ((yD != 0) ? ((1 / (double)yD) * stepY) : 1);
             bool rX = false,
                 rY = false;
+            List<Node> nodes = new List<Node>((int)ManhattanHeuristic(Nodes[x1, y1], Nodes[x2, y2]));
             while (!(rX && rY))
             {
                 if (((tMaxX < tMaxY) && !rX) || rY)
@@ -854,23 +867,13 @@ namespace SharpXNA.Plugins
                     curVoxel.Y += stepY;
                     tMaxY += tDeltaY;
                 }
-                //for (int x = -radius; x <= radius; x++)
-                //    for (int y = -radius; y <= radius; y++)
-                //        if ((Math.Abs(x) + Math.Abs(y)) <= radius)
-                //        {
-                //            int i = (curVoxel.X + x);
-                //            if (!((i < 0) || (i >= Nodes.GetLength(0))))
-                //            {
-                //                int j = (curVoxel.Y + y);
-                //                if (!((j < 0) || (j >= Nodes.GetLength(1))))
-                //                    if (!Nodes[i, j].Walkable)
-                //                        return true;
-                //            }
-                //        }
-                yield return Nodes[curVoxel.X, curVoxel.Y];
+                if (!Nodes[curVoxel.X, curVoxel.Y].Walkable)
+                    return null;
+                nodes.Add(Nodes[curVoxel.X, curVoxel.Y]);
                 rX = ((stepX > 0) ? (curVoxel.X >= x2) : (curVoxel.X <= x2));
                 rY = ((stepY > 0) ? (curVoxel.Y >= y2) : (curVoxel.Y <= y2));
             }
+            return nodes;
         }
         Path BuildJumpPointSearchPath()
         {
