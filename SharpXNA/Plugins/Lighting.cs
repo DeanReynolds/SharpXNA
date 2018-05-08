@@ -67,6 +67,23 @@ namespace SharpXNA.Plugins
             Screen.Draw(BlurMap, Vector2.Zero);
             Screen.End();
         }
+        public static void Mix(PointLight light, IEnumerable<PointLight> lights, Color color)
+        {
+            foreach (PointLight l in lights)
+            {
+                if (l == light)
+                    continue;
+                float dist = Vector2.Distance(light.Position, l.Position),
+                    r = (l.Radius * l.Intensity);
+                if (dist <= l.Radius)
+                {
+                    float a = MathHelper.Clamp((1 - ((dist - r) / (l.Radius - r))), 0, 1);
+                    if (a > 0)
+                        color = Color.Lerp(color, l.Color, a);
+                }
+            }
+            light.Color = color;
+        }
     }
 
     public class PointLight
@@ -139,15 +156,17 @@ namespace SharpXNA.Plugins
                 _poweredColor = (_color.ToVector3() * _power);
             }
         }
+        public float Intensity;
 
         public PointLight(Vector2 position, float radius) : this(position, radius, Color.White, 1) { }
         public PointLight(Vector2 position, float radius, Color color) : this(position, radius, color, 1) { }
-        public PointLight(Vector2 position, float radius, Color color, float power)
+        public PointLight(Vector2 position, float radius, Color color, float power, float intensity = .5f)
         {
             Position = position;
             Radius = radius;
             _color = color;
             Power = power;
+            Intensity = intensity;
             _occluders = new HashSet<Line>();
             _segments = new List<Segment>();
             _endpoints = new List<EndPoint>();
@@ -238,6 +257,7 @@ namespace SharpXNA.Plugins
                 AddOccluderNoFOVCheck(end);
             }
         }
+        public bool HasOccluder(Line line) => _occluders.Contains(line);
 
         public void Render(Effect lightEffect) { Render(lightEffect, null, Engine.Viewport); }
         public void Render(Effect lightEffect, Camera camera, Viewport gameViewport)
@@ -344,9 +364,10 @@ namespace SharpXNA.Plugins
                     _indeces[k + 2] = (short)i;
                 }
                 ProjectVertices(_vertices, Screen.BackBufferWidth, Screen.BackBufferHeight);
-                lightEffect.Parameters["lightSource"].SetValue(position);
-                lightEffect.Parameters["lightColor"].SetValue(_poweredColor);
-                lightEffect.Parameters["lightRadius"].SetValue(_radius);
+                lightEffect.Parameters["source"].SetValue(position);
+                lightEffect.Parameters["color"].SetValue(_poweredColor);
+                lightEffect.Parameters["radius"].SetValue(_radius);
+                lightEffect.Parameters["power"].SetValue(Intensity);
                 lightEffect.Techniques[0].Passes[0].Apply();
                 Engine.GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, _vertices, 0, _vertices.Length, _indeces, 0, _indeces.Length / 3);
             }

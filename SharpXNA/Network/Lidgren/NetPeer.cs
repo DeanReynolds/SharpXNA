@@ -217,8 +217,8 @@ namespace Lidgren.Network
 					NetConnectionStatus status = (NetConnectionStatus)retval.PeekByte();
 					retval.SenderConnection.m_visibleStatus = status;
                 }
-                SharpXNA.Network.Statistics.DownloadedBytes += (uint)retval.LengthBytes;
-                SharpXNA.Network.Statistics.downloadBytesPerSecLast += (uint)retval.LengthBytes;
+                Network.Statistics.DownloadedBytes += (uint)retval.LengthBytes;
+                Network.Statistics.downloadBytesPerSecLast += (uint)retval.LengthBytes;
             }
 			return retval;
 		}

@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Lidgren.Network;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -8,11 +9,9 @@ namespace SharpXNA
 {
     public static class Profiler
     {
-        static readonly Vector2 _textScale, _textScale2;
-        static float _ySpacing2;
-        static readonly List<Color> _colors;
-        static Dictionary<string, Profile> _profiles;
-        static bool _enabled;
+        public static Texture2D LowestIcon { get; internal set; }
+        public static Texture2D AverageIcon { get; internal set; }
+        public static Texture2D HighestIcon { get; internal set; }
         public static bool Enabled
         {
             get { return _enabled; }
@@ -26,10 +25,21 @@ namespace SharpXNA
         }
         public static double TotalTime { get; private set; }
 
+        static readonly Vector2 _textScale,
+            _textScale2,
+            _iconScale;
+        static float _ySpacing2;
+        static readonly List<Color> _colors;
+        static Dictionary<string, Profile> _profiles;
+        static bool _enabled;
+
+        static double _highestResetTimer;
+
         static Profiler()
         {
             _textScale = new Vector2(.25f);
             _textScale2 = new Vector2(.2f);
+            _iconScale = (_textScale2 * 3.75f);
             _ySpacing2 = (100 * _textScale2.Y);
             _colors = new List<Color>
             {
@@ -60,6 +70,9 @@ namespace SharpXNA
                 Color.Violet
             };
             _profiles = new Dictionary<string, Profile>();
+            LowestIcon = Textures.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAYAAACpSkzOAAAAlUlEQVRIS+1UwQ2AMAik6QJ1kybsPwIzOIJuoGkjPgwKWn7Cp0lD7trjuAROVWstOecZAIoAuSYnHjiIljs8N6JGgIhbO4noxOW7IHoc6bB0mqOIaHKZkeYoHv7wj7TXBtFnR5mlQ8QWHWJGWRz1hqhHh1QWEEtPjyC2ZRBdF1Rd2JCOTRPS/XyPLOkh9XAEWUJ1qGcHBkFPegdkD7UAAAAASUVORK5CYII=");
+            AverageIcon = Textures.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAYAAACpSkzOAAAAkElEQVRIS2NkoBIwMDAQYGZmvs/AwCCAxcgPjFSyhwFq0Xtc5lHNIpAFxsbG/0H02bNn4ebCxEYtwhulVAk6Y2NjUERjTVFnz54VpFocwVyLzUuwyKeWj8ApatQikvMRVeKIlBRFURyR4tpRi1ASw2jQoScIooug0aAbDTpQCIAbJ9RODNiKKZhFxFTTFKkBACPnD3qJIMGkAAAAAElFTkSuQmCC");
+            HighestIcon = Textures.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAYAAACpSkzOAAAAdElEQVRIS2NkoCIwNjZ+z8DAIIDFyA+MVLSHwdjY+D8u80YtwhvSQyvo8KWos2fPCoK8ShUf4TPk7Nmz4EQ1ahHWlDW0go7SFEV0YqA0WEYtwpraiAkWYtQQzNHEGEKMmlGLyI7H0aAbOkGHs+GHVE1TpAYAIO+3a8NOImoAAAAASUVORK5CYII=");
         }
 
         public static void Start(string name)
@@ -84,7 +97,12 @@ namespace SharpXNA
         {
             if (!_enabled)
                 return;
-            _profiles[name].Records[_profiles[name].Index++] = _profiles[name].Stopwatch.Elapsed.TotalMilliseconds;
+            double totalMs = _profiles[name].Stopwatch.Elapsed.TotalMilliseconds;
+            _profiles[name].Records[_profiles[name].Index++] = totalMs;
+            if (totalMs > _profiles[name].Highest)
+                _profiles[name].Highest = totalMs;
+            if (totalMs < _profiles[name].Lowest)
+                _profiles[name].Lowest = totalMs;
             if (_profiles[name].Index >= _profiles[name].Records.Length)
                 _profiles[name].Index = 0;
             if (_profiles[name].Recorded < _profiles[name].Records.Length)
@@ -118,8 +136,18 @@ namespace SharpXNA
             return string.Format("{0:n" + decimalPlaces + "} {1}", adjustedSize, SizeSuffixes[--mag]);
         }
 
-        private const float curRowPad = 25, avgRowPad = 29;
-        private const int nameYOff = -9, scoresYOff = -13;
+        public static void Update(GameTime time)
+        {
+            if (!_enabled)
+                return;
+            _highestResetTimer -= time.ElapsedGameTime.TotalSeconds;
+            if (_highestResetTimer <= 0)
+            {
+                foreach (Profile p in _profiles.Values)
+                    p.Highest = 0;
+                _highestResetTimer += 5;
+            }
+        }
         public static void Draw(SpriteFont font)
         {
             lock (_profiles)
@@ -136,14 +164,26 @@ namespace SharpXNA
                 var index = 1;
                 foreach (var name in _profiles.Keys)
                 {
-                    var profile = _profiles[name];
-                    var size = (font.MeasureString($"{name} | {profile.Average} ms") * _textScale);
-                    var rectangle = new Rectangle((int)textPosition.X, (int)(textPosition.Y - (size.Y / 2)), (int)Math.Ceiling(size.X + 20), Math.Max(14, (int)Math.Ceiling(size.Y + 4)));
+                    Profile profile = _profiles[name];
+                    Vector2 size = (font.MeasureString(name) * _textScale);
+                    Rectangle rectangle = new Rectangle((int)textPosition.X, (int)(textPosition.Y - (size.Y / 2)), (int)Math.Ceiling(size.X + 20), Math.Max(14, (int)Math.Ceiling(size.Y + 4)));
                     Screen.FillRectangle(rectangle, (Color.Black * .2f));
                     Screen.DrawRectangle(new Rectangle((rectangle.X + 4), (rectangle.Y + (rectangle.Height / 2) - 5), 10, 10), profile.Color, Color.WhiteSmoke, 1);
+                    const float nameSpacing = 600,
+                        iconSpacing = 150,
+                        iconSpacing2 = (iconSpacing * 2);
+                    string lowest = $"{Math.Round(profile.Lowest, 3)} ms",
+                        highest = $"{Math.Round(profile.Highest, 3)} ms";
+                    Screen.FillRectangle(new Rectangle((int)(textPosition.X + nameSpacing + 10), (int)(textPosition.Y - (size.Y / 2)), (int)Math.Ceiling(iconSpacing2 + (font.MeasureString(highest).X * _textScale2.X) + (LowestIcon.Width * _iconScale.X) + (AverageIcon.Width * _iconScale.X) + (HighestIcon.Width * _iconScale.X) - 20), Math.Max(14, (int)Math.Ceiling(size.Y + 4))), (Color.Black * .2f));
                     textPosition.X += 18;
                     textPosition.Y += 2;
-                    Screen.DrawString($"{name} | {profile.Average} ms", font, textPosition, Color.White, Color.Black, new Origin(0, .5f, true), _textScale);
+                    Screen.DrawString(name, font, textPosition, Color.White, Color.Black, new Origin(0, .5f, true), _textScale);
+                    Screen.Draw(LowestIcon, new Vector2((textPosition.X + nameSpacing), textPosition.Y), new Origin(0, .5f, true), _iconScale);
+                    Screen.DrawString(lowest, font, new Vector2((textPosition.X + nameSpacing + (LowestIcon.Width * _iconScale.X) + 4), textPosition.Y), Color.White, Color.Black, new Origin(0, .5f, true), _textScale2);
+                    Screen.Draw(AverageIcon, new Vector2((textPosition.X + nameSpacing + iconSpacing), textPosition.Y), new Origin(0, .5f, true), _iconScale);
+                    Screen.DrawString($"{profile.Average} ms", font, new Vector2((textPosition.X + nameSpacing + iconSpacing + (LowestIcon.Width * _iconScale.X) + 4), textPosition.Y), Color.White, Color.Black, new Origin(0, .5f, true), _textScale2);
+                    Screen.Draw(HighestIcon, new Vector2((textPosition.X + nameSpacing + iconSpacing2), textPosition.Y), new Origin(0, .5f, true), _iconScale);
+                    Screen.DrawString(highest, font, new Vector2((textPosition.X + nameSpacing + iconSpacing2 + (LowestIcon.Width * _iconScale.X) + 4), textPosition.Y), Color.White, Color.Black, new Origin(0, .5f, true), _textScale2);
                     textPosition.X -= 18;
                     textPosition.Y -= (4 + rectangle.Height);
                     var barRectangle = new Rectangle((int)(barPosition.X + 1), (int)barPosition.Y, ((index++ >= _profiles.Count) ? (int)(barWidth - (barPosition.X - (Screen.ViewportWidth / 8f)) - 2) : (int)Math.Round(((profile.Average / TotalTime) * barWidth) - 2)), 15);
@@ -167,9 +207,12 @@ namespace SharpXNA
 
         class Profile
         {
-            public byte Index, Recorded;
+            public byte Index,
+                Recorded;
             public double[] Records;
-            public double Average;
+            public double Lowest = double.MaxValue,
+                Average,
+                Highest;
             public Stopwatch Stopwatch;
             public Color Color;
 

@@ -93,8 +93,8 @@ namespace Lidgren.Network
                 throw new NetException("This message has already been sent! Use NetPeer.SendMessage() to send to multiple recipients efficiently");
             msg.m_isSent = true;
 
-            SharpXNA.Network.Statistics.UploadedBytes += (uint)msg.LengthBytes;
-            SharpXNA.Network.Statistics.uploadBytesPerSecLast += (uint)msg.LengthBytes;
+            Network.Statistics.UploadedBytes += (uint)msg.LengthBytes;
+            Network.Statistics.uploadBytesPerSecLast += (uint)msg.LengthBytes;
 
             bool suppressFragmentation = (method == NetDeliveryMethod.Unreliable || method == NetDeliveryMethod.UnreliableSequenced) && m_configuration.UnreliableSizeBehaviour != NetUnreliableSizeBehaviour.NormalFragmentation;
 
@@ -163,8 +163,8 @@ namespace Lidgren.Network
                         continue;
                     }
 
-                    SharpXNA.Network.Statistics.UploadedBytes += (uint)msg.LengthBytes;
-                    SharpXNA.Network.Statistics.uploadBytesPerSecLast += (uint)msg.LengthBytes;
+                    Network.Statistics.UploadedBytes += (uint)msg.LengthBytes;
+                    Network.Statistics.uploadBytesPerSecLast += (uint)msg.LengthBytes;
 
                     NetSendResult res = conn.EnqueueMessage(msg, method, sequenceChannel);
                     if (res == NetSendResult.Dropped)
@@ -173,8 +173,8 @@ namespace Lidgren.Network
             }
             else
             {
-                SharpXNA.Network.Statistics.UploadedBytes += (uint)msg.LengthBytes;
-                SharpXNA.Network.Statistics.uploadBytesPerSecLast += (uint)msg.LengthBytes;
+                Network.Statistics.UploadedBytes += (uint)msg.LengthBytes;
+                Network.Statistics.uploadBytesPerSecLast += (uint)msg.LengthBytes;
 
                 // message must be fragmented!
                 SendFragmentedMessage(msg, recipients, method, sequenceChannel);

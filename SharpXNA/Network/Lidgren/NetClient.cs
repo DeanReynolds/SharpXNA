@@ -105,8 +105,8 @@ namespace Lidgren.Network
 				}
 			}
 
-            SharpXNA.Network.Statistics.UploadedBytes += (uint)hailMessage.LengthBytes;
-            SharpXNA.Network.Statistics.uploadBytesPerSecLast += (uint)hailMessage.LengthBytes;
+            Network.Statistics.UploadedBytes += (uint)hailMessage.LengthBytes;
+            Network.Statistics.uploadBytesPerSecLast += (uint)hailMessage.LengthBytes;
 
             return base.Connect(remoteEndPoint, hailMessage);
 		}
@@ -135,8 +135,8 @@ namespace Lidgren.Network
 				return;
 			}
 			serverConnection.Disconnect(byeMessage);
-            SharpXNA.Network.Statistics.UploadedBytes = 0;
-            SharpXNA.Network.Statistics.uploadBytesPerSecLast = 0;
+            Network.Statistics.UploadedBytes = 0;
+            Network.Statistics.uploadBytesPerSecLast = 0;
         }
         
 		/// <summary>
@@ -169,8 +169,8 @@ namespace Lidgren.Network
                 throw new NetException("This message has already been sent! Use NetPeer.SendMessage() to send to multiple recipients efficiently");
             msg.m_isSent = true;
 
-            SharpXNA.Network.Statistics.UploadedBytes += (uint)msg.LengthBytes;
-            SharpXNA.Network.Statistics.uploadBytesPerSecLast += (uint)msg.LengthBytes;
+            Network.Statistics.UploadedBytes += (uint)msg.LengthBytes;
+            Network.Statistics.uploadBytesPerSecLast += (uint)msg.LengthBytes;
 
             bool suppressFragmentation = (method == NetDeliveryMethod.Unreliable || method == NetDeliveryMethod.UnreliableSequenced) && m_configuration.UnreliableSizeBehaviour != NetUnreliableSizeBehaviour.NormalFragmentation;
 

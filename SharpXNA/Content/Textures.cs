@@ -20,7 +20,7 @@ namespace SharpXNA
         }
 
         public Texture2D this[string path] => _assets[path];
-        
+
         public Texture2D Fill(Texture2D texture, Color color, string storeName = null)
         {
             if ((storeName != null) && _assets.ContainsKey(storeName))
@@ -140,6 +140,8 @@ namespace SharpXNA
             _assets[path].Dispose();
             _assets.Remove(path);
         }
+
+        public static Texture2D FromBase64String(string base64String) => Texture2D.FromStream(Engine.GraphicsDevice, new MemoryStream(Convert.FromBase64String(base64String)));
     }
 
     public static class TextureExtensions

@@ -1,15 +1,13 @@
-﻿using SharpXNA.Collision;
-using Lidgren.Network;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using System;
-using System.Collections.Generic;
+using System.Collections;
 using System.Reflection;
 
-namespace SharpXNA
+namespace Lidgren.Network
 {
     public static class Network
     {
-        public static NetPeer Peer;
+        public static NetPeer Peer { get; internal set; }
 
         public static bool IsNullOrServer => ((Peer == null) || (Peer is NetServer));
         public static bool IsServer => (Peer is NetServer);
@@ -17,25 +15,24 @@ namespace SharpXNA
         public static NetUPnP UPnP => Peer.UPnP;
 
         public static NetPeerStatus State => Peer?.Status ?? NetPeerStatus.NotRunning;
-        public static void StartHosting(NetPeerConfiguration config)
+        public static void Host(NetPeerConfiguration config)
         {
             Peer = new NetServer(config);
             Peer.Start();
             try
             {
                 if (Peer.UPnP != null)
-                    Peer.UPnP.ForwardPort(config.Port, $"{((AssemblyTitleAttribute)Attribute.GetCustomAttribute(Assembly.GetExecutingAssembly(), typeof(AssemblyTitleAttribute), false))?.Title ?? "Game"} {((AssemblyVersionAttribute)Attribute.GetCustomAttribute(Assembly.GetExecutingAssembly(), typeof(AssemblyVersionAttribute), false))?.Version ?? "1.0.0.0"}");
+                    Peer.UPnP.ForwardPort(config.Port, $"{((AssemblyTitleAttribute)Attribute.GetCustomAttribute(Assembly.GetExecutingAssembly(), typeof(AssemblyTitleAttribute), false))?.Title ?? string.Empty} {((AssemblyVersionAttribute)Attribute.GetCustomAttribute(Assembly.GetExecutingAssembly(), typeof(AssemblyVersionAttribute), false))?.Version ?? "0"}");
             }
             catch { }
         }
-        public static void StartHosting(int port, int maxConnections)
+        public static void Host(int port, int maxConnections)
         {
-            var config = DefaultConfiguration;
+            NetPeerConfiguration config = DefaultConfiguration;
             config.Port = port;
             config.MaximumConnections = maxConnections;
-            StartHosting(config);
+            Host(config);
         }
-
         public static void Connect(string ip, int port, NetPeerConfiguration config, params object[] data)
         {
             Peer = new NetClient(config);
@@ -79,20 +76,34 @@ namespace SharpXNA
         {
             NetIncomingMessage message;
             while ((message = ReadMessage()) != null)
-                if (message.MessageType == NetIncomingMessageType.Data) OnData?.Invoke(message);
-                else if (message.MessageType == NetIncomingMessageType.ConnectionLatencyUpdated) OnLatencyUpdated?.Invoke(message);
-                else if (message.MessageType == NetIncomingMessageType.StatusChanged) OnStatusChanged?.Invoke(message);
-                else if (message.MessageType == NetIncomingMessageType.ConnectionApproval) OnConnectionApproval?.Invoke(message);
-                else if (message.MessageType == NetIncomingMessageType.UnconnectedData) OnUnconnectedData?.Invoke(message);
-                else if (message.MessageType == NetIncomingMessageType.DiscoveryRequest) OnDiscoveryRequest?.Invoke(message);
-                else if (message.MessageType == NetIncomingMessageType.DiscoveryResponse) OnDiscoveryResponse?.Invoke(message);
-                else if (message.MessageType == NetIncomingMessageType.NatIntroductionSuccess) OnNatIntroSuccess?.Invoke(message);
-                else if (message.MessageType == NetIncomingMessageType.Receipt) OnReceipt?.Invoke(message);
-                else if (message.MessageType == NetIncomingMessageType.VerboseDebugMessage) OnVerboseDebugmessage?.Invoke(message);
-                else if (message.MessageType == NetIncomingMessageType.WarningMessage) OnWarning?.Invoke(message);
-                else if (message.MessageType == NetIncomingMessageType.Error) OnError?.Invoke(message);
-                else if (message.MessageType == NetIncomingMessageType.ErrorMessage) OnErrormessage?.Invoke(message);
-                else if (message.MessageType == NetIncomingMessageType.DebugMessage) OnDebugmessage?.Invoke(message);
+                if (message.MessageType == NetIncomingMessageType.Data)
+                    OnData.Invoke(message);
+                else if (message.MessageType == NetIncomingMessageType.ConnectionLatencyUpdated)
+                    OnLatencyUpdated.Invoke(message);
+                else if (message.MessageType == NetIncomingMessageType.StatusChanged)
+                    OnStatusChanged.Invoke(message);
+                else if (message.MessageType == NetIncomingMessageType.ConnectionApproval)
+                    OnConnectionApproval.Invoke(message);
+                else if (message.MessageType == NetIncomingMessageType.UnconnectedData)
+                    OnUnconnectedData.Invoke(message);
+                else if (message.MessageType == NetIncomingMessageType.DiscoveryRequest)
+                    OnDiscoveryRequest.Invoke(message);
+                else if (message.MessageType == NetIncomingMessageType.DiscoveryResponse)
+                    OnDiscoveryResponse.Invoke(message);
+                else if (message.MessageType == NetIncomingMessageType.NatIntroductionSuccess)
+                    OnNatIntroSuccess.Invoke(message);
+                else if (message.MessageType == NetIncomingMessageType.Receipt)
+                    OnReceipt.Invoke(message);
+                else if (message.MessageType == NetIncomingMessageType.VerboseDebugMessage)
+                    OnVerboseDebugmessage.Invoke(message);
+                else if (message.MessageType == NetIncomingMessageType.WarningMessage)
+                    OnWarning.Invoke(message);
+                else if (message.MessageType == NetIncomingMessageType.Error)
+                    OnError.Invoke(message);
+                else if (message.MessageType == NetIncomingMessageType.ErrorMessage)
+                    OnErrormessage.Invoke(message);
+                else if (message.MessageType == NetIncomingMessageType.DebugMessage)
+                    OnDebugmessage.Invoke(message);
             Statistics.trafficTimer += time.ElapsedGameTime.TotalSeconds;
             if (Statistics.trafficTimer >= 1)
             {
@@ -104,8 +115,40 @@ namespace SharpXNA
             }
         }
 
-        public delegate void MessageRecieved(NetIncomingMessage message);
-        public static event MessageRecieved OnData, OnConnectionApproval, OnStatusChanged, OnLatencyUpdated, OnDiscoveryRequest, OnDiscoveryResponse, OnNatIntroSuccess, OnReceipt, OnUnconnectedData, OnVerboseDebugmessage, OnWarning, OnError, OnErrormessage, OnDebugmessage;
+        public struct MessageRecievedEvent
+        {
+            public delegate void MessageRecieved(NetIncomingMessage message);
+
+            public event MessageRecieved Event
+            {
+                add
+                {
+                    _event += value;
+                    if (_events == null)
+                        _events = new ArrayList();
+                    _events.Add(value);
+                }
+                remove
+                {
+                    _event -= value;
+                    _events.Remove(value);
+                }
+            }
+
+            event MessageRecieved _event;
+            ArrayList _events;
+
+            public void Invoke(NetIncomingMessage message) => _event?.Invoke(message);
+            public void Clear()
+            {
+                if (_events == null)
+                    return;
+                foreach (MessageRecieved e in _events)
+                    _event -= e;
+                _events.Clear();
+            }
+        }
+        public static MessageRecievedEvent OnData, OnConnectionApproval, OnStatusChanged, OnLatencyUpdated, OnDiscoveryRequest, OnDiscoveryResponse, OnNatIntroSuccess, OnReceipt, OnUnconnectedData, OnVerboseDebugmessage, OnWarning, OnError, OnErrormessage, OnDebugmessage;
 
         public static void FlushSendQueue() => Peer?.FlushSendQueue();
         public static void Shutdown(string reason = null)
